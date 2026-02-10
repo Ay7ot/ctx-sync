@@ -12,8 +12,8 @@
 4. [CI Pipeline Steps](#4-ci-pipeline-steps)
 5. [Release & Versioning Workflow](#5-release--versioning-workflow)
 6. [Phase 0 — Monorepo Scaffolding & Tooling](#phase-0--monorepo-scaffolding--tooling)
-7. [Phase 1 — Core Encryption & Key Management](#phase-1--core-encryption--key-management)
-8. [Phase 2 — Git Sync Engine](#phase-2--git-sync-engine)
+7. [Phase 1 — Core Encryption & Key Management ✅](#phase-1--core-encryption--key-management-)
+8. [Phase 2 — Git Sync Engine ✅](#phase-2--git-sync-engine-)
 9. [Phase 3 — CLI Skeleton & `init` Command](#phase-3--cli-skeleton--init-command)
 10. [Phase 4 — Project State Tracking (`track`, `list`, `status`)](#phase-4--project-state-tracking-track-list-status)
 11. [Phase 5 — Environment Variable Management](#phase-5--environment-variable-management)
@@ -581,22 +581,24 @@ jobs:
 
 ---
 
-## Phase 1 — Core Encryption & Key Management
+## Phase 1 — Core Encryption & Key Management ✅
 
 > **Goal:** Build the encryption module — the security foundation everything depends on.
+>
+> **Status:** Complete. All 3 tasks done. Age encryption wrapper, key persistence with permission enforcement, and secure memory handling implemented with 74 tests (57 unit + 17 security) at 100% coverage. Project migrated to ESM.
 
-### Task 1.1 — Age encryption wrapper module
+### Task 1.1 — Age encryption wrapper module ✅
 
 **Implementation tasks:**
-- [ ] Install `age-encryption` in `apps/cli`.
-- [ ] Create `apps/cli/src/core/encryption.ts` with full type annotations, exporting:
+- [x] Install `age-encryption` in `apps/cli`.
+- [x] Create `apps/cli/src/core/encryption.ts` with full type annotations, exporting:
   - `generateKey(): Promise<{ publicKey: string; privateKey: string }>`
   - `encrypt(plaintext: string, publicKey: string): Promise<string>` → Age ciphertext
   - `decrypt(ciphertext: string, privateKey: string): Promise<string>` → plaintext
   - `encryptState<T>(data: T, publicKey: string): Promise<string>` → Age ciphertext (serialises JSON, encrypts entire blob)
   - `decryptState<T>(ciphertext: string, privateKey: string): Promise<T>` → parsed typed object
-- [ ] Define interfaces in `src/types/state.ts` for all state file structures (imported by encryption module).
-- [ ] All operations are in-memory only — no temp files.
+- [x] Define interfaces in `src/types/state.ts` for all state file structures (imported by encryption module).
+- [x] All operations are in-memory only — no temp files.
 
 **Test plan:**
 
@@ -624,18 +626,18 @@ jobs:
 - No plaintext leaks in any `.age` output.
 
 **Done when:**
-- [ ] All tests passing in CI.
-- [ ] Coverage ≥ 80 % on this module.
+- [x] All tests passing in CI.
+- [x] Coverage ≥ 80 % on this module.
 
 ---
 
-### Task 1.2 — Key persistence (save / load with permission enforcement)
+### Task 1.2 — Key persistence (save / load with permission enforcement) ✅
 
 **Implementation tasks:**
-- [ ] Add to `encryption.ts` (or new `key-store.ts`):
+- [x] Add to `encryption.ts` (or new `key-store.ts`):
   - `saveKey(configDir, privateKey)` — creates dir at 0o700, writes `key.txt` at 0o600.
   - `loadKey(configDir)` — reads `key.txt`, verifies permissions are exactly 0o600 before returning. Throws on insecure permissions.
-- [ ] Expose public key extraction from private key if needed, or store both.
+- [x] Expose public key extraction from private key if needed, or store both.
 
 **Test plan:**
 
@@ -656,17 +658,17 @@ jobs:
 - Error messages guide the user to fix (`chmod 600 <path>`).
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
-### Task 1.3 — Secure memory handling
+### Task 1.3 — Secure memory handling ✅
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/utils/secure-memory.ts`:
+- [x] Create `apps/cli/src/utils/secure-memory.ts`:
   - `withSecret(buffer, fn)` — calls `fn(buffer)`, then zeroes the buffer in `finally`.
   - `clearString(variable)` — best-effort clearing (note JS string immutability limitations, document trade-off).
-- [ ] Document limitations in code comments.
+- [x] Document limitations in code comments.
 
 **Test plan:**
 
@@ -682,19 +684,19 @@ jobs:
 - Buffers are zeroed after use.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
-## Phase 2 — Git Sync Engine
+## Phase 2 — Git Sync Engine ✅
 
 > **Goal:** Build the module that initialises, commits, pushes, and pulls the `~/.context-sync/` Git repo.
 
-### Task 2.1 — Git repository management
+### Task 2.1 — Git repository management ✅
 
 **Implementation tasks:**
-- [ ] Install `simple-git` in `apps/cli`.
-- [ ] Create `apps/cli/src/core/git-sync.ts` exporting:
+- [x] Install `simple-git` in `apps/cli`.
+- [x] Create `apps/cli/src/core/git-sync.ts` exporting:
   - `initRepo(dir)` — `git init` if no `.git/` exists; no-op if already initialised.
   - `addRemote(dir, url)` — add origin; validate URL first (defer to transport module).
   - `commitState(dir, files, message)` — `git add <files> && git commit -m <message>`; skip if no changes.
@@ -721,16 +723,16 @@ jobs:
 - Mocked unit tests cover edge cases.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
-### Task 2.2 — Transport security validation
+### Task 2.2 — Transport security validation ✅
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/core/transport.ts`:
-  - `validateRemoteUrl(url)` — accepts SSH (`git@…`) and HTTPS (`https://…`); rejects `http://`, `git://`, `ftp://`. Throws with clear error message.
-- [ ] Called by `git-sync.ts` on `addRemote`, `pushState`, `pullState`.
+- [x] Create `apps/cli/src/core/transport.ts`:
+  - `validateRemoteUrl(url)` — accepts SSH (`git@…`) and HTTPS (`https://…`); rejects `http://`, `git://`, `ftp://`. Throws with clear error message. Also allows local paths (`/path/to/repo.git`, `file://`) since they have no network transit.
+- [x] Called by `git-sync.ts` on `addRemote`, `pushState`, `pullState`.
 
 **Test plan:**
 
@@ -750,7 +752,7 @@ jobs:
 - No sync operation can proceed over insecure transport.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
