@@ -2,6 +2,7 @@
   "name": "ctx-sync-monorepo",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Context Sync - Sync your complete development context across machines",
   "workspaces": [
     "apps/*",

@@ -2,6 +2,7 @@
   "name": "@ctx-sync/website",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Marketing and documentation website for ctx-sync",
   "scripts": {
     "build": "npx tsx scripts/build-docs.ts",

@@ -1,15 +1,17 @@
 import type { Config } from 'jest';
 
 const config: Config = {
-  preset: 'ts-jest',
   testEnvironment: 'node',
   roots: ['<rootDir>/test'],
+  extensionsToTreatAsEsm: ['.ts'],
   transform: {
     '^.+\\.ts$': [
       'ts-jest',
       {
+        useESM: true,
+        tsconfig: 'test/tsconfig.json',
         diagnostics: {
-          ignoreDiagnostics: [151002],
+          ignoreDiagnostics: [151002, 7017],
         },
       },
     ],

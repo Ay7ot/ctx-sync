@@ -2,12 +2,13 @@
   "name": "@ctx-sync/shared",
   "version": "1.0.0",
   "description": "Shared constants, types, and utilities for ctx-sync",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "test": "jest"
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest"
   },
   "license": "MIT",
   "devDependencies": {

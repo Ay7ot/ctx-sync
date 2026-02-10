@@ -1,4 +1,4 @@
-import { VERSION, DEFAULT_SAFE_LIST, STATE_FILES, CONFIG_DIR, SYNC_DIR } from '../src/index';
+import { VERSION, DEFAULT_SAFE_LIST, STATE_FILES, CONFIG_DIR, SYNC_DIR } from '../src/index.js';
 
 describe('@ctx-sync/shared', () => {
   it('should export VERSION', () => {
