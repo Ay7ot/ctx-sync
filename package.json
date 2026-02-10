@@ -1,0 +1,43 @@
+{
+  "name": "ctx-sync-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Context Sync - Sync your complete development context across machines",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit -p apps/cli/tsconfig.json && tsc --noEmit -p packages/shared/tsconfig.json",
+    "build": "npm run build -w packages/shared && npm run build -w apps/cli",
+    "lint": "eslint apps packages",
+    "lint:fix": "eslint apps packages --fix",
+    "format": "prettier --write .",
+    "test": "npm run test -w apps/cli && npm run test -w packages/shared",
+    "test:unit": "npm run test:unit -w apps/cli",
+    "test:integration": "npm run test:integration -w apps/cli",
+    "test:e2e": "npm run test:e2e -w apps/cli",
+    "test:security": "npm run test:security -w apps/cli",
+    "test:coverage": "npm run test:coverage -w apps/cli",
+    "test:all": "npm run typecheck && npm run lint && npm run test:coverage -w apps/cli && npm run test -w packages/shared",
+    "prepare": "husky"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@commitlint/cli": "20.4.1",
+    "@commitlint/config-conventional": "20.4.1",
+    "@eslint/js": "9.39.2",
+    "@types/node": "25.2.3",
+    "eslint": "9.39.2",
+    "eslint-config-prettier": "10.1.8",
+    "husky": "9.1.7",
+    "prettier": "3.8.1",
+    "ts-node": "10.9.2",
+    "tsx": "4.21.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.55.0"
+  }
+}

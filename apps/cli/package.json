@@ -1,0 +1,44 @@
+{
+  "name": "ctx-sync",
+  "version": "1.0.0",
+  "description": "Sync your complete development context across machines using Git",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "ctx-sync": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "dev": "tsx src/index.ts",
+    "test": "jest",
+    "test:unit": "jest test/unit",
+    "test:integration": "jest test/integration",
+    "test:e2e": "jest test/e2e",
+    "test:security": "jest test/security",
+    "test:pentest": "jest test/security/pentest.test.ts",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:performance": "npx tsx test/performance/benchmarks.ts",
+    "test:all": "npm run typecheck && npm run lint && jest --coverage"
+  },
+  "keywords": [
+    "cli",
+    "context",
+    "sync",
+    "development",
+    "git",
+    "encryption",
+    "developer-tools"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@types/jest": "30.0.0",
+    "@types/mock-fs": "4.13.4",
+    "jest": "30.2.0",
+    "ts-jest": "29.4.6"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@ctx-sync/website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Marketing and documentation website for ctx-sync",
+  "scripts": {
+    "build": "npx tsx scripts/build-docs.ts",
+    "serve": "npx serve public",
+    "dev": "npx serve public"
+  },
+  "license": "MIT"
+}

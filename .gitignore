@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Coverage
+coverage/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Encrypted state files (test artifacts)
+*.age
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+tmp/
+/tmp/
+*.tmp
+
+# npm
+*.tgz
+
+# Turbo
+.turbo/
+
+# Debug
+npm-debug.log*
