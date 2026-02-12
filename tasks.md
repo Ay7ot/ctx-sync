@@ -16,7 +16,7 @@
 8. [Phase 2 — Git Sync Engine ✅](#phase-2--git-sync-engine-)
 9. [Phase 3 — CLI Skeleton & `init` Command ✅](#phase-3--cli-skeleton--init-command-)
 10. [Phase 4 — Project State Tracking (`track`, `list`, `status`) ✅](#phase-4--project-state-tracking-track-list-status-)
-11. [Phase 5 — Environment Variable Management](#phase-5--environment-variable-management)
+11. [Phase 5 — Environment Variable Management ✅](#phase-5--environment-variable-management-)
 12. [Phase 6 — Sync Commands (`sync`, `push`, `pull`)](#phase-6--sync-commands-sync-push-pull)
 13. [Phase 7 — Restore Command & Command-Execution Safety](#phase-7--restore-command--command-execution-safety)
 14. [Phase 8 — Mental Context (`note`, `show`)](#phase-8--mental-context-note-show)
@@ -1031,14 +1031,16 @@ jobs:
 
 ---
 
-## Phase 5 — Environment Variable Management
+## Phase 5 — Environment Variable Management ✅
 
 > **Goal:** Full env var lifecycle: import, add, scan, list — with encrypt-by-default.
+>
+> **Status:** Complete. All 5 tasks done. Env handler core module, env command group (import, add, scan, list), encrypt-by-default, CLI arg security, comprehensive tests.
 
-### Task 5.1 — Env handler module (encrypt-by-default + safe-list)
+### Task 5.1 — Env handler module (encrypt-by-default + safe-list) ✅
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/core/env-handler.ts`:
+- [x] Create `apps/cli/src/core/env-handler.ts`:
   - `shouldEncrypt(key, value)` — encrypt by default; safe-listed keys may be plain only if `--allow-plain`.
   - `hasHighEntropy(value)` — Shannon entropy check (threshold > 4.0, min length 16).
   - `containsCredentialPattern(value)` — regex patterns for Stripe, GitHub, Slack, Google, AWS, JWT, PEM, URL credentials, SendGrid, Twilio, OpenAI.
@@ -1046,7 +1048,7 @@ jobs:
   - `importEnvVars(project, vars, publicKey)` — encrypt all, write `env-vars.age`.
   - `addEnvVar(project, key, value, publicKey)` — add single var to existing encrypted state.
   - `listEnvVars(project, privateKey, showValues)` — decrypt and list (values hidden by default).
-- [ ] Add default safe-list to `packages/shared/src/constants.ts`:
+- [x] Add default safe-list to `packages/shared/src/constants.ts`:
   ```ts
   export const DEFAULT_SAFE_LIST: readonly string[] = [
     'NODE_ENV', 'PORT', 'HOST', 'DEBUG',
@@ -1082,20 +1084,20 @@ jobs:
 - Credential pattern detection catches all patterns from product spec.
 
 **Done when:**
-- [ ] All tests passing in CI.
-- [ ] 100 % coverage on `shouldEncrypt`, `hasHighEntropy`, `containsCredentialPattern`.
+- [x] All tests passing in CI.
+- [x] 100 % coverage on `shouldEncrypt`, `hasHighEntropy`, `containsCredentialPattern`.
 
 ---
 
-### Task 5.2 — `ctx-sync env import` command
+### Task 5.2 — `ctx-sync env import` command ✅
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/commands/env.ts` (or `env-import.ts`):
+- [x] Create `apps/cli/src/commands/env.ts` (or `env-import.ts`):
   - `ctx-sync env import <project> <file>` — reads `.env`, calls `parseEnvFile`, `importEnvVars`.
   - `ctx-sync env import <project> --stdin` — reads from stdin pipe.
   - Shows count of vars imported, encryption status.
   - `--allow-plain` flag: safe-listed keys stored in plaintext section (still encrypted at file level since entire `.age` blob).
-- [ ] Secret values NEVER appear in CLI output (show key names only).
+- [x] Secret values NEVER appear in CLI output (show key names only).
 
 **Test plan:**
 
@@ -1118,19 +1120,19 @@ jobs:
 - No values in CLI output or logs.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
-### Task 5.3 — `ctx-sync env add` command (secure input)
+### Task 5.3 — `ctx-sync env add` command (secure input) ✅
 
 **Implementation tasks:**
-- [ ] Add to env command:
+- [x] Add to env command:
   - `ctx-sync env add <project> <key>` — prompts for value with hidden input (enquirer password type).
   - `ctx-sync env add <project> <key> --stdin` — reads value from stdin.
   - `ctx-sync env add <project> <key> --from-fd N` — reads from file descriptor.
   - **REJECT** `ctx-sync env add <project> KEY=value` — values as CLI args are forbidden.
-- [ ] Implement rejection logic: if key contains `=`, check if value part is present; if so, error.
+- [x] Implement rejection logic: if key contains `=`, check if value part is present; if so, error.
 
 **Test plan:**
 
@@ -1154,14 +1156,14 @@ jobs:
 - Hidden input for interactive mode.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
-### Task 5.4 — `ctx-sync env scan` command
+### Task 5.4 — `ctx-sync env scan` command ✅
 
 **Implementation tasks:**
-- [ ] Add to env command:
+- [x] Add to env command:
   - `ctx-sync env scan <project>` — reads current shell environment, filters project-related vars, prompts for selection, imports selected.
 
 **Test plan:**
@@ -1178,14 +1180,14 @@ jobs:
 - Users can import from current shell environment interactively.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
-### Task 5.5 — `ctx-sync env list` command
+### Task 5.5 — `ctx-sync env list` command ✅
 
 **Implementation tasks:**
-- [ ] Add to env command:
+- [x] Add to env command:
   - `ctx-sync env list <project>` — decrypts and lists key names (values hidden).
   - `ctx-sync env list <project> --show-values` — shows decrypted values (with warning).
 
@@ -1205,7 +1207,7 @@ jobs:
 - Explicit flag required to reveal.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
