@@ -15,7 +15,7 @@
 7. [Phase 1 — Core Encryption & Key Management ✅](#phase-1--core-encryption--key-management-)
 8. [Phase 2 — Git Sync Engine ✅](#phase-2--git-sync-engine-)
 9. [Phase 3 — CLI Skeleton & `init` Command ✅](#phase-3--cli-skeleton--init-command-)
-10. [Phase 4 — Project State Tracking (`track`, `list`, `status`)](#phase-4--project-state-tracking-track-list-status)
+10. [Phase 4 — Project State Tracking (`track`, `list`, `status`) ✅](#phase-4--project-state-tracking-track-list-status-)
 11. [Phase 5 — Environment Variable Management](#phase-5--environment-variable-management)
 12. [Phase 6 — Sync Commands (`sync`, `push`, `pull`)](#phase-6--sync-commands-sync-push-pull)
 13. [Phase 7 — Restore Command & Command-Execution Safety](#phase-7--restore-command--command-execution-safety)
@@ -877,19 +877,19 @@ jobs:
 
 ---
 
-## Phase 4 — Project State Tracking (`track`, `list`, `status`)
+## Phase 4 — Project State Tracking (`track`, `list`, `status`) ✅
 
 > **Goal:** Users can track projects, and the state is encrypted and stored.
 
 ### Task 4.1 — State manager module
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/core/state-manager.ts`:
+- [x] Create `apps/cli/src/core/state-manager.ts`:
   - `readState(stateDir, privateKey)` — reads `state.age`, decrypts, returns JSON.
   - `writeState(stateDir, data, publicKey)` — encrypts JSON, writes `state.age`. NEVER writes `.json`.
   - Same pattern for each state file type: `env-vars.age`, `docker-state.age`, `mental-context.age`, `services.age`, `directories.age`.
   - `readManifest(stateDir)` / `writeManifest(stateDir, data)` — plaintext JSON, no secrets.
-- [ ] Add to `packages/shared/src/schemas.ts`: JSON schema definitions for each state file structure.
+- [x] Add to `packages/shared/src/schemas.ts`: JSON schema definitions for each state file structure.
 
 **Test plan:**
 
@@ -910,14 +910,14 @@ jobs:
 - No plaintext state ever written.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
 ### Task 4.2 — Path validation module
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/core/path-validator.ts`:
+- [x] Create `apps/cli/src/core/path-validator.ts`:
   - `validateProjectPath(p)` — resolves path, ensures within `$HOME` or explicitly approved dirs. Rejects `/etc/`, `/usr/`, symlinks to outside dirs, `..` traversal.
   - `canonicalize(p)` — resolve `~`, env vars, normalize.
 
@@ -937,14 +937,14 @@ jobs:
 - No path outside HOME is ever accepted.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
 ### Task 4.3 — `ctx-sync track` command
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/commands/track.ts`:
+- [x] Create `apps/cli/src/commands/track.ts`:
   - Detect current directory's Git repo (branch, remote, stash count, uncommitted changes).
   - Validate path.
   - Prompt: found `.env`? Import? (defer to Phase 5 if not ready — just save project state).
@@ -978,14 +978,14 @@ jobs:
 - Path validation prevents tracking dangerous paths.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
 ### Task 4.4 — `ctx-sync list` command
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/commands/list.ts`:
+- [x] Create `apps/cli/src/commands/list.ts`:
   - Read `state.age`, decrypt, list all tracked projects.
   - Display: name, path, branch, last accessed.
 
@@ -1003,14 +1003,14 @@ jobs:
 - List shows all tracked projects with key metadata.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
 ### Task 4.5 — `ctx-sync status` command
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/commands/status.ts`:
+- [x] Create `apps/cli/src/commands/status.ts`:
   - Show sync status: last sync time, pending changes, remote connectivity.
   - Show per-project status: branch, uncommitted changes.
 
@@ -1027,7 +1027,7 @@ jobs:
 - Users can quickly see if their state is current.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
