@@ -25,3 +25,13 @@ export type {
   ManifestFileEntry,
   Manifest,
 } from './types.js';
+export type { ValidationResult } from './schemas.js';
+export {
+  validateStateFile,
+  validateEnvVars,
+  validateManifest,
+  validateDockerState,
+  validateMentalContext,
+  validateServiceState,
+  validateDirectoryState,
+} from './schemas.js';
