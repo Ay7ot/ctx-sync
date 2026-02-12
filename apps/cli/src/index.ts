@@ -11,6 +11,9 @@
 import { Command } from 'commander';
 import { VERSION } from '@ctx-sync/shared';
 import { registerInitCommand } from './commands/init.js';
+import { registerTrackCommand } from './commands/track.js';
+import { registerListCommand } from './commands/list.js';
+import { registerStatusCommand } from './commands/status.js';
 
 /**
  * Create and configure the root CLI program.
@@ -27,6 +30,9 @@ export function createProgram(): Command {
 
   // Register subcommands
   registerInitCommand(program);
+  registerTrackCommand(program);
+  registerListCommand(program);
+  registerStatusCommand(program);
 
   return program;
 }
