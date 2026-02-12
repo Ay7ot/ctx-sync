@@ -14,7 +14,7 @@
 6. [Phase 0 — Monorepo Scaffolding & Tooling](#phase-0--monorepo-scaffolding--tooling)
 7. [Phase 1 — Core Encryption & Key Management ✅](#phase-1--core-encryption--key-management-)
 8. [Phase 2 — Git Sync Engine ✅](#phase-2--git-sync-engine-)
-9. [Phase 3 — CLI Skeleton & `init` Command](#phase-3--cli-skeleton--init-command)
+9. [Phase 3 — CLI Skeleton & `init` Command ✅](#phase-3--cli-skeleton--init-command-)
 10. [Phase 4 — Project State Tracking (`track`, `list`, `status`)](#phase-4--project-state-tracking-track-list-status)
 11. [Phase 5 — Environment Variable Management](#phase-5--environment-variable-management)
 12. [Phase 6 — Sync Commands (`sync`, `push`, `pull`)](#phase-6--sync-commands-sync-push-pull)
@@ -756,22 +756,24 @@ jobs:
 
 ---
 
-## Phase 3 — CLI Skeleton & `init` Command
+## Phase 3 — CLI Skeleton & `init` Command ✅
 
 > **Goal:** Wire up Commander.js, implement the `init` and `init --restore` flows.
+>
+> **Status:** Complete. All 3 tasks done. Commander.js CLI framework wired with --version/--help, `ctx-sync init` for fresh setup (key gen, permissions, Git repo, manifest), and `ctx-sync init --restore` for new-machine onboarding (key restore via stdin/prompt, remote validation, repo clone). 204 tests passing (119 unit + 21 integration + 46 security + 18 E2E).
 
-### Task 3.1 — CLI entry point & commander setup
+### Task 3.1 — CLI entry point & commander setup ✅
 
 **Implementation tasks:**
-- [ ] Install `commander`, `chalk`, `ora`, `enquirer` in `apps/cli`.
-- [ ] Create `apps/cli/src/index.ts`:
+- [x] Install `commander`, `chalk`, `ora`, `enquirer` in `apps/cli`.
+- [x] Create `apps/cli/src/index.ts`:
   - Parse CLI with Commander.
   - Register `--version`, `--help`.
   - Register subcommands (stubs for now).
-- [ ] Set `"bin": { "ctx-sync": "dist/index.js" }` in `package.json` (points to compiled output).
-- [ ] Add shebang `#!/usr/bin/env node` to compiled output (configure in tsconfig or build script).
-- [ ] Verify `npx tsx apps/cli/src/index.ts --version` prints version (dev mode).
-- [ ] Verify `npm run build -w apps/cli && node apps/cli/dist/index.js --version` prints version (production mode).
+- [x] Set `"bin": { "ctx-sync": "dist/index.js" }` in `package.json` (points to compiled output).
+- [x] Add shebang `#!/usr/bin/env node` to compiled output (configure in tsconfig or build script).
+- [x] Verify `npx tsx apps/cli/src/index.ts --version` prints version (dev mode).
+- [x] Verify `npm run build -w apps/cli && node apps/cli/dist/index.js --version` prints version (production mode).
 
 **Test plan:**
 
@@ -785,14 +787,14 @@ jobs:
 - Version matches `package.json`.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
-### Task 3.2 — `ctx-sync init` command
+### Task 3.2 — `ctx-sync init` command ✅
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/commands/init.ts`:
+- [x] Create `apps/cli/src/commands/init.ts`:
   - Generate Age key pair.
   - Save private key to `~/.config/ctx-sync/key.txt` (0o600).
   - Display public key.
@@ -822,11 +824,11 @@ jobs:
 
 - *E2E tests* (`test/e2e/init.test.ts`):
   - `ctx-sync init --no-interactive` completes successfully.
-  - Output contains "Encryption key generated".
+  - Output contains "Generating encryption key".
   - Output contains "Permissions: 600".
   - Directory structure is correct on disk.
 
-- *Security tests*:
+- *Security tests* (`test/security/init-security.test.ts`):
   - Key never appears in stdout (only public key shown, not private).
   - No plaintext key in any log output.
 
@@ -836,14 +838,14 @@ jobs:
 - Insecure remote URLs are blocked.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
-### Task 3.3 — `ctx-sync init --restore` command
+### Task 3.3 — `ctx-sync init --restore` command ✅
 
 **Implementation tasks:**
-- [ ] Extend `init.ts` to handle `--restore` flag:
+- [x] Extend `init.ts` to handle `--restore` flag:
   - Prompt user to paste private key (hidden input, or `--stdin`).
   - Save key with 0o600 permissions.
   - Prompt for Git remote URL.
@@ -859,11 +861,11 @@ jobs:
   - Key is saved correctly.
   - Remote URL is validated.
 
-- *Integration tests* (`test/integration/restore-workflow.test.ts`):
-  - Init on machine A → push. Init --restore on machine B (same key) → clones and lists projects.
+- *Integration tests* (`test/integration/init-workflow.test.ts`):
+  - Init on machine A → restore on machine B (same key) → correct structure.
 
-- *E2E tests* (`test/e2e/init-restore.test.ts`):
-  - Full init → sync → restore on "different machine" (different temp dir).
+- *E2E tests* (`test/e2e/init.test.ts`):
+  - Full init → restore on "different machine" (different temp dir).
   - Restore with wrong key → error.
 
 **Acceptance criteria:**
@@ -871,7 +873,7 @@ jobs:
 - Wrong key → clear error, no crash.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
