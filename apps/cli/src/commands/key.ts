@@ -19,6 +19,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as readline from 'node:readline';
 import type { Command } from 'commander';
+import { withErrorHandler } from '../utils/errors.js';
 import { identityToRecipient } from 'age-encryption';
 import { generateKey, decryptState, encryptState } from '../core/encryption.js';
 import {
@@ -311,95 +312,67 @@ export function registerKeyCommand(program: Command): void {
   keyCmd
     .command('show')
     .description('Display your public key (never shows private key)')
-    .action(async () => {
-      try {
-        const result = await executeKeyShow();
-        console.log(`Public key: ${result.publicKey}`);
-      } catch (err: unknown) {
-        console.error(
-          `Error: ${err instanceof Error ? err.message : String(err)}`,
-        );
-        process.exit(1);
-      }
-    });
+    .action(withErrorHandler(async () => {
+      const result = await executeKeyShow();
+      console.log(`Public key: ${result.publicKey}`);
+    }));
 
   // ── key verify ────────────────────────────────────────────────────
   keyCmd
     .command('verify')
     .description('Verify key file and config directory permissions')
-    .action(() => {
-      try {
-        const result = executeKeyVerify();
+    .action(withErrorHandler(async () => {
+      const result = executeKeyVerify();
 
-        if (result.valid) {
-          console.log('✓ Key verification passed');
-          console.log(`  Key file: permissions ${result.keyFilePerms?.toString(8) ?? 'n/a'}`);
-          console.log(`  Config dir: permissions ${result.configDirPerms?.toString(8) ?? 'n/a'}`);
-        } else {
-          console.error('✗ Key verification failed:');
-          for (const issue of result.issues) {
-            console.error(`  - ${issue}`);
-          }
-          process.exit(1);
+      if (result.valid) {
+        console.log('✓ Key verification passed');
+        console.log(`  Key file: permissions ${result.keyFilePerms?.toString(8) ?? 'n/a'}`);
+        console.log(`  Config dir: permissions ${result.configDirPerms?.toString(8) ?? 'n/a'}`);
+      } else {
+        console.error('✗ Key verification failed:');
+        for (const issue of result.issues) {
+          console.error(`  - ${issue}`);
         }
-      } catch (err: unknown) {
-        console.error(
-          `Error: ${err instanceof Error ? err.message : String(err)}`,
-        );
         process.exit(1);
       }
-    });
+    }));
 
   // ── key rotate ────────────────────────────────────────────────────
   keyCmd
     .command('rotate')
     .description('Rotate encryption key — re-encrypts all state')
     .option('-n, --no-interactive', 'Skip confirmation prompts')
-    .action(async (opts: { interactive: boolean }) => {
-      try {
-        const result = await executeKeyRotate({
-          noInteractive: !opts.interactive,
-        });
+    .action(withErrorHandler(async (opts: { interactive: boolean }) => {
+      const result = await executeKeyRotate({
+        noInteractive: !opts.interactive,
+      });
 
-        console.log('✓ Key rotation complete');
-        console.log(`  Old public key: ${result.oldPublicKey}`);
-        console.log(`  New public key: ${result.newPublicKey}`);
-        console.log(
-          `  Files re-encrypted: ${String(result.filesReEncrypted.length)}`,
-        );
-        if (result.gitHistoryRewritten) {
-          console.log('  Git history: rewritten (old blobs purged)');
-        }
-        console.log(
-          '\n⚠ IMPORTANT: All other machines must run:\n' +
-            '  ctx-sync key update\n' +
-            '  Then paste the new private key.',
-        );
-      } catch (err: unknown) {
-        console.error(
-          `Error: ${err instanceof Error ? err.message : String(err)}`,
-        );
-        process.exit(1);
+      console.log('✓ Key rotation complete');
+      console.log(`  Old public key: ${result.oldPublicKey}`);
+      console.log(`  New public key: ${result.newPublicKey}`);
+      console.log(
+        `  Files re-encrypted: ${String(result.filesReEncrypted.length)}`,
+      );
+      if (result.gitHistoryRewritten) {
+        console.log('  Git history: rewritten (old blobs purged)');
       }
-    });
+      console.log(
+        '\n⚠ IMPORTANT: All other machines must run:\n' +
+          '  ctx-sync key update\n' +
+          '  Then paste the new private key.',
+      );
+    }));
 
   // ── key update ────────────────────────────────────────────────────
   keyCmd
     .command('update')
     .description('Update private key on this machine (after rotation elsewhere)')
     .option('--stdin', 'Read key from stdin')
-    .action(async (opts: { stdin?: boolean }) => {
-      try {
-        const result = await executeKeyUpdate({ stdin: opts.stdin });
-        console.log('✓ Key updated');
-        console.log(`  Public key: ${result.publicKey}`);
-        console.log(`  Saved to: ${result.configDir}`);
-        console.log(`  Permissions: ${KEY_FILE_PERMS.toString(8)}`);
-      } catch (err: unknown) {
-        console.error(
-          `Error: ${err instanceof Error ? err.message : String(err)}`,
-        );
-        process.exit(1);
-      }
-    });
+    .action(withErrorHandler(async (opts: { stdin?: boolean }) => {
+      const result = await executeKeyUpdate({ stdin: opts.stdin });
+      console.log('✓ Key updated');
+      console.log(`  Public key: ${result.publicKey}`);
+      console.log(`  Saved to: ${result.configDir}`);
+      console.log(`  Permissions: ${KEY_FILE_PERMS.toString(8)}`);
+    }));
 }

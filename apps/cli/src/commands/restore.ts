@@ -40,6 +40,7 @@ import {
 } from '../core/command-validator.js';
 import type { PendingCommand, ApprovalResult } from '../core/command-validator.js';
 import { getConfigDir, getSyncDir } from './init.js';
+import { withErrorHandler } from '../utils/errors.js';
 
 /** Options for the restore command */
 export interface RestoreOptions {
@@ -391,71 +392,65 @@ export function registerRestoreCommand(program: Command): void {
     .command('restore <project>')
     .description('Restore a tracked project on this machine')
     .option('--no-interactive', 'Show commands but skip execution (safe default)')
-    .action(async (projectName: string, opts: Record<string, unknown>) => {
+    .action(withErrorHandler(async (projectName: string, opts: Record<string, unknown>) => {
       const options: RestoreOptions = {
         noInteractive: opts['interactive'] === false,
       };
 
-      try {
-        const chalk = (await import('chalk')).default;
-        const { default: ora } = await import('ora');
+      const chalk = (await import('chalk')).default;
+      const { default: ora } = await import('ora');
 
-        const spinner = ora('Decrypting state files...').start();
+      const spinner = ora('Decrypting state files...').start();
 
-        const result = await executeRestore(projectName, options);
+      const result = await executeRestore(projectName, options);
 
-        spinner.stop();
+      spinner.stop();
 
-        // Display project info
-        console.log(chalk.green(`\n✅ Restored: ${result.project.name}`));
+      // Display project info
+      console.log(chalk.green(`\n✅ Restored: ${result.project.name}`));
+      console.log('');
+      console.log(`📂 Directory: ${result.project.path}`);
+      console.log(`🌿 Branch: ${result.project.git.branch}`);
+      console.log(`🔐 Env vars: ${result.envVarCount} decrypted`);
+
+      if (result.branchCheckedOut) {
+        console.log(chalk.dim('   Git branch checked out'));
+      }
+
+      if (result.envFileWritten) {
+        console.log(chalk.dim('   .env file written'));
+      }
+
+      // Display mental context
+      if (result.mentalContext) {
         console.log('');
-        console.log(`📂 Directory: ${result.project.path}`);
-        console.log(`🌿 Branch: ${result.project.git.branch}`);
-        console.log(`🔐 Env vars: ${result.envVarCount} decrypted`);
+        console.log(formatMentalContext(result.mentalContext));
+      }
 
-        if (result.branchCheckedOut) {
-          console.log(chalk.dim('   Git branch checked out'));
-        }
+      // Display commands
+      if (result.commandsPresented.length > 0) {
+        console.log('');
+        console.log(chalk.yellow('⚠️  The following commands will be executed:'));
+        console.log(formatCommandsForDisplay(result.commandsPresented));
+        console.log('');
 
-        if (result.envFileWritten) {
-          console.log(chalk.dim('   .env file written'));
-        }
-
-        // Display mental context
-        if (result.mentalContext) {
-          console.log('');
-          console.log(formatMentalContext(result.mentalContext));
-        }
-
-        // Display commands
-        if (result.commandsPresented.length > 0) {
-          console.log('');
-          console.log(chalk.yellow('⚠️  The following commands will be executed:'));
-          console.log(formatCommandsForDisplay(result.commandsPresented));
-          console.log('');
-
-          if (result.approval.skippedAll) {
-            console.log(chalk.dim('Skipped (non-interactive mode)'));
-          } else {
-            // Show execution results
-            for (const cmd of result.executedCommands) {
-              console.log(chalk.green(`   ✓ ${cmd}`));
-            }
-            for (const { command, error } of result.failedCommands) {
-              console.log(chalk.red(`   ✗ ${command}: ${error}`));
-            }
-            for (const cmd of result.approval.rejected) {
-              console.log(chalk.dim(`   ⏭️  Skipped: ${cmd.command}`));
-            }
+        if (result.approval.skippedAll) {
+          console.log(chalk.dim('Skipped (non-interactive mode)'));
+        } else {
+          // Show execution results
+          for (const cmd of result.executedCommands) {
+            console.log(chalk.green(`   ✓ ${cmd}`));
+          }
+          for (const { command, error } of result.failedCommands) {
+            console.log(chalk.red(`   ✗ ${command}: ${error}`));
+          }
+          for (const cmd of result.approval.rejected) {
+            console.log(chalk.dim(`   ⏭️  Skipped: ${cmd.command}`));
           }
         }
-
-        console.log('');
-        console.log(chalk.green('Ready to work! 🚀'));
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error(`Error: ${message}`);
-        process.exitCode = 1;
       }
-    });
+
+      console.log('');
+      console.log(chalk.green('Ready to work! 🚀'));
+    }));
 }

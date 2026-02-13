@@ -59,7 +59,7 @@ describe('E2E: ctx-sync list', () => {
     });
 
     // Track it
-    env.execCommand(`track --path ${projectDir} --no-sync`);
+    env.execCommand(`track --path ${projectDir} --no-sync --no-interactive`);
 
     // List
     const result = env.execCommand('list');
@@ -94,8 +94,8 @@ describe('E2E: ctx-sync list', () => {
       });
     }
 
-    env.execCommand(`track --path ${project1} --no-sync`);
-    env.execCommand(`track --path ${project2} --no-sync`);
+    env.execCommand(`track --path ${project1} --no-sync --no-interactive`);
+    env.execCommand(`track --path ${project2} --no-sync --no-interactive`);
 
     const result = env.execCommand('list');
 

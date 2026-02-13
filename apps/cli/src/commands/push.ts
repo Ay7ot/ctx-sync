@@ -12,6 +12,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { Command } from 'commander';
+import { withErrorHandler } from '../utils/errors.js';
 import { commitState, pushState } from '../core/git-sync.js';
 import { readManifest, writeManifest } from '../core/state-manager.js';
 import { validateSyncRemote, collectSyncFiles } from './sync.js';
@@ -98,34 +99,28 @@ export function registerPushCommand(program: Command): void {
   program
     .command('push')
     .description('Commit and push encrypted state to remote')
-    .action(async () => {
-      try {
-        const chalk = (await import('chalk')).default;
-        const { default: ora } = await import('ora');
+    .action(withErrorHandler(async () => {
+      const chalk = (await import('chalk')).default;
+      const { default: ora } = await import('ora');
 
-        const spinner = ora('Pushing...').start();
+      const spinner = ora('Pushing...').start();
 
-        const result = await executePush();
+      const result = await executePush();
 
-        spinner.stop();
+      spinner.stop();
 
-        if (result.committed) {
-          console.log(
-            chalk.green(`✅ Committed ${result.fileCount} file(s)`),
-          );
-        } else {
-          console.log(chalk.dim('   No changes to commit'));
-        }
-
-        if (result.pushed) {
-          console.log(chalk.green('✅ Pushed to remote'));
-        } else if (!result.hasRemote) {
-          console.log(chalk.yellow('⚠ No remote configured — committed locally only'));
-        }
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error(`Error: ${message}`);
-        process.exitCode = 1;
+      if (result.committed) {
+        console.log(
+          chalk.green(`✅ Committed ${result.fileCount} file(s)`),
+        );
+      } else {
+        console.log(chalk.dim('   No changes to commit'));
       }
-    });
+
+      if (result.pushed) {
+        console.log(chalk.green('✅ Pushed to remote'));
+      } else if (!result.hasRemote) {
+        console.log(chalk.yellow('⚠ No remote configured — committed locally only'));
+      }
+    }));
 }

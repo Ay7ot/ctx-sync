@@ -18,6 +18,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { execSync } from 'node:child_process';
 import type { Command } from 'commander';
+import { withErrorHandler } from '../utils/errors.js';
 import { STATE_FILES } from '@ctx-sync/shared';
 import { verifyPermissions } from '../core/key-store.js';
 import { validateRemoteUrl } from '../core/transport.js';
@@ -402,65 +403,58 @@ export function registerAuditCommand(program: Command): void {
   program
     .command('audit')
     .description('Run a comprehensive security audit')
-    .action(() => {
-      try {
-        const result = executeAudit();
+    .action(withErrorHandler(async () => {
+      const result = executeAudit();
 
-        const critical = result.findings.filter(
-          (f) => f.severity === 'critical',
-        );
-        const warnings = result.findings.filter(
-          (f) => f.severity === 'warning',
-        );
-        const info = result.findings.filter((f) => f.severity === 'info');
+      const critical = result.findings.filter(
+        (f) => f.severity === 'critical',
+      );
+      const warnings = result.findings.filter(
+        (f) => f.severity === 'warning',
+      );
+      const info = result.findings.filter((f) => f.severity === 'info');
 
-        console.log('\n🔒 ctx-sync Security Audit\n');
+      console.log('\n🔒 ctx-sync Security Audit\n');
 
-        if (critical.length > 0) {
-          console.log('❌ Critical Issues:');
-          for (const f of critical) {
-            console.log(`  [${f.check}] ${f.message}`);
-          }
-          console.log('');
+      if (critical.length > 0) {
+        console.log('❌ Critical Issues:');
+        for (const f of critical) {
+          console.log(`  [${f.check}] ${f.message}`);
         }
-
-        if (warnings.length > 0) {
-          console.log('⚠ Warnings:');
-          for (const f of warnings) {
-            console.log(`  [${f.check}] ${f.message}`);
-          }
-          console.log('');
-        }
-
-        if (info.length > 0) {
-          console.log('ℹ Info:');
-          for (const f of info) {
-            console.log(`  [${f.check}] ${f.message}`);
-          }
-          console.log('');
-        }
-
-        if (result.repoSizeHuman) {
-          console.log(`📦 Repository size: ${result.repoSizeHuman}`);
-        }
-        console.log(
-          `📄 Encrypted state files: ${String(result.stateFileCount)}`,
-        );
         console.log('');
+      }
 
-        if (result.passed) {
-          console.log('✅ Audit passed — no critical issues found.');
-        } else {
-          console.log(
-            '❌ Audit failed — critical issues require attention.',
-          );
-          process.exit(1);
+      if (warnings.length > 0) {
+        console.log('⚠ Warnings:');
+        for (const f of warnings) {
+          console.log(`  [${f.check}] ${f.message}`);
         }
-      } catch (err: unknown) {
-        console.error(
-          `Error: ${err instanceof Error ? err.message : String(err)}`,
+        console.log('');
+      }
+
+      if (info.length > 0) {
+        console.log('ℹ Info:');
+        for (const f of info) {
+          console.log(`  [${f.check}] ${f.message}`);
+        }
+        console.log('');
+      }
+
+      if (result.repoSizeHuman) {
+        console.log(`📦 Repository size: ${result.repoSizeHuman}`);
+      }
+      console.log(
+        `📄 Encrypted state files: ${String(result.stateFileCount)}`,
+      );
+      console.log('');
+
+      if (result.passed) {
+        console.log('✅ Audit passed — no critical issues found.');
+      } else {
+        console.log(
+          '❌ Audit failed — critical issues require attention.',
         );
         process.exit(1);
       }
-    });
+    }));
 }

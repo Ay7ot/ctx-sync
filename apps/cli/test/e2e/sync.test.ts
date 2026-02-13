@@ -56,7 +56,7 @@ describe('E2E: ctx-sync sync', () => {
     execSync('git config user.name "Test"', { cwd: projectDir });
 
     // Track the project
-    env.execCommand(`track --path ${projectDir}`);
+    env.execCommand(`track --path ${projectDir} --no-interactive`);
 
     // Sync should commit the state
     const result = env.execCommand('sync');
@@ -85,7 +85,7 @@ describe('E2E: ctx-sync sync', () => {
     execSync('git config user.email "test@test.com"', { cwd: projectDir });
     execSync('git config user.name "Test"', { cwd: projectDir });
 
-    env.execCommand(`track --path ${projectDir}`);
+    env.execCommand(`track --path ${projectDir} --no-interactive`);
     env.execCommand('sync');
 
     // Check git files in the sync dir
@@ -138,7 +138,7 @@ describe('E2E: ctx-sync push', () => {
     execSync('git config user.email "test@test.com"', { cwd: projectDir });
     execSync('git config user.name "Test"', { cwd: projectDir });
 
-    env.execCommand(`track --path ${projectDir}`);
+    env.execCommand(`track --path ${projectDir} --no-interactive`);
 
     const result = env.execCommand('push');
 

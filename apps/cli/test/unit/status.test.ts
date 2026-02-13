@@ -195,7 +195,7 @@ describe('Status Command', () => {
       mockBranch.mockResolvedValue({ current: 'feat/cool' });
       mockStashList.mockResolvedValue({ total: 1, all: [{}] });
 
-      await executeTrack({ path: projectDir, noSync: true });
+      await executeTrack({ path: projectDir, name: 'my-app', noSync: true, noInteractive: true });
 
       // Reset status for the status command
       mockStatus.mockResolvedValue({
@@ -241,7 +241,7 @@ describe('Status Command', () => {
         isClean: () => false,
       });
 
-      await executeTrack({ path: projectDir, noSync: true });
+      await executeTrack({ path: projectDir, name: 'my-app', noSync: true, noInteractive: true });
 
       const result = await executeStatus();
       expect(result.projects[0]!.lastAccessed).toBeDefined();

@@ -12,6 +12,7 @@
  */
 
 import type { Command } from 'commander';
+import { withErrorHandler } from '../utils/errors.js';
 import { STATE_FILES } from '@ctx-sync/shared';
 import { identityToRecipient } from 'age-encryption';
 import { loadKey } from '../core/key-store.js';
@@ -172,115 +173,80 @@ export function registerDirCommand(program: Command): void {
     .command('visit <path>')
     .description('Record a directory visit')
     .option('--no-sync', 'Skip committing to sync repo')
-    .action(async (dirPath: string, opts: { sync: boolean }) => {
-      try {
-        await executeDirVisit(dirPath, !opts.sync);
-        console.log(`✓ Recorded visit to ${dirPath}`);
-      } catch (err: unknown) {
-        console.error(
-          `Error: ${err instanceof Error ? err.message : String(err)}`,
-        );
-        process.exit(1);
-      }
-    });
+    .action(withErrorHandler(async (dirPath: string, opts: { sync: boolean }) => {
+      await executeDirVisit(dirPath, !opts.sync);
+      console.log(`✓ Recorded visit to ${dirPath}`);
+    }));
 
   // ── dir pin ───────────────────────────────────────────────────────
   dirCmd
     .command('pin <path>')
     .description('Pin a directory')
     .option('--no-sync', 'Skip committing to sync repo')
-    .action(async (dirPath: string, opts: { sync: boolean }) => {
-      try {
-        const result = await executeDirPin(dirPath, !opts.sync);
-        if (result.alreadyPinned) {
-          console.log(`Directory already pinned: ${result.path}`);
-        } else {
-          console.log(`✓ Pinned ${result.path}`);
-        }
-      } catch (err: unknown) {
-        console.error(
-          `Error: ${err instanceof Error ? err.message : String(err)}`,
-        );
-        process.exit(1);
+    .action(withErrorHandler(async (dirPath: string, opts: { sync: boolean }) => {
+      const result = await executeDirPin(dirPath, !opts.sync);
+      if (result.alreadyPinned) {
+        console.log(`Directory already pinned: ${result.path}`);
+      } else {
+        console.log(`✓ Pinned ${result.path}`);
       }
-    });
+    }));
 
   // ── dir unpin ─────────────────────────────────────────────────────
   dirCmd
     .command('unpin <path>')
     .description('Unpin a directory')
     .option('--no-sync', 'Skip committing to sync repo')
-    .action(async (dirPath: string, opts: { sync: boolean }) => {
-      try {
-        const result = await executeDirUnpin(dirPath, !opts.sync);
-        if (result.wasPinned) {
-          console.log(`✓ Unpinned ${result.path}`);
-        } else {
-          console.log(`Directory was not pinned: ${result.path}`);
-        }
-      } catch (err: unknown) {
-        console.error(
-          `Error: ${err instanceof Error ? err.message : String(err)}`,
-        );
-        process.exit(1);
+    .action(withErrorHandler(async (dirPath: string, opts: { sync: boolean }) => {
+      const result = await executeDirUnpin(dirPath, !opts.sync);
+      if (result.wasPinned) {
+        console.log(`✓ Unpinned ${result.path}`);
+      } else {
+        console.log(`Directory was not pinned: ${result.path}`);
       }
-    });
+    }));
 
   // ── dir remove ────────────────────────────────────────────────────
   dirCmd
     .command('remove <path>')
     .description('Remove a directory from the recent list')
     .option('--no-sync', 'Skip committing to sync repo')
-    .action(async (dirPath: string, opts: { sync: boolean }) => {
-      try {
-        const result = await executeDirRemove(dirPath, !opts.sync);
-        if (result.wasRemoved) {
-          console.log(`✓ Removed ${result.path} from recent directories`);
-        } else {
-          console.log(`Directory not found in recent list: ${result.path}`);
-        }
-      } catch (err: unknown) {
-        console.error(
-          `Error: ${err instanceof Error ? err.message : String(err)}`,
-        );
-        process.exit(1);
+    .action(withErrorHandler(async (dirPath: string, opts: { sync: boolean }) => {
+      const result = await executeDirRemove(dirPath, !opts.sync);
+      if (result.wasRemoved) {
+        console.log(`✓ Removed ${result.path} from recent directories`);
+      } else {
+        console.log(`Directory not found in recent list: ${result.path}`);
       }
-    });
+    }));
 
   // ── dir list ──────────────────────────────────────────────────────
   dirCmd
     .command('list')
     .description('List recent and pinned directories')
     .option('-l, --limit <n>', 'Number of recent directories to show', '10')
-    .action(async (opts: { limit: string }) => {
-      try {
-        const result = await executeDirList(parseInt(opts.limit, 10));
+    .action(withErrorHandler(async (opts: { limit: string }) => {
+      const result = await executeDirList(parseInt(opts.limit, 10));
 
-        if (result.pinned.length === 0 && result.recent.length === 0) {
-          console.log('No directories tracked.');
-          return;
-        }
-
-        if (result.pinned.length > 0) {
-          console.log('\n📌 Pinned directories:');
-          for (const p of result.pinned) {
-            console.log(`  ${p}`);
-          }
-        }
-
-        if (result.recent.length > 0) {
-          console.log('\n📁 Recent directories:');
-          for (const d of result.recent) {
-            console.log(
-              `  ${d.path} (visited ${String(d.frequency)}x, last: ${d.lastVisit})`,
-            );
-          }
-        }
-      } catch (err: unknown) {
-        console.error(
-          `Error: ${err instanceof Error ? err.message : String(err)}`,
-        );
-        process.exit(1);
+      if (result.pinned.length === 0 && result.recent.length === 0) {
+        console.log('No directories tracked.');
+        return;
       }
-    });
+
+      if (result.pinned.length > 0) {
+        console.log('\n📌 Pinned directories:');
+        for (const p of result.pinned) {
+          console.log(`  ${p}`);
+        }
+      }
+
+      if (result.recent.length > 0) {
+        console.log('\n📁 Recent directories:');
+        for (const d of result.recent) {
+          console.log(
+            `  ${d.path} (visited ${String(d.frequency)}x, last: ${d.lastVisit})`,
+          );
+        }
+      }
+    }));
 }

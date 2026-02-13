@@ -42,7 +42,7 @@ describe('E2E: ctx-sync restore', () => {
     execSync('git init', { cwd: projectDir });
     execSync('git config user.email "test@test.com"', { cwd: projectDir });
     execSync('git config user.name "Test"', { cwd: projectDir });
-    env.execCommand(`track --path ${projectDir}`);
+    env.execCommand(`track --path ${projectDir} --no-interactive`);
 
     const result = env.execCommand('restore nonexistent');
 
@@ -61,7 +61,7 @@ describe('E2E: ctx-sync restore', () => {
     execSync('git config user.email "test@test.com"', { cwd: projectDir });
     execSync('git config user.name "Test"', { cwd: projectDir });
 
-    env.execCommand(`track --path ${projectDir}`);
+    env.execCommand(`track --path ${projectDir} --no-interactive`);
 
     // Restore
     const result = env.execCommand('restore test-app --no-interactive');
@@ -88,7 +88,7 @@ describe('E2E: ctx-sync restore', () => {
     execSync('git config user.name "Test"', { cwd: projectDir });
 
     // Track project
-    env.execCommand(`track --path ${projectDir}`);
+    env.execCommand(`track --path ${projectDir} --no-interactive`);
 
     // Import env vars
     env.execCommand(`env import test-app ${path.join(projectDir, '.env')}`);
@@ -113,7 +113,7 @@ describe('E2E: ctx-sync restore', () => {
     execSync('git config user.email "test@test.com"', { cwd: projectDir });
     execSync('git config user.name "Test"', { cwd: projectDir });
 
-    env.execCommand(`track --path ${projectDir}`);
+    env.execCommand(`track --path ${projectDir} --no-interactive`);
     env.execCommand(`env import test-app ${path.join(projectDir, '.env')}`);
 
     // Remove .env to simulate new machine
@@ -138,7 +138,7 @@ describe('E2E: ctx-sync restore', () => {
     execSync('git config user.email "test@test.com"', { cwd: projectDir });
     execSync('git config user.name "Test"', { cwd: projectDir });
 
-    env.execCommand(`track --path ${projectDir}`);
+    env.execCommand(`track --path ${projectDir} --no-interactive`);
 
     const result = env.execCommand('restore test-app --no-interactive');
 
@@ -155,7 +155,7 @@ describe('E2E: ctx-sync restore', () => {
     execSync('git config user.email "test@test.com"', { cwd: projectDir });
     execSync('git config user.name "Test"', { cwd: projectDir });
 
-    env.execCommand(`track --path ${projectDir}`);
+    env.execCommand(`track --path ${projectDir} --no-interactive`);
 
     const result = env.execCommand('restore wrong-name --no-interactive');
 
@@ -172,7 +172,7 @@ describe('E2E: ctx-sync restore', () => {
     execSync('git config user.email "test@test.com"', { cwd: projectDir });
     execSync('git config user.name "Test"', { cwd: projectDir });
 
-    env.execCommand(`track --path ${projectDir}`);
+    env.execCommand(`track --path ${projectDir} --no-interactive`);
 
     // Restore in non-interactive mode
     const result = env.execCommand('restore test-app --no-interactive');
@@ -191,7 +191,7 @@ describe('E2E: ctx-sync restore', () => {
     execSync('git config user.email "test@test.com"', { cwd: projectDir });
     execSync('git config user.name "Test"', { cwd: projectDir });
 
-    env.execCommand(`track --path ${projectDir}`);
+    env.execCommand(`track --path ${projectDir} --no-interactive`);
 
     // Replace the key with a different one
     const configDir = path.join(env.homeDir, '.config', 'ctx-sync');

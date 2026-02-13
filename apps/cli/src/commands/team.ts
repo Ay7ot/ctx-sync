@@ -19,6 +19,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { Command } from 'commander';
+import { withErrorHandler } from '../utils/errors.js';
 import { identityToRecipient } from 'age-encryption';
 import { decryptState, encryptStateForRecipients } from '../core/encryption.js';
 import {
@@ -254,113 +255,85 @@ export function registerTeamCommand(program: Command): void {
     .requiredOption('--name <name>', 'Human-readable name for the team member')
     .requiredOption('--key <pubkey>', 'Age public key (age1...)')
     .option('--no-verify', 'Skip fingerprint verification prompt')
-    .action(async (opts: { name: string; key: string; verify: boolean }) => {
-      try {
-        // Show fingerprint for verification
-        if (opts.verify) {
-          const fingerprint = computeFingerprint(opts.key);
-          console.log(`\n⚠ Verify this key fingerprint with ${opts.name}:`);
-          console.log(`   Fingerprint: ${fingerprint}`);
-          console.log(`   Key: ${opts.key}`);
-          console.log('');
-        }
-
-        const result = await executeTeamAdd({
-          name: opts.name,
-          key: opts.key,
-          noVerify: !opts.verify,
-        });
-
-        console.log(`✓ Added team member: ${result.name}`);
-        console.log(`  Public key: ${result.publicKey}`);
-        console.log(`  Fingerprint: ${result.fingerprint}`);
-        console.log('  All state re-encrypted for new recipient set.');
-      } catch (err: unknown) {
-        console.error(
-          `Error: ${err instanceof Error ? err.message : String(err)}`,
-        );
-        process.exit(1);
+    .action(withErrorHandler(async (opts: { name: string; key: string; verify: boolean }) => {
+      // Show fingerprint for verification
+      if (opts.verify) {
+        const fingerprint = computeFingerprint(opts.key);
+        console.log(`\n⚠ Verify this key fingerprint with ${opts.name}:`);
+        console.log(`   Fingerprint: ${fingerprint}`);
+        console.log(`   Key: ${opts.key}`);
+        console.log('');
       }
-    });
+
+      const result = await executeTeamAdd({
+        name: opts.name,
+        key: opts.key,
+        noVerify: !opts.verify,
+      });
+
+      console.log(`✓ Added team member: ${result.name}`);
+      console.log(`  Public key: ${result.publicKey}`);
+      console.log(`  Fingerprint: ${result.fingerprint}`);
+      console.log('  All state re-encrypted for new recipient set.');
+    }));
 
   // ── team remove ───────────────────────────────────────────────────
   teamCmd
     .command('remove <name>')
     .description('Remove a team member and re-encrypt all state')
-    .action(async (name: string) => {
-      try {
-        const result = await executeTeamRemove(name);
+    .action(withErrorHandler(async (name: string) => {
+      const result = await executeTeamRemove(name);
 
-        console.log(`✓ Removed team member: ${result.name}`);
-        console.log(`  Public key: ${result.publicKey}`);
-        console.log(
-          `  Files re-encrypted: ${String(result.filesReEncrypted.length)}`,
-        );
-        console.log(
-          `  ${result.name} can no longer decrypt any state files.`,
-        );
-      } catch (err: unknown) {
-        console.error(
-          `Error: ${err instanceof Error ? err.message : String(err)}`,
-        );
-        process.exit(1);
-      }
-    });
+      console.log(`✓ Removed team member: ${result.name}`);
+      console.log(`  Public key: ${result.publicKey}`);
+      console.log(
+        `  Files re-encrypted: ${String(result.filesReEncrypted.length)}`,
+      );
+      console.log(
+        `  ${result.name} can no longer decrypt any state files.`,
+      );
+    }));
 
   // ── team list ─────────────────────────────────────────────────────
   teamCmd
     .command('list')
     .description('List all team members and their public keys')
-    .action(async () => {
-      try {
-        const result = await executeTeamList();
+    .action(withErrorHandler(async () => {
+      const result = await executeTeamList();
 
-        console.log(`Owner key: ${result.ownerPublicKey}`);
-        console.log('');
+      console.log(`Owner key: ${result.ownerPublicKey}`);
+      console.log('');
 
-        if (result.members.length === 0) {
-          console.log('No team members added yet.');
-          console.log(
-            'Use `ctx-sync team add --name <name> --key <pubkey>` to add one.',
-          );
-        } else {
-          console.log(`Team members (${String(result.members.length)}):`);
-          for (const member of result.members) {
-            console.log(`  ${member.name}`);
-            console.log(`    Key: ${member.publicKey}`);
-            console.log(`    Fingerprint: ${member.fingerprint}`);
-            console.log(`    Added: ${member.addedAt}`);
-          }
-        }
-      } catch (err: unknown) {
-        console.error(
-          `Error: ${err instanceof Error ? err.message : String(err)}`,
+      if (result.members.length === 0) {
+        console.log('No team members added yet.');
+        console.log(
+          'Use `ctx-sync team add --name <name> --key <pubkey>` to add one.',
         );
-        process.exit(1);
+      } else {
+        console.log(`Team members (${String(result.members.length)}):`);
+        for (const member of result.members) {
+          console.log(`  ${member.name}`);
+          console.log(`    Key: ${member.publicKey}`);
+          console.log(`    Fingerprint: ${member.fingerprint}`);
+          console.log(`    Added: ${member.addedAt}`);
+        }
       }
-    });
+    }));
 
   // ── team revoke ───────────────────────────────────────────────────
   teamCmd
     .command('revoke <pubkey>')
     .description('Immediately revoke a key and re-encrypt all state')
-    .action(async (pubkey: string) => {
-      try {
-        const result = await executeTeamRevoke(pubkey);
+    .action(withErrorHandler(async (pubkey: string) => {
+      const result = await executeTeamRevoke(pubkey);
 
-        console.log(`✓ Revoked key for: ${result.name}`);
-        console.log(`  Public key: ${result.publicKey}`);
-        console.log(
-          `  Files re-encrypted: ${String(result.filesReEncrypted.length)}`,
-        );
-        console.log(
-          `  ${result.name} can no longer decrypt new or existing state.`,
-        );
-      } catch (err: unknown) {
-        console.error(
-          `Error: ${err instanceof Error ? err.message : String(err)}`,
-        );
-        process.exit(1);
-      }
-    });
+      console.log(`✓ Revoked key for: ${result.name}`);
+      console.log(`  Public key: ${result.publicKey}`);
+      console.log(
+        `  Files re-encrypted: ${String(result.filesReEncrypted.length)}`,
+      );
+      console.log(
+        `  ${result.name} can no longer decrypt new or existing state.`,
+      );
+    }));
 }

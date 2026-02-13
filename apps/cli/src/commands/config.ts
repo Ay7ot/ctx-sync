@@ -16,6 +16,7 @@
  */
 
 import type { Command } from 'commander';
+import { withErrorHandler } from '../utils/errors.js';
 import { getConfigDir } from './init.js';
 import {
   listSafeList,
@@ -86,92 +87,74 @@ export function registerConfigCommand(program: Command): void {
     .description('View or manage the env var safe-list');
 
   // Default action: view the safe-list
-  safeListCmd.action(async () => {
-    try {
-      const result = executeSafeListView();
+  safeListCmd.action(withErrorHandler(async () => {
+    const result = executeSafeListView();
 
-      const chalk = (await import('chalk')).default;
+    const chalk = (await import('chalk')).default;
 
-      console.log(chalk.bold('\nEnvironment Variable Safe-List\n'));
-      console.log(
-        chalk.dim(
-          'Keys on the safe-list MAY be stored as plaintext when --allow-plain is used.\n' +
-            'Everything else is always encrypted (encrypt-by-default).\n',
-        ),
-      );
+    console.log(chalk.bold('\nEnvironment Variable Safe-List\n'));
+    console.log(
+      chalk.dim(
+        'Keys on the safe-list MAY be stored as plaintext when --allow-plain is used.\n' +
+          'Everything else is always encrypted (encrypt-by-default).\n',
+      ),
+    );
 
-      console.log(chalk.cyan('Built-in defaults:'));
-      for (const key of result.defaults) {
+    console.log(chalk.cyan('Built-in defaults:'));
+    for (const key of result.defaults) {
+      console.log(`  ${key}`);
+    }
+
+    if (result.custom.length > 0) {
+      console.log(chalk.cyan('\nCustom additions:'));
+      for (const key of result.custom) {
         console.log(`  ${key}`);
       }
-
-      if (result.custom.length > 0) {
-        console.log(chalk.cyan('\nCustom additions:'));
-        for (const key of result.custom) {
-          console.log(`  ${key}`);
-        }
-      } else {
-        console.log(chalk.dim('\nNo custom additions.'));
-      }
-
-      console.log(
-        chalk.dim(
-          `\nTotal effective safe-list: ${result.effective.length} keys`,
-        ),
-      );
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      console.error(`Error: ${message}`);
-      process.exitCode = 1;
+    } else {
+      console.log(chalk.dim('\nNo custom additions.'));
     }
-  });
+
+    console.log(
+      chalk.dim(
+        `\nTotal effective safe-list: ${result.effective.length} keys`,
+      ),
+    );
+  }));
 
   // ── config safe-list add <key> ────────────────────────────────────
   safeListCmd
     .command('add <key>')
     .description('Add a key to your custom safe-list')
-    .action(async (key: string) => {
-      try {
-        const result = executeSafeListAdd(key);
+    .action(withErrorHandler(async (key: string) => {
+      const result = executeSafeListAdd(key);
 
-        const chalk = (await import('chalk')).default;
+      const chalk = (await import('chalk')).default;
 
-        if (result.added) {
-          console.log(chalk.green(`✅ ${result.message}`));
-          console.log(
-            chalk.dim(
-              '   This key will be treated as plaintext-safe when --allow-plain is used.',
-            ),
-          );
-        } else {
-          console.log(chalk.yellow(`⚠️  ${result.message}`));
-        }
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error(`Error: ${message}`);
-        process.exitCode = 1;
+      if (result.added) {
+        console.log(chalk.green(`✅ ${result.message}`));
+        console.log(
+          chalk.dim(
+            '   This key will be treated as plaintext-safe when --allow-plain is used.',
+          ),
+        );
+      } else {
+        console.log(chalk.yellow(`⚠️  ${result.message}`));
       }
-    });
+    }));
 
   // ── config safe-list remove <key> ─────────────────────────────────
   safeListCmd
     .command('remove <key>')
     .description('Remove a key from your custom safe-list')
-    .action(async (key: string) => {
-      try {
-        const result = executeSafeListRemove(key);
+    .action(withErrorHandler(async (key: string) => {
+      const result = executeSafeListRemove(key);
 
-        const chalk = (await import('chalk')).default;
+      const chalk = (await import('chalk')).default;
 
-        if (result.removed) {
-          console.log(chalk.green(`✅ ${result.message}`));
-        } else {
-          console.log(chalk.yellow(`⚠️  ${result.message}`));
-        }
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error(`Error: ${message}`);
-        process.exitCode = 1;
+      if (result.removed) {
+        console.log(chalk.green(`✅ ${result.message}`));
+      } else {
+        console.log(chalk.yellow(`⚠️  ${result.message}`));
       }
-    });
+    }));
 }

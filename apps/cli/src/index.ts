@@ -10,6 +10,7 @@
 
 import { Command } from 'commander';
 import { VERSION } from '@ctx-sync/shared';
+import { formatError } from './utils/errors.js';
 import { registerInitCommand } from './commands/init.js';
 import { registerTrackCommand } from './commands/track.js';
 import { registerListCommand } from './commands/list.js';
@@ -82,7 +83,7 @@ const isDirectExecution =
 
 if (isDirectExecution) {
   main().catch((err: unknown) => {
-    console.error(err instanceof Error ? err.message : String(err));
+    console.error(formatError(err));
     process.exit(1);
   });
 }

@@ -133,8 +133,12 @@ export function parseEnvFile(content: string): ParsedEnvVar[] {
   const result: ParsedEnvVar[] = [];
   const seen = new Map<string, number>();
 
+  // Strip null bytes and other control characters (except \n, \r, \t)
+  // eslint-disable-next-line no-control-regex
+  const sanitised = content.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '');
+
   // Normalise line endings
-  const lines = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+  const lines = sanitised.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
 
   for (const rawLine of lines) {
     const line = rawLine.trim();
@@ -168,6 +172,12 @@ export function parseEnvFile(content: string): ParsedEnvVar[] {
       (value.startsWith("'") && value.endsWith("'"))
     ) {
       value = value.slice(1, -1);
+    }
+
+    // Truncate excessively long values (> 1MB) to prevent memory issues
+    const MAX_VALUE_LENGTH = 1_048_576; // 1 MB
+    if (value.length > MAX_VALUE_LENGTH) {
+      value = value.slice(0, MAX_VALUE_LENGTH);
     }
 
     // Handle duplicate keys — last value wins

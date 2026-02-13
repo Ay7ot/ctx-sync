@@ -14,6 +14,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { Command } from 'commander';
+import { withErrorHandler } from '../utils/errors.js';
 import type {
   StateFile,
   Project,
@@ -287,38 +288,32 @@ export function registerShowCommand(program: Command): void {
   program
     .command('show <project>')
     .description('Show full context for a tracked project')
-    .action(async (projectName: string) => {
-      try {
-        const chalk = (await import('chalk')).default;
+    .action(withErrorHandler(async (projectName: string) => {
+      const chalk = (await import('chalk')).default;
 
-        const result = await executeShow(projectName);
-        const output = formatShowOutput(result);
+      const result = await executeShow(projectName);
+      const output = formatShowOutput(result);
 
-        console.log(output);
+      console.log(output);
 
-        // Summary line
-        const sections: string[] = [];
-        if (result.mentalContext) {
-          sections.push('mental context');
-        }
-        if (result.envVarCount > 0) {
-          sections.push(`${result.envVarCount} env vars`);
-        }
-        if (result.dockerServices.length > 0) {
-          sections.push(`${result.dockerServices.length} Docker services`);
-        }
-        if (result.services.length > 0) {
-          sections.push(`${result.services.length} services`);
-        }
-
-        if (sections.length > 0) {
-          console.log(chalk.dim(`  Context includes: ${sections.join(', ')}`));
-          console.log('');
-        }
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error(`Error: ${message}`);
-        process.exitCode = 1;
+      // Summary line
+      const sections: string[] = [];
+      if (result.mentalContext) {
+        sections.push('mental context');
       }
-    });
+      if (result.envVarCount > 0) {
+        sections.push(`${result.envVarCount} env vars`);
+      }
+      if (result.dockerServices.length > 0) {
+        sections.push(`${result.dockerServices.length} Docker services`);
+      }
+      if (result.services.length > 0) {
+        sections.push(`${result.services.length} services`);
+      }
+
+      if (sections.length > 0) {
+        console.log(chalk.dim(`  Context includes: ${sections.join(', ')}`));
+        console.log('');
+      }
+    }));
 }

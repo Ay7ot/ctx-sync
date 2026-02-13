@@ -16,6 +16,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { Command } from 'commander';
+import { withErrorHandler } from '../utils/errors.js';
 import type {
   StateFile,
   MentalContext,
@@ -495,7 +496,7 @@ export function registerNoteCommand(program: Command): void {
     .option('--file-description <desc>', 'Description of file work')
     .option('--no-interactive', 'Use flags only, skip prompts')
     .option('--no-sync', 'Skip syncing to Git')
-    .action(async (projectName: string, opts: Record<string, unknown>) => {
+    .action(withErrorHandler(async (projectName: string, opts: Record<string, unknown>) => {
       const options: NoteOptions = {
         task: opts['task'] as string | undefined,
         blockers: opts['blocker'] as string[] | undefined,
@@ -508,42 +509,36 @@ export function registerNoteCommand(program: Command): void {
         noSync: opts['sync'] === false,
       };
 
-      try {
-        const chalk = (await import('chalk')).default;
+      const chalk = (await import('chalk')).default;
 
-        const result = await executeNote(projectName, options);
+      const result = await executeNote(projectName, options);
 
-        if (result.isNew) {
-          console.log(chalk.green(`✅ Mental context created for: ${result.projectName}`));
-        } else {
-          console.log(chalk.green(`✅ Mental context updated for: ${result.projectName}`));
-        }
-
-        if (result.context.currentTask) {
-          console.log(`   Task: ${result.context.currentTask}`);
-        }
-
-        if (result.context.blockers.length > 0) {
-          console.log(`   Blockers: ${result.context.blockers.length}`);
-        }
-
-        if (result.context.nextSteps.length > 0) {
-          console.log(`   Next steps: ${result.context.nextSteps.length}`);
-        }
-
-        if (result.context.relatedLinks.length > 0) {
-          console.log(`   Links: ${result.context.relatedLinks.length}`);
-        }
-
-        if (result.context.breadcrumbs.length > 0) {
-          console.log(`   Breadcrumbs: ${result.context.breadcrumbs.length}`);
-        }
-
-        console.log(chalk.dim('\n   Context encrypted and saved to mental-context.age'));
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error(`Error: ${message}`);
-        process.exitCode = 1;
+      if (result.isNew) {
+        console.log(chalk.green(`✅ Mental context created for: ${result.projectName}`));
+      } else {
+        console.log(chalk.green(`✅ Mental context updated for: ${result.projectName}`));
       }
-    });
+
+      if (result.context.currentTask) {
+        console.log(`   Task: ${result.context.currentTask}`);
+      }
+
+      if (result.context.blockers.length > 0) {
+        console.log(`   Blockers: ${result.context.blockers.length}`);
+      }
+
+      if (result.context.nextSteps.length > 0) {
+        console.log(`   Next steps: ${result.context.nextSteps.length}`);
+      }
+
+      if (result.context.relatedLinks.length > 0) {
+        console.log(`   Links: ${result.context.relatedLinks.length}`);
+      }
+
+      if (result.context.breadcrumbs.length > 0) {
+        console.log(`   Breadcrumbs: ${result.context.breadcrumbs.length}`);
+      }
+
+      console.log(chalk.dim('\n   Context encrypted and saved to mental-context.age'));
+    }));
 }

@@ -65,14 +65,14 @@ describe('Integration: Track Workflow', () => {
   });
 
   it('should create state.age after tracking a project', async () => {
-    await executeTrack({ path: projectDir, noSync: true });
+    await executeTrack({ path: projectDir, noSync: true, noInteractive: true });
 
     const syncDir = path.join(testHome, '.context-sync');
     expect(fs.existsSync(path.join(syncDir, 'state.age'))).toBe(true);
   });
 
   it('should NOT create state.json (plaintext)', async () => {
-    await executeTrack({ path: projectDir, noSync: true });
+    await executeTrack({ path: projectDir, noSync: true, noInteractive: true });
 
     const syncDir = path.join(testHome, '.context-sync');
     expect(fs.existsSync(path.join(syncDir, 'state.json'))).toBe(false);
@@ -83,6 +83,7 @@ describe('Integration: Track Workflow', () => {
       path: projectDir,
       name: 'secret-project-name',
       noSync: true,
+      noInteractive: true,
     });
 
     const syncDir = path.join(testHome, '.context-sync');
@@ -93,7 +94,7 @@ describe('Integration: Track Workflow', () => {
   });
 
   it('should encrypt state.age so it does not contain project path in plaintext', async () => {
-    await executeTrack({ path: projectDir, noSync: true });
+    await executeTrack({ path: projectDir, noSync: true, noInteractive: true });
 
     const syncDir = path.join(testHome, '.context-sync');
     const content = fs.readFileSync(path.join(syncDir, 'state.age'), 'utf-8');
@@ -103,7 +104,7 @@ describe('Integration: Track Workflow', () => {
   });
 
   it('should produce state that can be decrypted back to valid data', async () => {
-    await executeTrack({ path: projectDir, noSync: true });
+    await executeTrack({ path: projectDir, noSync: true, noInteractive: true });
 
     const syncDir = path.join(testHome, '.context-sync');
     const configDir = path.join(testHome, '.config', 'ctx-sync');
@@ -140,19 +141,19 @@ describe('Integration: Track Workflow', () => {
       stdio: 'ignore',
     });
 
-    const result = await executeTrack({ path: projectDir, noSync: true });
+    const result = await executeTrack({ path: projectDir, noSync: true, noInteractive: true });
     expect(result.project.git.branch).toBe('feat/cool-feature');
   });
 
   it('should detect uncommitted changes in a real repo', async () => {
     fs.writeFileSync(path.join(projectDir, 'dirty.txt'), 'uncommitted');
 
-    const result = await executeTrack({ path: projectDir, noSync: true });
+    const result = await executeTrack({ path: projectDir, noSync: true, noInteractive: true });
     expect(result.project.git.hasUncommitted).toBe(true);
   });
 
   it('should update manifest.json with state.age entry', async () => {
-    await executeTrack({ path: projectDir, noSync: true });
+    await executeTrack({ path: projectDir, noSync: true, noInteractive: true });
 
     const syncDir = path.join(testHome, '.context-sync');
     const manifest = JSON.parse(
@@ -182,8 +183,8 @@ describe('Integration: Track Workflow', () => {
       },
     });
 
-    await executeTrack({ path: projectDir, noSync: true });
-    await executeTrack({ path: project2, noSync: true });
+    await executeTrack({ path: projectDir, noSync: true, noInteractive: true });
+    await executeTrack({ path: project2, noSync: true, noInteractive: true });
 
     // Decrypt and verify both projects
     const syncDir = path.join(testHome, '.context-sync');
@@ -206,13 +207,13 @@ describe('Integration: Track Workflow', () => {
     const noGitDir = path.join(testHome, 'projects', 'plain-folder');
     fs.mkdirSync(noGitDir, { recursive: true });
 
-    const result = await executeTrack({ path: noGitDir, noSync: true });
+    const result = await executeTrack({ path: noGitDir, noSync: true, noInteractive: true });
     expect(result.project.git.branch).toBe('unknown');
     expect(result.project.git.remote).toBe('');
   });
 
   it('should commit state.age to the sync git repo', async () => {
-    await executeTrack({ path: projectDir });
+    await executeTrack({ path: projectDir, noInteractive: true });
 
     const syncDir = path.join(testHome, '.context-sync');
     const log = execSync('git log --oneline', {

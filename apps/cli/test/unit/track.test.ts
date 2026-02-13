@@ -207,7 +207,9 @@ describe('Track Command', () => {
     it('should create a new project entry with correct structure', async () => {
       const result = await executeTrack({
         path: projectDir,
+        name: 'my-app',
         noSync: true,
+        noInteractive: true,
       });
 
       expect(result.isNew).toBe(true);
@@ -224,6 +226,7 @@ describe('Track Command', () => {
         path: projectDir,
         name: 'custom-name',
         noSync: true,
+        noInteractive: true,
       });
 
       expect(result.project.name).toBe('custom-name');
@@ -235,6 +238,7 @@ describe('Track Command', () => {
       const result = await executeTrack({
         path: projectDir,
         noSync: true,
+        noInteractive: true,
       });
 
       expect(result.envFileFound).toBe(true);
@@ -244,6 +248,7 @@ describe('Track Command', () => {
       const result = await executeTrack({
         path: projectDir,
         noSync: true,
+        noInteractive: true,
       });
 
       expect(result.envFileFound).toBe(false);
@@ -258,6 +263,7 @@ describe('Track Command', () => {
       const result = await executeTrack({
         path: projectDir,
         noSync: true,
+        noInteractive: true,
       });
 
       expect(result.dockerComposeFound).toBe(true);
@@ -272,6 +278,7 @@ describe('Track Command', () => {
       const result = await executeTrack({
         path: projectDir,
         noSync: true,
+        noInteractive: true,
       });
 
       expect(result.dockerComposeFound).toBe(true);
@@ -281,6 +288,7 @@ describe('Track Command', () => {
       await executeTrack({
         path: projectDir,
         noSync: true,
+        noInteractive: true,
       });
 
       const syncDir = getSyncDir();
@@ -291,6 +299,7 @@ describe('Track Command', () => {
       await executeTrack({
         path: projectDir,
         noSync: true,
+        noInteractive: true,
       });
 
       const syncDir = getSyncDir();
@@ -310,6 +319,7 @@ describe('Track Command', () => {
       await executeTrack({
         path: projectDir,
         noSync: true,
+        noInteractive: true,
       });
 
       const syncDir = getSyncDir();
@@ -320,6 +330,7 @@ describe('Track Command', () => {
       await executeTrack({
         path: projectDir,
         noSync: true,
+        noInteractive: true,
       });
 
       const syncDir = getSyncDir();
@@ -335,6 +346,7 @@ describe('Track Command', () => {
       const result1 = await executeTrack({
         path: projectDir,
         noSync: true,
+        noInteractive: true,
       });
       expect(result1.isNew).toBe(true);
 
@@ -344,6 +356,7 @@ describe('Track Command', () => {
       const result2 = await executeTrack({
         path: projectDir,
         noSync: true,
+        noInteractive: true,
       });
       expect(result2.isNew).toBe(false);
       expect(result2.project.id).toBe(result1.project.id);
@@ -353,6 +366,8 @@ describe('Track Command', () => {
     it('should commit to sync repo when noSync is not set', async () => {
       await executeTrack({
         path: projectDir,
+        name: 'my-app',
+        noInteractive: true,
       });
 
       expect(mockAdd).toHaveBeenCalledWith(['state.age', 'manifest.json']);
@@ -365,6 +380,7 @@ describe('Track Command', () => {
       await executeTrack({
         path: projectDir,
         noSync: true,
+        noInteractive: true,
       });
 
       // commitState calls mockAdd + mockCommit for the sync repo
@@ -374,7 +390,7 @@ describe('Track Command', () => {
     });
 
     it('should call path validation with the project path', async () => {
-      await executeTrack({ path: projectDir, noSync: true });
+      await executeTrack({ path: projectDir, noSync: true, noInteractive: true });
       expect(mockValidateProjectPath).toHaveBeenCalledWith(projectDir);
     });
 
@@ -384,7 +400,7 @@ describe('Track Command', () => {
       });
 
       await expect(
-        executeTrack({ path: '/etc/malicious' }),
+        executeTrack({ path: '/etc/malicious', noInteractive: true }),
       ).rejects.toThrow('Blocked path');
     });
 
@@ -404,6 +420,7 @@ describe('Track Command', () => {
       const result = await executeTrack({
         path: projectDir,
         noSync: true,
+        noInteractive: true,
       });
 
       expect(result.project.git.branch).toBe('develop');
@@ -419,6 +436,7 @@ describe('Track Command', () => {
       const result = await executeTrack({
         path: noGitDir,
         noSync: true,
+        noInteractive: true,
       });
 
       expect(result.project.git.branch).toBe('unknown');

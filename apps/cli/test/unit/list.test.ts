@@ -124,7 +124,7 @@ describe('List Command', () => {
       fs.mkdirSync(projectDir, { recursive: true });
       fs.mkdirSync(path.join(projectDir, '.git'), { recursive: true });
 
-      await executeTrack({ path: projectDir, noSync: true });
+      await executeTrack({ path: projectDir, name: 'my-app', noSync: true, noInteractive: true });
 
       const result = await executeList();
       expect(result.projects).toHaveLength(1);
@@ -140,10 +140,10 @@ describe('List Command', () => {
       fs.mkdirSync(path.join(project1, '.git'), { recursive: true });
       fs.mkdirSync(path.join(project2, '.git'), { recursive: true });
 
-      await executeTrack({ path: project1, noSync: true });
+      await executeTrack({ path: project1, name: 'app-one', noSync: true, noInteractive: true });
 
       mockBranch.mockResolvedValue({ current: 'develop' });
-      await executeTrack({ path: project2, noSync: true });
+      await executeTrack({ path: project2, name: 'app-two', noSync: true, noInteractive: true });
 
       const result = await executeList();
       expect(result.projects).toHaveLength(2);
@@ -168,7 +168,7 @@ describe('List Command', () => {
         isClean: () => false,
       });
 
-      await executeTrack({ path: projectDir, noSync: true });
+      await executeTrack({ path: projectDir, name: 'my-app', noSync: true, noInteractive: true });
 
       const result = await executeList();
       const project = result.projects[0]!;
@@ -182,7 +182,7 @@ describe('List Command', () => {
       fs.mkdirSync(projectDir, { recursive: true });
       fs.mkdirSync(path.join(projectDir, '.git'), { recursive: true });
 
-      await executeTrack({ path: projectDir, noSync: true });
+      await executeTrack({ path: projectDir, name: 'my-app', noSync: true, noInteractive: true });
 
       const result = await executeList();
       expect(result.projects[0]!.lastAccessed).toBeDefined();

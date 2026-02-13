@@ -24,6 +24,7 @@ import { commitState, pushState } from '../core/git-sync.js';
 import { validateRemoteUrl } from '../core/transport.js';
 import { readManifest, writeManifest, listStateFiles } from '../core/state-manager.js';
 import { getSyncDir } from './init.js';
+import { withErrorHandler } from '../utils/errors.js';
 
 /** Options for the sync command */
 export interface SyncOptions {
@@ -265,62 +266,56 @@ export function registerSyncCommand(program: Command): void {
     .option('--no-pull', 'Skip pulling from remote')
     .option('--no-push', 'Skip pushing to remote')
     .option('--no-interactive', 'Non-interactive mode (keep local on conflict)')
-    .action(async (opts: Record<string, unknown>) => {
+    .action(withErrorHandler(async (opts: Record<string, unknown>) => {
       const options: SyncOptions = {
         noPull: opts['pull'] === false,
         noPush: opts['push'] === false,
         noInteractive: opts['interactive'] === false,
       };
 
-      try {
-        const chalk = (await import('chalk')).default;
-        const { default: ora } = await import('ora');
+      const chalk = (await import('chalk')).default;
+      const { default: ora } = await import('ora');
 
-        const spinner = ora('Syncing...').start();
+      const spinner = ora('Syncing...').start();
 
-        // Pull phase
-        if (!options.noPull) {
-          spinner.text = 'Pulling latest from remote...';
-        }
-
-        const result = await executeSync(options);
-
-        spinner.stop();
-
-        // Report results
-        if (result.hadConflicts) {
-          console.log(
-            chalk.yellow(`⚠ Merge conflicts resolved on ${result.conflictFiles.length} file(s):`),
-          );
-          for (const file of result.conflictFiles) {
-            console.log(chalk.yellow(`   - ${file}`));
-          }
-          console.log(chalk.dim('   Local version kept (encrypted files cannot be merged).'));
-        }
-
-        if (result.pulled) {
-          console.log(chalk.green('✅ Pulled latest from remote'));
-        }
-
-        if (result.committed) {
-          console.log(
-            chalk.green(`✅ Committed ${result.fileCount} file(s)`),
-          );
-        } else {
-          console.log(chalk.dim('   No changes to commit'));
-        }
-
-        if (result.pushed) {
-          console.log(chalk.green('✅ Pushed to remote'));
-        } else if (!result.hasRemote) {
-          console.log(chalk.dim('   No remote configured — local only'));
-        }
-
-        console.log(chalk.green('\n✅ Sync complete'));
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error(`Error: ${message}`);
-        process.exitCode = 1;
+      // Pull phase
+      if (!options.noPull) {
+        spinner.text = 'Pulling latest from remote...';
       }
-    });
+
+      const result = await executeSync(options);
+
+      spinner.stop();
+
+      // Report results
+      if (result.hadConflicts) {
+        console.log(
+          chalk.yellow(`⚠ Merge conflicts resolved on ${result.conflictFiles.length} file(s):`),
+        );
+        for (const file of result.conflictFiles) {
+          console.log(chalk.yellow(`   - ${file}`));
+        }
+        console.log(chalk.dim('   Local version kept (encrypted files cannot be merged).'));
+      }
+
+      if (result.pulled) {
+        console.log(chalk.green('✅ Pulled latest from remote'));
+      }
+
+      if (result.committed) {
+        console.log(
+          chalk.green(`✅ Committed ${result.fileCount} file(s)`),
+        );
+      } else {
+        console.log(chalk.dim('   No changes to commit'));
+      }
+
+      if (result.pushed) {
+        console.log(chalk.green('✅ Pushed to remote'));
+      } else if (!result.hasRemote) {
+        console.log(chalk.dim('   No remote configured — local only'));
+      }
+
+      console.log(chalk.green('\n✅ Sync complete'));
+    }));
 }

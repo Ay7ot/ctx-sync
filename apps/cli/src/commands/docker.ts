@@ -18,6 +18,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { execSync } from 'node:child_process';
 import type { Command } from 'commander';
+import { withErrorHandler } from '../utils/errors.js';
 import type { StateFile, DockerState } from '@ctx-sync/shared';
 import { STATE_FILES } from '@ctx-sync/shared';
 import { identityToRecipient } from 'age-encryption';
@@ -431,152 +432,128 @@ export function registerDockerCommand(program: Command): void {
     .option('-p, --path <path>', 'Project directory path (default: current directory)')
     .option('--project <name>', 'Project name override')
     .option('--no-sync', 'Skip syncing to Git after tracking')
-    .action(async (opts: Record<string, unknown>) => {
+    .action(withErrorHandler(async (opts: Record<string, unknown>) => {
       const options: DockerTrackOptions = {
         path: opts['path'] as string | undefined,
         project: opts['project'] as string | undefined,
         noSync: opts['sync'] === false,
       };
 
-      try {
-        const chalk = (await import('chalk')).default;
-        const result = await executeDockerTrack(options);
+      const chalk = (await import('chalk')).default;
+      const result = await executeDockerTrack(options);
 
-        console.log(chalk.green(`\n✅ Docker services tracked for ${result.projectName}`));
-        console.log(`   Compose file: ${result.composeFile}`);
-        console.log(`   Services (${result.serviceCount}):`);
-        for (const name of result.serviceNames) {
-          console.log(`     • ${name}`);
-        }
-        if (result.networks.length > 0) {
-          console.log(`   Networks: ${result.networks.join(', ')}`);
-        }
-        console.log(chalk.dim('\n   State encrypted and saved to docker-state.age'));
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error(`Error: ${message}`);
-        process.exitCode = 1;
+      console.log(chalk.green(`\n✅ Docker services tracked for ${result.projectName}`));
+      console.log(`   Compose file: ${result.composeFile}`);
+      console.log(`   Services (${result.serviceCount}):`);
+      for (const name of result.serviceNames) {
+        console.log(`     • ${name}`);
       }
-    });
+      if (result.networks.length > 0) {
+        console.log(`   Networks: ${result.networks.join(', ')}`);
+      }
+      console.log(chalk.dim('\n   State encrypted and saved to docker-state.age'));
+    }));
 
   // docker start <project>
   docker
     .command('start <project>')
     .description('Start tracked Docker services (with confirmation)')
     .option('--no-interactive', 'Show commands but skip execution')
-    .action(async (projectName: string, opts: Record<string, unknown>) => {
+    .action(withErrorHandler(async (projectName: string, opts: Record<string, unknown>) => {
       const options: DockerStartOptions = {
         noInteractive: opts['interactive'] === false,
       };
 
-      try {
-        const chalk = (await import('chalk')).default;
+      const chalk = (await import('chalk')).default;
 
-        if (!isDockerAvailable()) {
-          console.error(chalk.red('Error: Docker is not available on this machine.'));
-          process.exitCode = 1;
-          return;
-        }
-
-        const result = await executeDockerStart(projectName, options);
-
-        if (result.commandsPresented.length === 0) {
-          console.log(chalk.yellow('No auto-start Docker services configured.'));
-          return;
-        }
-
-        console.log(chalk.yellow('\n⚠️  The following Docker commands will be executed:'));
-        console.log(formatCommandsForDisplay(result.commandsPresented));
-        console.log('');
-
-        if (result.approval.skippedAll) {
-          console.log(chalk.dim('Skipped (non-interactive mode)'));
-        } else {
-          for (const cmd of result.executedCommands) {
-            console.log(chalk.green(`   ✓ ${cmd}`));
-          }
-          for (const { command, error } of result.failedCommands) {
-            console.log(chalk.red(`   ✗ ${command}: ${error}`));
-          }
-          for (const cmd of result.approval.rejected) {
-            console.log(chalk.dim(`   ⏭️  Skipped: ${cmd.command}`));
-          }
-        }
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error(`Error: ${message}`);
+      if (!isDockerAvailable()) {
+        console.error(chalk.red('Error: Docker is not available on this machine.'));
         process.exitCode = 1;
+        return;
       }
-    });
+
+      const result = await executeDockerStart(projectName, options);
+
+      if (result.commandsPresented.length === 0) {
+        console.log(chalk.yellow('No auto-start Docker services configured.'));
+        return;
+      }
+
+      console.log(chalk.yellow('\n⚠️  The following Docker commands will be executed:'));
+      console.log(formatCommandsForDisplay(result.commandsPresented));
+      console.log('');
+
+      if (result.approval.skippedAll) {
+        console.log(chalk.dim('Skipped (non-interactive mode)'));
+      } else {
+        for (const cmd of result.executedCommands) {
+          console.log(chalk.green(`   ✓ ${cmd}`));
+        }
+        for (const { command, error } of result.failedCommands) {
+          console.log(chalk.red(`   ✗ ${command}: ${error}`));
+        }
+        for (const cmd of result.approval.rejected) {
+          console.log(chalk.dim(`   ⏭️  Skipped: ${cmd.command}`));
+        }
+      }
+    }));
 
   // docker stop <project>
   docker
     .command('stop <project>')
     .description('Stop tracked Docker services')
-    .action(async (projectName: string) => {
-      try {
-        const chalk = (await import('chalk')).default;
-        const { default: ora } = await import('ora');
+    .action(withErrorHandler(async (projectName: string) => {
+      const chalk = (await import('chalk')).default;
+      const { default: ora } = await import('ora');
 
-        if (!isDockerAvailable()) {
-          console.error(chalk.red('Error: Docker is not available on this machine.'));
-          process.exitCode = 1;
-          return;
-        }
+      if (!isDockerAvailable()) {
+        console.error(chalk.red('Error: Docker is not available on this machine.'));
+        process.exitCode = 1;
+        return;
+      }
 
-        const spinner = ora(`Stopping Docker services for ${projectName}...`).start();
-        const result = await executeDockerStop(projectName);
-        spinner.stop();
+      const spinner = ora(`Stopping Docker services for ${projectName}...`).start();
+      const result = await executeDockerStop(projectName);
+      spinner.stop();
 
-        if (!result.composeFound) {
-          console.log(chalk.yellow(result.error ?? 'No Docker state found.'));
-          return;
-        }
+      if (!result.composeFound) {
+        console.log(chalk.yellow(result.error ?? 'No Docker state found.'));
+        return;
+      }
 
-        if (result.stopped) {
-          console.log(chalk.green(`✅ Docker services stopped for ${projectName}`));
-        } else {
-          console.error(chalk.red(`Failed to stop: ${result.error}`));
-          process.exitCode = 1;
-        }
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error(`Error: ${message}`);
+      if (result.stopped) {
+        console.log(chalk.green(`✅ Docker services stopped for ${projectName}`));
+      } else {
+        console.error(chalk.red(`Failed to stop: ${result.error}`));
         process.exitCode = 1;
       }
-    });
+    }));
 
   // docker status [project]
   docker
     .command('status [project]')
     .description('Show tracked Docker services')
-    .action(async (projectFilter?: string) => {
-      try {
-        const chalk = (await import('chalk')).default;
-        const result = await executeDockerStatus(projectFilter);
+    .action(withErrorHandler(async (projectFilter?: string) => {
+      const chalk = (await import('chalk')).default;
+      const result = await executeDockerStatus(projectFilter);
 
-        if (result.projects.length === 0) {
-          console.log(chalk.yellow('No Docker services tracked.'));
-          console.log(
-            chalk.dim('Run `ctx-sync docker track` in a project with a Docker Compose file.'),
-          );
-          return;
-        }
-
-        for (const project of result.projects) {
-          console.log(chalk.bold(`\n🐳 ${project.projectName}`));
-          console.log(chalk.dim(`   Compose: ${project.composeFile}`));
-          for (const svc of project.services) {
-            const portStr = svc.port > 0 ? ` (port ${svc.port})` : '';
-            const autoStr = svc.autoStart ? ' [auto-start]' : '';
-            const imageStr = svc.image ? ` — ${svc.image}` : '';
-            console.log(`   • ${svc.name}${imageStr}${portStr}${autoStr}`);
-          }
-        }
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error(`Error: ${message}`);
-        process.exitCode = 1;
+      if (result.projects.length === 0) {
+        console.log(chalk.yellow('No Docker services tracked.'));
+        console.log(
+          chalk.dim('Run `ctx-sync docker track` in a project with a Docker Compose file.'),
+        );
+        return;
       }
-    });
+
+      for (const project of result.projects) {
+        console.log(chalk.bold(`\n🐳 ${project.projectName}`));
+        console.log(chalk.dim(`   Compose: ${project.composeFile}`));
+        for (const svc of project.services) {
+          const portStr = svc.port > 0 ? ` (port ${svc.port})` : '';
+          const autoStr = svc.autoStart ? ' [auto-start]' : '';
+          const imageStr = svc.image ? ` — ${svc.image}` : '';
+          console.log(`   • ${svc.name}${imageStr}${portStr}${autoStr}`);
+        }
+      }
+    }));
 }

@@ -73,7 +73,7 @@ describe('E2E: ctx-sync status', () => {
       },
     });
 
-    env.execCommand(`track --path ${projectDir} --no-sync`);
+    env.execCommand(`track --path ${projectDir} --no-sync --no-interactive`);
 
     const result = env.execCommand('status');
 

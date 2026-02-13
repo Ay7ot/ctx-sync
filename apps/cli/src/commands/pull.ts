@@ -13,6 +13,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { Command } from 'commander';
+import { withErrorHandler } from '../utils/errors.js';
 import { listStateFiles } from '../core/state-manager.js';
 import {
   validateSyncRemote,
@@ -109,42 +110,36 @@ export function registerPullCommand(program: Command): void {
     .command('pull')
     .description('Pull latest encrypted state from remote')
     .option('--no-interactive', 'Non-interactive mode (keep local on conflict)')
-    .action(async (opts: Record<string, unknown>) => {
+    .action(withErrorHandler(async (opts: Record<string, unknown>) => {
       const options: PullOptions = {
         noInteractive: opts['interactive'] === false,
       };
 
-      try {
-        const chalk = (await import('chalk')).default;
-        const { default: ora } = await import('ora');
+      const chalk = (await import('chalk')).default;
+      const { default: ora } = await import('ora');
 
-        const spinner = ora('Pulling from remote...').start();
+      const spinner = ora('Pulling from remote...').start();
 
-        const result = await executePull(options);
+      const result = await executePull(options);
 
-        spinner.stop();
+      spinner.stop();
 
-        if (result.hadConflicts) {
-          console.log(
-            chalk.yellow(`⚠ Merge conflicts resolved on ${result.conflictFiles.length} file(s):`),
-          );
-          for (const file of result.conflictFiles) {
-            console.log(chalk.yellow(`   - ${file}`));
-          }
-          console.log(chalk.dim('   Local version kept (encrypted files cannot be merged).'));
-        }
-
-        if (result.pulled) {
-          console.log(chalk.green('✅ Pulled latest from remote'));
-        }
-
+      if (result.hadConflicts) {
         console.log(
-          chalk.dim(`   ${result.stateFileCount} encrypted state file(s) available`),
+          chalk.yellow(`⚠ Merge conflicts resolved on ${result.conflictFiles.length} file(s):`),
         );
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error(`Error: ${message}`);
-        process.exitCode = 1;
+        for (const file of result.conflictFiles) {
+          console.log(chalk.yellow(`   - ${file}`));
+        }
+        console.log(chalk.dim('   Local version kept (encrypted files cannot be merged).'));
       }
-    });
+
+      if (result.pulled) {
+        console.log(chalk.green('✅ Pulled latest from remote'));
+      }
+
+      console.log(
+        chalk.dim(`   ${result.stateFileCount} encrypted state file(s) available`),
+      );
+    }));
 }

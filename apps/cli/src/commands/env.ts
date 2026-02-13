@@ -18,6 +18,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { Command } from 'commander';
+import { withErrorHandler } from '../utils/errors.js';
 import { STATE_FILES, DEFAULT_SAFE_LIST } from '@ctx-sync/shared';
 import { identityToRecipient } from 'age-encryption';
 import { loadKey } from '../core/key-store.js';
@@ -341,9 +342,8 @@ export function registerEnvCommand(program: Command): void {
     .option('--stdin', 'Read .env content from stdin')
     .option('--allow-plain', 'Store safe-listed keys as plaintext (not recommended)')
     .option('--no-sync', 'Skip syncing to Git after import')
-    .action(async (project: string, file: string | undefined, opts: Record<string, unknown>) => {
-      try {
-        const options: EnvImportOptions = {
+    .action(withErrorHandler(async (project: string, file: string | undefined, opts: Record<string, unknown>) => {
+      const options: EnvImportOptions = {
           project,
           file,
           stdin: opts['stdin'] as boolean | undefined,
@@ -371,12 +371,7 @@ export function registerEnvCommand(program: Command): void {
         }
 
         console.log(chalk.dim('\n   State encrypted and saved to env-vars.age'));
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error(`Error: ${message}`);
-        process.exitCode = 1;
-      }
-    });
+    }));
 
   // --- env add ---
   env
@@ -385,9 +380,8 @@ export function registerEnvCommand(program: Command): void {
     .option('--stdin', 'Read value from stdin')
     .option('--from-fd <fd>', 'Read value from file descriptor')
     .option('--no-sync', 'Skip syncing to Git')
-    .action(async (project: string, key: string, opts: Record<string, unknown>) => {
-      try {
-        const addOptions: EnvAddOptions & { value?: string } = {
+    .action(withErrorHandler(async (project: string, key: string, opts: Record<string, unknown>) => {
+      const addOptions: EnvAddOptions & { value?: string } = {
           project,
           key,
           stdin: opts['stdin'] as boolean | undefined,
@@ -432,21 +426,15 @@ export function registerEnvCommand(program: Command): void {
         const chalk = (await import('chalk')).default;
         console.log(chalk.green(`✅ Added ${key}`) + ` for ${project}`);
         console.log(chalk.dim('   🔐 Encrypted and saved'));
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error(`Error: ${message}`);
-        process.exitCode = 1;
-      }
-    });
+    }));
 
   // --- env scan ---
   env
     .command('scan <project>')
     .description('Scan current shell environment for project-related variables')
     .option('--no-sync', 'Skip syncing to Git')
-    .action(async (project: string, opts: Record<string, unknown>) => {
-      try {
-        const candidates = scanEnvironment();
+    .action(withErrorHandler(async (project: string, opts: Record<string, unknown>) => {
+      const candidates = scanEnvironment();
 
         if (candidates.length === 0) {
           console.log('No environment variables found to scan.');
@@ -499,21 +487,15 @@ export function registerEnvCommand(program: Command): void {
           chalk.green(`✅ Imported ${count} env vars`) + ` for ${project}`,
         );
         console.log(chalk.dim('   🔐 All encrypted (encrypt-by-default)'));
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error(`Error: ${message}`);
-        process.exitCode = 1;
-      }
-    });
+    }));
 
   // --- env list ---
   env
     .command('list <project>')
     .description('List environment variables for a project')
     .option('--show-values', 'Show decrypted values (use with caution)')
-    .action(async (project: string, opts: Record<string, unknown>) => {
-      try {
-        const showValues = opts['showValues'] as boolean | undefined;
+    .action(withErrorHandler(async (project: string, opts: Record<string, unknown>) => {
+      const showValues = opts['showValues'] as boolean | undefined;
         const vars = await executeEnvList({ project, showValues });
 
         if (vars.length === 0) {
@@ -542,10 +524,5 @@ export function registerEnvCommand(program: Command): void {
             chalk.dim(`     Added: ${added.toLocaleDateString()} ${added.toLocaleTimeString()}`),
           );
         }
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error(`Error: ${message}`);
-        process.exitCode = 1;
-      }
-    });
+    }));
 }

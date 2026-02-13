@@ -48,7 +48,7 @@ describe('E2E: ctx-sync track', () => {
   });
 
   it('track --path completes successfully and shows project name', () => {
-    const result = env.execCommand(`track --path ${projectDir} --no-sync`);
+    const result = env.execCommand(`track --path ${projectDir} --no-sync --no-interactive`);
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain('Tracking project');
@@ -56,28 +56,28 @@ describe('E2E: ctx-sync track', () => {
   });
 
   it('track shows branch info in output', () => {
-    const result = env.execCommand(`track --path ${projectDir} --no-sync`);
+    const result = env.execCommand(`track --path ${projectDir} --no-sync --no-interactive`);
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain('Branch: main');
   });
 
   it('track creates state.age in the sync directory', () => {
-    env.execCommand(`track --path ${projectDir} --no-sync`);
+    env.execCommand(`track --path ${projectDir} --no-sync --no-interactive`);
 
     const stateFile = path.join(env.syncDir, 'state.age');
     expect(fs.existsSync(stateFile)).toBe(true);
   });
 
   it('track does NOT create state.json', () => {
-    env.execCommand(`track --path ${projectDir} --no-sync`);
+    env.execCommand(`track --path ${projectDir} --no-sync --no-interactive`);
 
     expect(fs.existsSync(path.join(env.syncDir, 'state.json'))).toBe(false);
   });
 
   it('track with --name overrides the project name', () => {
     const result = env.execCommand(
-      `track --path ${projectDir} --name "Custom Name" --no-sync`,
+      `track --path ${projectDir} --name "Custom Name" --no-sync --no-interactive`,
     );
 
     expect(result.exitCode).toBe(0);
@@ -85,7 +85,7 @@ describe('E2E: ctx-sync track', () => {
   });
 
   it('track mentions encrypted state in output', () => {
-    const result = env.execCommand(`track --path ${projectDir} --no-sync`);
+    const result = env.execCommand(`track --path ${projectDir} --no-sync --no-interactive`);
 
     expect(result.stdout).toContain('state.age');
   });
@@ -93,14 +93,14 @@ describe('E2E: ctx-sync track', () => {
   it('track detects .env file and shows hint', () => {
     fs.writeFileSync(path.join(projectDir, '.env'), 'SECRET_KEY=abc123');
 
-    const result = env.execCommand(`track --path ${projectDir} --no-sync`);
+    const result = env.execCommand(`track --path ${projectDir} --no-sync --no-interactive`);
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain('.env file found');
   });
 
   it('track without .env does not show env hint', () => {
-    const result = env.execCommand(`track --path ${projectDir} --no-sync`);
+    const result = env.execCommand(`track --path ${projectDir} --no-sync --no-interactive`);
 
     expect(result.stdout).not.toContain('.env file found');
   });
@@ -111,7 +111,7 @@ describe('E2E: ctx-sync track', () => {
       'version: "3"',
     );
 
-    const result = env.execCommand(`track --path ${projectDir} --no-sync`);
+    const result = env.execCommand(`track --path ${projectDir} --no-sync --no-interactive`);
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain('Docker Compose found');
@@ -121,7 +121,7 @@ describe('E2E: ctx-sync track', () => {
     const noGitDir = path.join(env.homeDir, 'projects', 'no-git-project');
     fs.mkdirSync(noGitDir, { recursive: true });
 
-    const result = env.execCommand(`track --path ${noGitDir} --no-sync`);
+    const result = env.execCommand(`track --path ${noGitDir} --no-sync --no-interactive`);
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain('Tracking project');
@@ -131,22 +131,22 @@ describe('E2E: ctx-sync track', () => {
   it('track shows uncommitted changes warning', () => {
     fs.writeFileSync(path.join(projectDir, 'dirty.txt'), 'uncommitted');
 
-    const result = env.execCommand(`track --path ${projectDir} --no-sync`);
+    const result = env.execCommand(`track --path ${projectDir} --no-sync --no-interactive`);
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain('Uncommitted changes');
   });
 
   it('tracking the same project twice shows "Updated" on second run', () => {
-    env.execCommand(`track --path ${projectDir} --no-sync`);
-    const result = env.execCommand(`track --path ${projectDir} --no-sync`);
+    env.execCommand(`track --path ${projectDir} --no-sync --no-interactive`);
+    const result = env.execCommand(`track --path ${projectDir} --no-sync --no-interactive`);
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain('Updated project');
   });
 
   it('state.age content does not contain plaintext project info', () => {
-    env.execCommand(`track --path ${projectDir} --no-sync`);
+    env.execCommand(`track --path ${projectDir} --no-sync --no-interactive`);
 
     const content = fs.readFileSync(
       path.join(env.syncDir, 'state.age'),

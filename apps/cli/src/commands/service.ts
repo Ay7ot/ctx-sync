@@ -16,6 +16,7 @@
 
 import { execSync } from 'node:child_process';
 import type { Command } from 'commander';
+import { withErrorHandler } from '../utils/errors.js';
 import type { StateFile, Service } from '@ctx-sync/shared';
 import { STATE_FILES } from '@ctx-sync/shared';
 import { identityToRecipient } from 'age-encryption';
@@ -295,31 +296,24 @@ export function registerServiceCommand(program: Command): void {
     .option('-a, --auto-start', 'Mark as auto-start', false)
     .option('--no-sync', 'Skip committing to sync repo')
     .action(
-      async (
+      withErrorHandler(async (
         project: string,
         name: string,
         opts: { port: number; command: string; autoStart: boolean; sync: boolean },
       ) => {
-        try {
-          const result = await executeServiceAdd(project, name, {
-            port: opts.port,
-            command: opts.command,
-            autoStart: opts.autoStart,
-            noSync: !opts.sync,
-          });
-          console.log(`✓ Service "${result.serviceName}" added to project "${result.projectName}"`);
-          console.log(`  Port: ${String(result.port)}`);
-          console.log(`  Command: ${result.command}`);
-          if (result.autoStart) {
-            console.log('  Auto-start: yes');
-          }
-        } catch (err: unknown) {
-          console.error(
-            `Error: ${err instanceof Error ? err.message : String(err)}`,
-          );
-          process.exit(1);
+        const result = await executeServiceAdd(project, name, {
+          port: opts.port,
+          command: opts.command,
+          autoStart: opts.autoStart,
+          noSync: !opts.sync,
+        });
+        console.log(`✓ Service "${result.serviceName}" added to project "${result.projectName}"`);
+        console.log(`  Port: ${String(result.port)}`);
+        console.log(`  Command: ${result.command}`);
+        if (result.autoStart) {
+          console.log('  Auto-start: yes');
         }
-      },
+      }),
     );
 
   // ── service remove ────────────────────────────────────────────────
@@ -327,101 +321,80 @@ export function registerServiceCommand(program: Command): void {
     .command('remove <project> <name>')
     .description('Remove a tracked service')
     .option('--no-sync', 'Skip committing to sync repo')
-    .action(async (project: string, name: string, opts: { sync: boolean }) => {
-      try {
-        const removed = await executeServiceRemove(project, name, !opts.sync);
-        if (removed) {
-          console.log(`✓ Service "${name}" removed from project "${project}"`);
-        } else {
-          console.log(`Service "${name}" not found in project "${project}"`);
-        }
-      } catch (err: unknown) {
-        console.error(
-          `Error: ${err instanceof Error ? err.message : String(err)}`,
-        );
-        process.exit(1);
+    .action(withErrorHandler(async (project: string, name: string, opts: { sync: boolean }) => {
+      const removed = await executeServiceRemove(project, name, !opts.sync);
+      if (removed) {
+        console.log(`✓ Service "${name}" removed from project "${project}"`);
+      } else {
+        console.log(`Service "${name}" not found in project "${project}"`);
       }
-    });
+    }));
 
   // ── service list ──────────────────────────────────────────────────
   serviceCmd
     .command('list [project]')
     .description('List tracked services')
-    .action(async (project?: string) => {
-      try {
-        const results = await executeServiceList(project);
+    .action(withErrorHandler(async (project?: string) => {
+      const results = await executeServiceList(project);
 
-        if (results.length === 0 || results.every((r) => r.services.length === 0)) {
-          console.log('No services tracked.');
-          return;
-        }
-
-        for (const group of results) {
-          if (group.services.length === 0) continue;
-          console.log(`\n📦 ${group.project}:`);
-          for (const svc of group.services) {
-            const auto = svc.autoStart ? ' [auto-start]' : '';
-            console.log(
-              `  ${svc.name} — port ${String(svc.port)}${auto}`,
-            );
-            console.log(`    command: ${svc.command}`);
-          }
-        }
-      } catch (err: unknown) {
-        console.error(
-          `Error: ${err instanceof Error ? err.message : String(err)}`,
-        );
-        process.exit(1);
+      if (results.length === 0 || results.every((r) => r.services.length === 0)) {
+        console.log('No services tracked.');
+        return;
       }
-    });
+
+      for (const group of results) {
+        if (group.services.length === 0) continue;
+        console.log(`\n📦 ${group.project}:`);
+        for (const svc of group.services) {
+          const auto = svc.autoStart ? ' [auto-start]' : '';
+          console.log(
+            `  ${svc.name} — port ${String(svc.port)}${auto}`,
+          );
+          console.log(`    command: ${svc.command}`);
+        }
+      }
+    }));
 
   // ── service start ─────────────────────────────────────────────────
   serviceCmd
     .command('start <project>')
     .description('Start auto-start services (requires approval)')
     .option('-n, --no-interactive', 'Show commands without executing')
-    .action(async (project: string, opts: { interactive: boolean }) => {
-      try {
-        const result = await executeServiceStart(project, {
-          noInteractive: !opts.interactive,
-        });
+    .action(withErrorHandler(async (project: string, opts: { interactive: boolean }) => {
+      const result = await executeServiceStart(project, {
+        noInteractive: !opts.interactive,
+      });
 
-        if (result.commandsPresented.length === 0) {
-          console.log(
-            `No auto-start services found for project "${result.projectName}".`,
-          );
-          return;
-        }
-
-        if (result.approval.skippedAll) {
-          console.log('Service commands (non-interactive — skipped):');
-          for (const cmd of result.commandsPresented) {
-            console.log(`  ${cmd.label}: ${cmd.command}`);
-          }
-          console.log(
-            '\n⚠ Non-interactive mode — commands shown but not executed.',
-          );
-          return;
-        }
-
-        if (result.executedCommands.length > 0) {
-          console.log(
-            `✓ Started ${String(result.executedCommands.length)} service(s)`,
-          );
-        }
-        if (result.failedCommands.length > 0) {
-          console.error(
-            `✗ ${String(result.failedCommands.length)} service(s) failed to start`,
-          );
-          for (const f of result.failedCommands) {
-            console.error(`  ${f.command}: ${f.error}`);
-          }
-        }
-      } catch (err: unknown) {
-        console.error(
-          `Error: ${err instanceof Error ? err.message : String(err)}`,
+      if (result.commandsPresented.length === 0) {
+        console.log(
+          `No auto-start services found for project "${result.projectName}".`,
         );
-        process.exit(1);
+        return;
       }
-    });
+
+      if (result.approval.skippedAll) {
+        console.log('Service commands (non-interactive — skipped):');
+        for (const cmd of result.commandsPresented) {
+          console.log(`  ${cmd.label}: ${cmd.command}`);
+        }
+        console.log(
+          '\n⚠ Non-interactive mode — commands shown but not executed.',
+        );
+        return;
+      }
+
+      if (result.executedCommands.length > 0) {
+        console.log(
+          `✓ Started ${String(result.executedCommands.length)} service(s)`,
+        );
+      }
+      if (result.failedCommands.length > 0) {
+        console.error(
+          `✗ ${String(result.failedCommands.length)} service(s) failed to start`,
+        );
+        for (const f of result.failedCommands) {
+          console.error(`  ${f.command}: ${f.error}`);
+        }
+      }
+    }));
 }

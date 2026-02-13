@@ -42,7 +42,7 @@ describe('E2E: ctx-sync note', () => {
     execSync('git init', { cwd: projectDir });
     execSync('git config user.email "test@test.com"', { cwd: projectDir });
     execSync('git config user.name "Test"', { cwd: projectDir });
-    env.execCommand(`track --path ${projectDir}`);
+    env.execCommand(`track --path ${projectDir} --no-interactive`);
 
     const result = env.execCommand('note nonexistent --no-interactive -t "test"');
 
@@ -59,7 +59,7 @@ describe('E2E: ctx-sync note', () => {
     execSync('git init', { cwd: projectDir });
     execSync('git config user.email "test@test.com"', { cwd: projectDir });
     execSync('git config user.name "Test"', { cwd: projectDir });
-    env.execCommand(`track --path ${projectDir} --no-sync`);
+    env.execCommand(`track --path ${projectDir} --no-sync --no-interactive`);
 
     // Add note with flags
     const result = env.execCommand(
@@ -89,7 +89,7 @@ describe('E2E: ctx-sync note', () => {
     execSync('git init', { cwd: projectDir });
     execSync('git config user.email "test@test.com"', { cwd: projectDir });
     execSync('git config user.name "Test"', { cwd: projectDir });
-    env.execCommand(`track --path ${projectDir} --no-sync`);
+    env.execCommand(`track --path ${projectDir} --no-sync --no-interactive`);
 
     // First note
     env.execCommand(
@@ -114,7 +114,7 @@ describe('E2E: ctx-sync note', () => {
     execSync('git init', { cwd: projectDir });
     execSync('git config user.email "test@test.com"', { cwd: projectDir });
     execSync('git config user.name "Test"', { cwd: projectDir });
-    env.execCommand(`track --path ${projectDir} --no-sync`);
+    env.execCommand(`track --path ${projectDir} --no-sync --no-interactive`);
 
     env.execCommand(
       'note test-app --no-interactive --no-sync -t "Secret task"',
@@ -159,7 +159,7 @@ describe('E2E: ctx-sync show', () => {
     execSync('git init', { cwd: projectDir });
     execSync('git config user.email "test@test.com"', { cwd: projectDir });
     execSync('git config user.name "Test"', { cwd: projectDir });
-    env.execCommand(`track --path ${projectDir}`);
+    env.execCommand(`track --path ${projectDir} --no-interactive`);
 
     const result = env.execCommand('show nonexistent');
 
@@ -175,7 +175,7 @@ describe('E2E: ctx-sync show', () => {
     execSync('git init', { cwd: projectDir });
     execSync('git config user.email "test@test.com"', { cwd: projectDir });
     execSync('git config user.name "Test"', { cwd: projectDir });
-    env.execCommand(`track --path ${projectDir} --no-sync`);
+    env.execCommand(`track --path ${projectDir} --no-sync --no-interactive`);
 
     const result = env.execCommand('show test-app');
 
@@ -193,7 +193,7 @@ describe('E2E: ctx-sync show', () => {
     execSync('git init', { cwd: projectDir });
     execSync('git config user.email "test@test.com"', { cwd: projectDir });
     execSync('git config user.name "Test"', { cwd: projectDir });
-    env.execCommand(`track --path ${projectDir} --no-sync`);
+    env.execCommand(`track --path ${projectDir} --no-sync --no-interactive`);
 
     // Add mental context
     env.execCommand(
@@ -218,7 +218,7 @@ describe('E2E: ctx-sync show', () => {
     execSync('git init', { cwd: projectDir });
     execSync('git config user.email "test@test.com"', { cwd: projectDir });
     execSync('git config user.name "Test"', { cwd: projectDir });
-    env.execCommand(`track --path ${projectDir} --no-sync`);
+    env.execCommand(`track --path ${projectDir} --no-sync --no-interactive`);
 
     const result = env.execCommand('show test-app');
 
@@ -238,7 +238,7 @@ describe('E2E: ctx-sync show', () => {
     execSync('git config user.name "Test"', { cwd: projectDir });
 
     // Track
-    env.execCommand(`track --path ${projectDir} --no-sync`);
+    env.execCommand(`track --path ${projectDir} --no-sync --no-interactive`);
 
     // Note
     env.execCommand(

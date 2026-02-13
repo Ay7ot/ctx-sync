@@ -8,6 +8,7 @@
  */
 
 import type { Command } from 'commander';
+import { withErrorHandler } from '../utils/errors.js';
 import type { StateFile, Project } from '@ctx-sync/shared';
 import { loadKey } from '../core/key-store.js';
 import { readState } from '../core/state-manager.js';
@@ -77,36 +78,30 @@ export function registerListCommand(program: Command): void {
     .command('list')
     .alias('ls')
     .description('List all tracked projects')
-    .action(async () => {
-      try {
-        const result = await executeList();
+    .action(withErrorHandler(async () => {
+      const result = await executeList();
 
-        if (result.projects.length === 0) {
-          console.log('No projects tracked.');
-          console.log('\nTrack your first project:');
-          console.log('  $ cd ~/projects/my-app');
-          console.log('  $ ctx-sync track');
-          return;
-        }
-
-        const chalk = (await import('chalk')).default;
-        console.log(
-          chalk.bold(`Tracked projects (${result.projects.length}):\n`),
-        );
-
-        for (let i = 0; i < result.projects.length; i++) {
-          const project = result.projects[i];
-          if (project) {
-            console.log(formatProject(project, i + 1));
-          }
-          if (i < result.projects.length - 1) {
-            console.log('');
-          }
-        }
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error(`Error: ${message}`);
-        process.exitCode = 1;
+      if (result.projects.length === 0) {
+        console.log('No projects tracked.');
+        console.log('\nTrack your first project:');
+        console.log('  $ cd ~/projects/my-app');
+        console.log('  $ ctx-sync track');
+        return;
       }
-    });
+
+      const chalk = (await import('chalk')).default;
+      console.log(
+        chalk.bold(`Tracked projects (${result.projects.length}):\n`),
+      );
+
+      for (let i = 0; i < result.projects.length; i++) {
+        const project = result.projects[i];
+        if (project) {
+          console.log(formatProject(project, i + 1));
+        }
+        if (i < result.projects.length - 1) {
+          console.log('');
+        }
+      }
+    }));
 }

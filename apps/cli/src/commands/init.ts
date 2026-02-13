@@ -18,6 +18,7 @@ import { decryptState } from '../core/encryption.js';
 import { saveKey, loadKey } from '../core/key-store.js';
 import { initRepo, addRemote, commitState } from '../core/git-sync.js';
 import { validateRemoteUrl } from '../core/transport.js';
+import { withErrorHandler } from '../utils/errors.js';
 
 /** Options for the init command */
 export interface InitOptions {
@@ -265,7 +266,7 @@ export function registerInitCommand(program: Command): void {
     .option('--skip-backup', 'Skip key backup prompt (not recommended)')
     .option('--remote <url>', 'Git remote URL for syncing')
     .option('--stdin', 'Read private key from stdin (for --restore)')
-    .action(async (opts: Record<string, unknown>) => {
+    .action(withErrorHandler(async (opts: Record<string, unknown>) => {
       const options: InitOptions & { key?: string } = {
         restore: opts['restore'] as boolean | undefined,
         noInteractive: opts['interactive'] === false,
@@ -274,8 +275,7 @@ export function registerInitCommand(program: Command): void {
         stdin: opts['stdin'] as boolean | undefined,
       };
 
-      try {
-        if (options.restore) {
+      if (options.restore) {
           // Restore flow
           if (options.stdin) {
             options.key = await readKeyFromStdin();
@@ -345,10 +345,5 @@ export function registerInitCommand(program: Command): void {
           console.log('  $ cd ~/projects/my-app');
           console.log('  $ ctx-sync track');
         }
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error(`Error: ${message}`);
-        process.exitCode = 1;
-      }
-    });
+    }));
 }

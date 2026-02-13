@@ -8,6 +8,7 @@
  */
 
 import type { Command } from 'commander';
+import { withErrorHandler } from '../utils/errors.js';
 import type { StateFile, Manifest } from '@ctx-sync/shared';
 import { loadKey } from '../core/key-store.js';
 import { readState, readManifest } from '../core/state-manager.js';
@@ -136,9 +137,8 @@ export function registerStatusCommand(program: Command): void {
   program
     .command('status')
     .description('Show sync status and project overview')
-    .action(async () => {
-      try {
-        const result = await executeStatus();
+    .action(withErrorHandler(async () => {
+      const result = await executeStatus();
         const chalk = (await import('chalk')).default;
 
         // Sync status
@@ -201,10 +201,5 @@ export function registerStatusCommand(program: Command): void {
             console.log(chalk.yellow(`    ${project.stashCount} stash(es)`));
           }
         }
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error(`Error: ${message}`);
-        process.exitCode = 1;
-      }
-    });
+    }));
 }
