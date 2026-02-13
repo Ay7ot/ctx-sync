@@ -20,7 +20,7 @@
     "test:pentest": "NODE_OPTIONS='--experimental-vm-modules' jest test/security/pentest.test.ts",
     "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
     "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
-    "test:performance": "npx tsx test/performance/benchmarks.ts",
+    "test:performance": "NODE_OPTIONS='--experimental-vm-modules' jest test/performance --no-coverage",
     "test:all": "npm run typecheck && npm run lint && NODE_OPTIONS='--experimental-vm-modules' jest --coverage"
   },
   "keywords": [
