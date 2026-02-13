@@ -15,6 +15,9 @@ import { registerTrackCommand } from './commands/track.js';
 import { registerListCommand } from './commands/list.js';
 import { registerStatusCommand } from './commands/status.js';
 import { registerEnvCommand } from './commands/env.js';
+import { registerSyncCommand } from './commands/sync.js';
+import { registerPushCommand } from './commands/push.js';
+import { registerPullCommand } from './commands/pull.js';
 
 /**
  * Create and configure the root CLI program.
@@ -35,6 +38,9 @@ export function createProgram(): Command {
   registerListCommand(program);
   registerStatusCommand(program);
   registerEnvCommand(program);
+  registerSyncCommand(program);
+  registerPushCommand(program);
+  registerPullCommand(program);
 
   return program;
 }
