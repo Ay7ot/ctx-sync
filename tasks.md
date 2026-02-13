@@ -28,7 +28,7 @@
 20. [Phase 14 — Security Hardening & Penetration Tests ✅](#phase-14--security-hardening--penetration-tests-)
 21. [Phase 15 — Performance Benchmarking ✅](#phase-15--performance-benchmarking-)
 22. [Phase 16 — Polish, UX & Error Handling ✅](#phase-16--polish-ux--error-handling-)
-23. [Phase 17 — Marketing + Documentation Website](#phase-17--marketing--documentation-website)
+23. [Phase 17 — Marketing + Documentation Website ✅](#phase-17--marketing--documentation-website-)
 24. [Phase 18 — Release Preparation & Launch](#phase-18--release-preparation--launch)
 
 ---
@@ -2123,19 +2123,19 @@ jobs:
 
 ---
 
-## Phase 17 — Marketing + Documentation Website
+## Phase 17 — Marketing + Documentation Website ✅
 
 > **Goal:** Vanilla HTML/CSS/JS website with marketing landing page + product documentation.
 
 ### Task 17.1 — Website project setup
 
 **Implementation tasks:**
-- [ ] Set up `apps/website/package.json` with:
+- [x] Set up `apps/website/package.json` with:
   - `"build": "npx tsx scripts/build-docs.ts"`
   - `"serve": "npx serve public"`
   - `"dev": "npx serve public"` (for local development)
-- [ ] Install minimal dev deps: `marked` (Markdown → HTML), `serve` (local dev server).
-- [ ] Create `apps/website/scripts/build-docs.ts`:
+- [x] Install minimal dev deps: `marked` (Markdown → HTML), `serve` (local dev server).
+- [x] Create `apps/website/scripts/build-docs.ts`:
   - Reads Markdown files from `content/`.
   - Converts to HTML using `marked`.
   - Injects into a shared layout template (HTML string, no framework).
@@ -2156,15 +2156,15 @@ jobs:
 - All pages render correctly in a browser.
 
 **Done when:**
-- [ ] Build succeeds.
-- [ ] All tests pass.
+- [x] Build succeeds.
+- [x] All tests pass.
 
 ---
 
 ### Task 17.2 — Marketing landing page
 
 **Implementation tasks:**
-- [ ] Create `apps/website/public/index.html`:
+- [x] Create `apps/website/public/index.html`:
   - Hero section: headline, subheadline, CTA (install command).
   - Problem statement section (the 23-minute context switch tax).
   - Features section (P0 features with icons/illustrations).
@@ -2173,12 +2173,12 @@ jobs:
   - Comparison table (vs Atuin, vs dotfiles managers, vs cloud IDEs).
   - Getting started section (install + init commands).
   - Footer with links to docs, GitHub, license.
-- [ ] Create `apps/website/public/css/main.css`:
+- [x] Create `apps/website/public/css/main.css`:
   - Modern, clean design. Dark/light mode support.
   - Responsive (mobile-first).
   - CSS variables for theming.
   - No CSS frameworks.
-- [ ] Create `apps/website/public/js/main.js`:
+- [x] Create `apps/website/public/js/main.js`:
   - Smooth scrolling.
   - Mobile nav toggle.
   - Dark/light mode toggle.
@@ -2197,32 +2197,32 @@ jobs:
 - No JavaScript frameworks used.
 
 **Done when:**
-- [ ] Page renders correctly.
-- [ ] HTML validation passes.
-- [ ] Responsive check passes.
+- [x] Page renders correctly.
+- [x] HTML validation passes.
+- [x] Responsive check passes.
 
 ---
 
 ### Task 17.3 — Documentation pages
 
 **Implementation tasks:**
-- [ ] Create Markdown content files in `apps/website/content/`:
+- [x] Create Markdown content files in `apps/website/content/`:
   - `getting-started.md` — installation, first setup, first project tracking.
   - `commands.md` — full CLI reference (all commands from product spec).
   - `security.md` — security model, encryption, threat model, key management.
   - `teams.md` — multi-recipient setup, key sharing, revocation.
   - `faq.md` — common questions and troubleshooting.
-- [ ] Create `apps/website/public/docs/index.html` — docs landing with links to all pages.
-- [ ] Create `apps/website/public/css/docs.css`:
+- [x] Create `apps/website/public/docs/index.html` — docs landing with links to all pages.
+- [x] Create `apps/website/public/css/docs.css`:
   - Sidebar navigation.
   - Content area with good typography.
   - Code block styling (syntax highlighting via CSS classes — no heavy JS libs).
   - Responsive sidebar (collapses on mobile).
-- [ ] Create `apps/website/public/js/docs-nav.js`:
+- [x] Create `apps/website/public/js/docs-nav.js`:
   - Active page highlighting in sidebar.
   - Collapsible sections.
   - Mobile sidebar toggle.
-- [ ] Create `apps/website/public/js/docs-search.js`:
+- [x] Create `apps/website/public/js/docs-search.js`:
   - Client-side search using pre-built JSON index.
   - Search input in sidebar.
   - Results displayed inline (no server needed).
@@ -2247,21 +2247,21 @@ jobs:
 - Content covers all CLI commands and security model.
 
 **Done when:**
-- [ ] All docs pages build and render.
-- [ ] Search works.
-- [ ] All tests pass.
+- [x] All docs pages build and render.
+- [x] Search works.
+- [x] All tests pass.
 
 ---
 
 ### Task 17.4 — Website CI & deployment
 
 **Implementation tasks:**
-- [ ] Add website build + validation to CI pipeline (`.github/workflows/ci.yml`).
-- [ ] Add deployment step to `.github/workflows/release.yml`:
+- [x] Add website build + validation to CI pipeline (`.github/workflows/ci.yml`).
+- [x] Add deployment step to `.github/workflows/release.yml`:
   - Build docs.
   - Deploy `public/` to GitHub Pages (or Cloudflare Pages / Netlify).
-- [ ] Add a simple HTML validator step (e.g., `html-validate` or `vnu-jar`).
-- [ ] Add broken link checker.
+- [x] Add a simple HTML validator step (e.g., `html-validate` or `vnu-jar`).
+- [x] Add broken link checker.
 
 **Test plan:**
 
@@ -2273,8 +2273,8 @@ jobs:
 - No broken links.
 
 **Done when:**
-- [ ] Deployment pipeline works.
-- [ ] All checks pass.
+- [x] Deployment pipeline works.
+- [x] All checks pass.
 
 ---
 
