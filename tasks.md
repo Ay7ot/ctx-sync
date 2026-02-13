@@ -17,7 +17,7 @@
 9. [Phase 3 — CLI Skeleton & `init` Command ✅](#phase-3--cli-skeleton--init-command-)
 10. [Phase 4 — Project State Tracking (`track`, `list`, `status`) ✅](#phase-4--project-state-tracking-track-list-status-)
 11. [Phase 5 — Environment Variable Management ✅](#phase-5--environment-variable-management-)
-12. [Phase 6 — Sync Commands (`sync`, `push`, `pull`)](#phase-6--sync-commands-sync-push-pull)
+12. [Phase 6 — Sync Commands (`sync`, `push`, `pull`) ✅](#phase-6--sync-commands-sync-push-pull-)
 13. [Phase 7 — Restore Command & Command-Execution Safety](#phase-7--restore-command--command-execution-safety)
 14. [Phase 8 — Mental Context (`note`, `show`)](#phase-8--mental-context-note-show)
 15. [Phase 9 — Docker / Container State](#phase-9--docker--container-state)
@@ -1211,14 +1211,16 @@ jobs:
 
 ---
 
-## Phase 6 — Sync Commands (`sync`, `push`, `pull`)
+## Phase 6 — Sync Commands (`sync`, `push`, `pull`) ✅
 
 > **Goal:** Wire up the sync flow — commit encrypted state, push/pull via Git.
+>
+> **Status:** Complete. All 2 tasks done. Sync command (bidirectional), push command (unidirectional commit+push), pull command (unidirectional pull+conflict detection), comprehensive tests.
 
-### Task 6.1 — `ctx-sync sync` command
+### Task 6.1 — `ctx-sync sync` command ✅
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/commands/sync.ts`:
+- [x] Create `apps/cli/src/commands/sync.ts`:
   - Pull latest from remote (if remote exists).
   - Handle merge conflicts on encrypted files (never auto-merge `.age` files — prompt user).
   - Commit all `.age` files + `manifest.json`.
@@ -1254,16 +1256,16 @@ jobs:
 - Merge conflicts handled safely.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
-### Task 6.2 — `ctx-sync push` and `ctx-sync pull` commands
+### Task 6.2 — `ctx-sync push` and `ctx-sync pull` commands ✅
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/commands/push.ts` — commit + push only.
-- [ ] Create `apps/cli/src/commands/pull.ts` — pull + decrypt only.
-- [ ] Both validate remote URL.
+- [x] Create `apps/cli/src/commands/push.ts` — commit + push only.
+- [x] Create `apps/cli/src/commands/pull.ts` — pull + decrypt only.
+- [x] Both validate remote URL.
 
 **Test plan:**
 
@@ -1279,7 +1281,7 @@ jobs:
 - Unidirectional sync options available.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
