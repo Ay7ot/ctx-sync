@@ -21,7 +21,7 @@ import type {
   DirectoryState,
   Manifest,
 } from '@ctx-sync/shared';
-import { encryptState, decryptState } from './encryption.js';
+import { encryptState, encryptStateForRecipients, decryptState } from './encryption.js';
 
 /**
  * Union of all encrypted state data types.
@@ -88,18 +88,22 @@ export async function readState<T = StateData>(
  * Serialises the data as JSON in memory, encrypts it with Age, and writes
  * the resulting `.age` file. **Never writes plaintext JSON to disk.**
  *
+ * Supports both single-recipient and multi-recipient encryption. When
+ * `publicKey` is a single string, encrypts for one recipient. When
+ * it is an array, encrypts for all recipients (team support).
+ *
  * Also updates the manifest to record the file's modification time.
  *
  * @param stateDir - The sync directory path.
  * @param data - The state data to encrypt and write.
- * @param publicKey - The Age public key for encryption.
+ * @param publicKey - A single Age public key or an array of public keys.
  * @param fileType - The type of state file to write.
  * @throws If the filename ends in `.json` (safety check against plaintext writes).
  */
 export async function writeState(
   stateDir: string,
   data: StateData,
-  publicKey: string,
+  publicKey: string | string[],
   fileType: StateFileType,
 ): Promise<void> {
   const filename = STATE_FILE_MAP[fileType];
@@ -115,7 +119,11 @@ export async function writeState(
   // Ensure the directory exists
   fs.mkdirSync(stateDir, { recursive: true });
 
-  const ciphertext = await encryptState(data, publicKey);
+  // Encrypt for single or multiple recipients
+  const ciphertext = Array.isArray(publicKey)
+    ? await encryptStateForRecipients(data, publicKey)
+    : await encryptState(data, publicKey);
+
   const filePath = path.join(stateDir, filename);
   fs.writeFileSync(filePath, ciphertext, 'utf-8');
 

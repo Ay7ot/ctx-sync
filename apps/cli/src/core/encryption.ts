@@ -78,3 +78,48 @@ export async function decryptState<T>(ciphertext: string, privateKey: string): P
   const json = await decrypt(ciphertext, privateKey);
   return JSON.parse(json) as T;
 }
+
+/**
+ * Encrypt a plaintext string for multiple Age recipients.
+ *
+ * All recipients can independently decrypt the resulting ciphertext
+ * using their own private key. This enables team/multi-machine support.
+ *
+ * @param plaintext - The string to encrypt.
+ * @param publicKeys - Array of Age public keys (age1...) to encrypt for.
+ * @returns ASCII-armored Age ciphertext.
+ * @throws If any public key is invalid or the array is empty.
+ */
+export async function encryptForRecipients(
+  plaintext: string,
+  publicKeys: string[],
+): Promise<string> {
+  if (publicKeys.length === 0) {
+    throw new Error('At least one recipient public key is required.');
+  }
+
+  const encrypter = new Encrypter();
+  for (const key of publicKeys) {
+    encrypter.addRecipient(key);
+  }
+  const encrypted = await encrypter.encrypt(plaintext);
+  return armor.encode(encrypted);
+}
+
+/**
+ * Encrypt a typed data object as JSON for multiple Age recipients.
+ *
+ * Serialises the data to JSON in memory, then encrypts for all recipients.
+ * No plaintext JSON is ever written to disk.
+ *
+ * @param data - The data to encrypt.
+ * @param publicKeys - Array of Age public keys to encrypt for.
+ * @returns ASCII-armored Age ciphertext containing the serialised JSON.
+ */
+export async function encryptStateForRecipients<T>(
+  data: T,
+  publicKeys: string[],
+): Promise<string> {
+  const json = JSON.stringify(data);
+  return encryptForRecipients(json, publicKeys);
+}

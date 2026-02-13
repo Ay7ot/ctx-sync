@@ -132,6 +132,23 @@ export interface DirectoryState {
   pinnedDirs: string[];
 }
 
+/** A team member / recipient */
+export interface TeamMember {
+  name: string;
+  publicKey: string;
+  addedAt: string;
+  /** Key fingerprint for out-of-band verification */
+  fingerprint: string;
+}
+
+/** Recipients configuration stored in config dir (never synced) */
+export interface RecipientsConfig {
+  /** The owner's public key */
+  ownerPublicKey: string;
+  /** Team members (recipients) added by the owner */
+  members: TeamMember[];
+}
+
 /** File metadata in manifest */
 export interface ManifestFileEntry {
   lastModified: string;

@@ -22,6 +22,8 @@ export type {
   ServiceState,
   RecentDirectory,
   DirectoryState,
+  TeamMember,
+  RecipientsConfig,
   ManifestFileEntry,
   Manifest,
 } from './types.js';
