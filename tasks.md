@@ -27,7 +27,7 @@
 19. [Phase 13 — Config & Safe-List Management ✅](#phase-13--config--safe-list-management-)
 20. [Phase 14 — Security Hardening & Penetration Tests ✅](#phase-14--security-hardening--penetration-tests-)
 21. [Phase 15 — Performance Benchmarking ✅](#phase-15--performance-benchmarking-)
-22. [Phase 16 — Polish, UX & Error Handling](#phase-16--polish-ux--error-handling)
+22. [Phase 16 — Polish, UX & Error Handling ✅](#phase-16--polish-ux--error-handling-)
 23. [Phase 17 — Marketing + Documentation Website](#phase-17--marketing--documentation-website)
 24. [Phase 18 — Release Preparation & Launch](#phase-18--release-preparation--launch)
 
@@ -2032,18 +2032,18 @@ jobs:
 
 ---
 
-## Phase 16 — Polish, UX & Error Handling
+## Phase 16 — Polish, UX & Error Handling ✅
 
 > **Goal:** Production-quality error messages, interactive wizards, edge case handling.
 
 ### Task 16.1 — Error handling & user-friendly messages
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/utils/errors.ts`:
+- [x] Create `apps/cli/src/utils/errors.ts`:
   - Custom error classes: `EncryptionError`, `SyncError`, `ConfigError`, `SecurityError`.
   - User-friendly messages with suggested fixes (e.g., "Run `chmod 600 <path>` to fix permissions.").
   - No stack traces in production (only with `--verbose` or `DEBUG=*`).
-- [ ] Wrap all top-level command handlers in try/catch with friendly output.
+- [x] Wrap all top-level command handlers in try/catch with friendly output.
 
 **Test plan:**
 
@@ -2061,20 +2061,20 @@ jobs:
 - Every error a user might encounter has a clear, actionable message.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
 ### Task 16.2 — Interactive wizards (track flow improvements)
 
 **Implementation tasks:**
-- [ ] Enhance `track` command with step-by-step wizard:
+- [x] Enhance `track` command with step-by-step wizard:
   - Auto-detect project name from directory/Git remote.
   - Prompt for `.env` import.
   - Prompt for Docker service tracking.
   - Prompt for mental context.
   - Summary before committing.
-- [ ] Add `--yes` flag to skip confirmations (but NOT for command execution on restore).
+- [x] Add `--yes` flag to skip confirmations (but NOT for command execution on restore).
 
 **Test plan:**
 
@@ -2086,14 +2086,14 @@ jobs:
 - Smooth, guided UX for project tracking.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
 ### Task 16.3 — Edge case hardening
 
 **Implementation tasks:**
-- [ ] Handle all edge cases from manual testing checklist in testing.md:
+- [x] Handle all edge cases from manual testing checklist in testing.md:
   - Empty .env file.
   - Missing Git config.
   - No internet connection.
@@ -2118,8 +2118,8 @@ jobs:
 - Clear error messages for all.
 
 **Done when:**
-- [ ] All tests passing in CI.
-- [ ] Manual testing checklist from testing.md fully satisfied.
+- [x] All tests passing in CI.
+- [x] Manual testing checklist from testing.md fully satisfied.
 
 ---
 
