@@ -23,7 +23,7 @@
 15. [Phase 9 — Docker / Container State ✅](#phase-9--docker--container-state-)
 16. [Phase 10 — Running Services & Working Directories ✅](#phase-10--running-services--working-directories-)
 17. [Phase 11 — Key Rotation, Verification & Audit ✅](#phase-11--key-rotation-verification--audit-)
-18. [Phase 12 — Team / Multi-Recipient Support](#phase-12--team--multi-recipient-support)
+18. [Phase 12 — Team / Multi-Recipient Support ✅](#phase-12--team--multi-recipient-support-)
 19. [Phase 13 — Config & Safe-List Management](#phase-13--config--safe-list-management)
 20. [Phase 14 — Security Hardening & Penetration Tests](#phase-14--security-hardening--penetration-tests)
 21. [Phase 15 — Performance Benchmarking](#phase-15--performance-benchmarking)
@@ -1754,66 +1754,84 @@ jobs:
 
 ---
 
-## Phase 12 — Team / Multi-Recipient Support
+## Phase 12 — Team / Multi-Recipient Support ✅
 
 > **Goal:** Multi-user encryption, key addition/revocation.
+>
+> **Status:** Complete. Both tasks done. Multi-recipient encryption, team commands, and full revocation with re-encryption implemented and tested.
 
-### Task 12.1 — Multi-recipient encryption
+### Task 12.1 — Multi-recipient encryption ✅
 
 **Implementation tasks:**
-- [ ] Extend `encryption.ts`:
+- [x] Extend `encryption.ts`:
   - `encryptForRecipients(plaintext, publicKeys[])` — encrypts for multiple Age recipients.
+  - `encryptStateForRecipients(data, publicKeys[])` — encrypts typed data for recipients.
+- [x] Create `core/recipients.ts`:
   - `getRecipients(configDir)` — reads recipients list.
-  - `addRecipient(configDir, name, publicKey)` — adds to recipients.
-  - `removeRecipient(configDir, publicKey)` — removes and re-encrypts all state.
+  - `addRecipient(configDir, name, publicKey)` — adds to recipients with fingerprint.
+  - `removeRecipientByName(configDir, name)` — removes by name.
+  - `removeRecipientByKey(configDir, publicKey)` — removes by key (revoke).
+  - `getAllRecipientKeys(configDir, ownerPublicKey)` — returns all recipient keys.
+  - `computeFingerprint(publicKey)` — SHA-256 fingerprint for verification.
+- [x] Add `TeamMember` and `RecipientsConfig` types to `packages/shared/src/types.ts`.
+- [x] Update `state-manager.ts` `writeState()` to accept `string | string[]` for multi-recipient encryption.
 
 **Test plan:**
 
-- *Unit tests*:
-  - Encrypt for 2 recipients → both can decrypt.
+- *Unit tests* (`test/unit/multi-recipient-encryption.test.ts`, `test/unit/recipients.test.ts`):
+  - Encrypt for 2+ recipients → all can decrypt.
   - Remove recipient → removed recipient cannot decrypt new files.
+  - Fingerprint computation is deterministic and well-formatted.
+  - Duplicate key/name rejection, owner key protection.
 
-- *Security tests* (`test/security/key-management.test.ts`):
-  - After revocation, revoked key cannot decrypt.
+- *Security tests* (`test/security/team-security.test.ts`):
+  - After revocation, revoked key cannot decrypt ANY file.
   - Re-encryption is complete (all files).
+  - Recipients config is local-only (never in sync dir).
+  - No plaintext in multi-recipient ciphertext.
 
 **Acceptance criteria:**
 - Multi-recipient encryption works.
 - Revocation is immediate and complete.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
-### Task 12.2 — `ctx-sync team` commands
+### Task 12.2 — `ctx-sync team` commands ✅
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/commands/team.ts`:
-  - `team add --name <n> --key <pubkey>` — verify fingerprint prompt, add recipient.
-  - `team remove <name>` — remove + re-encrypt.
-  - `team list` — list members and public keys.
-  - `team revoke <pubkey>` — immediate revocation + re-encrypt.
+- [x] Create `apps/cli/src/commands/team.ts`:
+  - `team add --name <n> --key <pubkey>` — verify fingerprint prompt, add recipient, re-encrypt all state.
+  - `team remove <name>` — remove + re-encrypt all state.
+  - `team list` — list owner key and all members with fingerprints.
+  - `team revoke <pubkey>` — immediate revocation + re-encrypt all state.
+- [x] Register `registerTeamCommand(program)` in `index.ts`.
 
 **Test plan:**
 
-- *Unit tests*:
+- *Unit tests* (`test/unit/team-command.test.ts`):
   - Add/remove/list/revoke flows.
-  - Fingerprint verification prompt.
+  - Re-encryption after add ensures new member can decrypt.
+  - Re-encryption after remove/revoke ensures removed member cannot decrypt.
 
-- *Integration tests*:
+- *Integration tests* (`test/integration/team-workflow.test.ts`):
   - Add member → encrypt → both decrypt.
-  - Revoke member → re-encrypt → revoked member fails.
+  - Full add → use → revoke cycle.
+  - Encrypt all 6 state file types for recipients.
+  - Multiple members added and removed.
 
-- *E2E tests*:
-  - Full team workflow.
+- *E2E tests* (`test/e2e/team.test.ts`):
+  - Full team workflow via CLI.
+  - Error handling (invalid key, duplicate name, unknown member).
 
 **Acceptance criteria:**
 - Team members can be managed securely.
 - Revocation is immediate.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
