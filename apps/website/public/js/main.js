@@ -1,13 +1,16 @@
 /**
  * ctx-sync — Main site JavaScript
- * Smooth scrolling, mobile nav, dark/light mode, copy-to-clipboard.
+ * Scroll-triggered reveals, header effects, mobile nav, theme toggle,
+ * copy-to-clipboard, and terminal typing animation.
  * Vanilla JS — no frameworks.
  */
 
 (function () {
   'use strict';
 
-  // --- Dark / Light Mode Toggle ---
+  /* ===========================================================
+     1. DARK / LIGHT MODE TOGGLE
+     =========================================================== */
   var THEME_KEY = 'ctx-sync-theme';
 
   function getPreferredTheme() {
@@ -21,28 +24,33 @@
   function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem(THEME_KEY, theme);
-
-    // Update toggle icon
     var icons = document.querySelectorAll('.theme-icon');
     icons.forEach(function (icon) {
       icon.textContent = theme === 'light' ? '\u2600\uFE0F' : '\uD83C\uDF19';
     });
   }
 
-  // Apply on load
+  // Apply immediately (before DOMContentLoaded to prevent flash)
   applyTheme(getPreferredTheme());
 
+  /* ===========================================================
+     2. DOM-READY SETUP
+     =========================================================== */
   document.addEventListener('DOMContentLoaded', function () {
-    // Theme toggles
-    var toggles = document.querySelectorAll('.theme-toggle');
-    toggles.forEach(function (btn) {
+
+    /* ---------------------------------------------------------
+       2a. Theme toggle buttons
+       --------------------------------------------------------- */
+    document.querySelectorAll('.theme-toggle').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var current = document.documentElement.getAttribute('data-theme');
         applyTheme(current === 'light' ? 'dark' : 'light');
       });
     });
 
-    // --- Mobile Nav Toggle ---
+    /* ---------------------------------------------------------
+       2b. Mobile navigation toggle
+       --------------------------------------------------------- */
     var mobileToggle = document.getElementById('mobile-nav-toggle');
     var mainNav = document.getElementById('main-nav');
 
@@ -51,7 +59,6 @@
         mainNav.classList.toggle('open');
       });
 
-      // Close on link click
       mainNav.querySelectorAll('a').forEach(function (link) {
         link.addEventListener('click', function () {
           mainNav.classList.remove('open');
@@ -59,7 +66,9 @@
       });
     }
 
-    // --- Smooth Scrolling for Anchor Links ---
+    /* ---------------------------------------------------------
+       2c. Smooth scrolling for anchor links
+       --------------------------------------------------------- */
     document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
       anchor.addEventListener('click', function (e) {
         var targetId = this.getAttribute('href');
@@ -68,15 +77,17 @@
         var target = document.querySelector(targetId);
         if (target) {
           e.preventDefault();
-          var headerHeight = 70;
+          var headerH = 80;
           var top =
-            target.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+            target.getBoundingClientRect().top + window.pageYOffset - headerH;
           window.scrollTo({ top: top, behavior: 'smooth' });
         }
       });
     });
 
-    // --- Copy to Clipboard ---
+    /* ---------------------------------------------------------
+       2d. Copy to clipboard
+       --------------------------------------------------------- */
     document.querySelectorAll('.copy-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var text = this.getAttribute('data-copy');
@@ -88,18 +99,20 @@
           .then(function () {
             button.classList.add('copied');
             var label = button.querySelector('.copy-label');
-            var originalText = label ? label.textContent : '';
+            var original = label ? label.textContent : '';
             if (label) label.textContent = 'Copied!';
 
             setTimeout(function () {
               button.classList.remove('copied');
-              if (label) label.textContent = originalText || 'Copy';
+              if (label) label.textContent = original || 'Copy';
             }, 2000);
           })
           .catch(function () {
-            // Fallback: select text
+            // Fallback for older browsers
             var temp = document.createElement('textarea');
             temp.value = text;
+            temp.style.position = 'fixed';
+            temp.style.opacity = '0';
             document.body.appendChild(temp);
             temp.select();
             document.execCommand('copy');
@@ -108,19 +121,109 @@
       });
     });
 
-    // --- Header Scroll Effect ---
+    /* ---------------------------------------------------------
+       2e. Header scroll effect — adds .scrolled class
+       --------------------------------------------------------- */
     var header = document.getElementById('site-header');
     if (header) {
-      var scrolled = false;
-      window.addEventListener('scroll', function () {
-        if (window.scrollY > 10 && !scrolled) {
-          header.style.borderBottomColor = 'var(--border-color)';
-          scrolled = true;
-        } else if (window.scrollY <= 10 && scrolled) {
-          header.style.borderBottomColor = 'var(--border-subtle)';
-          scrolled = false;
+      var lastScroll = 0;
+      function onScroll() {
+        var scrollY = window.scrollY || window.pageYOffset;
+        if (scrollY > 20) {
+          header.classList.add('scrolled');
+        } else {
+          header.classList.remove('scrolled');
         }
+        lastScroll = scrollY;
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll(); // Run on load
+    }
+
+    /* ---------------------------------------------------------
+       2f. Scroll-triggered reveal animations (IntersectionObserver)
+       --------------------------------------------------------- */
+    var revealSelectors = '.reveal, .reveal-left, .reveal-right, .reveal-scale, .stagger-children';
+    var revealEls = document.querySelectorAll(revealSelectors);
+
+    if (revealEls.length > 0 && 'IntersectionObserver' in window) {
+      var revealObserver = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              revealObserver.unobserve(entry.target);
+            }
+          });
+        },
+        {
+          threshold: 0.12,
+          rootMargin: '0px 0px -40px 0px',
+        }
+      );
+
+      revealEls.forEach(function (el) {
+        revealObserver.observe(el);
+      });
+    } else {
+      // Fallback: just show everything
+      revealEls.forEach(function (el) {
+        el.classList.add('is-visible');
       });
     }
-  });
+
+    /* ---------------------------------------------------------
+       2g. Card tilt / 3D hover effect on feature cards
+       --------------------------------------------------------- */
+    var featureCards = document.querySelectorAll('.feature-card');
+    featureCards.forEach(function (card) {
+      card.addEventListener('mousemove', function (e) {
+        var rect = card.getBoundingClientRect();
+        var x = e.clientX - rect.left;
+        var y = e.clientY - rect.top;
+        var centerX = rect.width / 2;
+        var centerY = rect.height / 2;
+
+        // Mild tilt: max 3deg
+        var rotateX = ((y - centerY) / centerY) * -2.5;
+        var rotateY = ((x - centerX) / centerX) * 2.5;
+
+        card.style.transform =
+          'translateY(-4px) perspective(800px) rotateX(' +
+          rotateX +
+          'deg) rotateY(' +
+          rotateY +
+          'deg)';
+      });
+
+      card.addEventListener('mouseleave', function () {
+        card.style.transform = '';
+      });
+    });
+
+    /* ---------------------------------------------------------
+       2h. Terminal typing animation (on page load, hero terminal)
+       --------------------------------------------------------- */
+    // The terminal content is already in the HTML for SSR/noscript.
+    // We enhance it with a subtle line-by-line fade-in on load.
+    var terminalBody = document.getElementById('terminal-body');
+    if (terminalBody) {
+      var lines = terminalBody.querySelectorAll('.line');
+      lines.forEach(function (line, i) {
+        line.style.opacity = '0';
+        line.style.transform = 'translateX(-8px)';
+        line.style.transition =
+          'opacity 0.3s cubic-bezier(0.16,1,0.3,1), transform 0.3s cubic-bezier(0.16,1,0.3,1)';
+        line.style.transitionDelay = 0.6 + i * 0.1 + 's';
+      });
+
+      // Force a reflow, then reveal
+      void terminalBody.offsetWidth;
+      lines.forEach(function (line) {
+        line.style.opacity = '1';
+        line.style.transform = 'translateX(0)';
+      });
+    }
+
+  }); // end DOMContentLoaded
 })();
