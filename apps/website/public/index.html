@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ctx-sync — Sync your dev context across machines</title>
+  <meta name="description" content="CLI tool that syncs your complete development context across machines using Git. Encrypted by default. No backend required." />
+  <link rel="stylesheet" href="/css/main.css" />
+</head>
+<body>
+  <!-- Navigation -->
+  <header class="site-header" id="site-header">
+    <div class="container header-inner">
+      <a href="/" class="logo">ctx-sync</a>
+      <nav class="main-nav" id="main-nav">
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#security">Security</a>
+        <a href="#comparison">Compare</a>
+        <a href="/docs/">Docs</a>
+        <a href="https://github.com/user/ctx-sync" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light mode">
+          <span class="theme-icon">&#127769;</span>
+        </button>
+        <button class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1 class="hero-title">Stop losing 23 minutes<br />every time you switch machines</h1>
+        <p class="hero-subtitle">ctx-sync preserves your entire development context — projects, env vars, Docker services, mental state — and restores it in seconds. Encrypted. Git-backed. No backend.</p>
+        <div class="hero-cta">
+          <div class="install-command" id="install-command">
+            <code>npm install -g ctx-sync</code>
+            <button class="copy-btn" data-copy="npm install -g ctx-sync" aria-label="Copy install command">
+              <span class="copy-icon">&#128203;</span>
+              <span class="copy-label">Copy</span>
+            </button>
+          </div>
+          <a href="/docs/getting-started.html" class="btn btn-secondary">Get Started</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Problem Section -->
+  <section class="section" id="problem">
+    <div class="container">
+      <h2 class="section-title">The Context Switch Tax</h2>
+      <p class="section-subtitle">Research shows developers lose <strong>23 minutes</strong> regaining flow state after interruptions. Switching machines makes it worse.</p>
+      <div class="problem-grid">
+        <div class="problem-card">
+          <span class="problem-icon">&#10060;</span>
+          <h3>Lost project state</h3>
+          <p>Which repos were you working in? What branch? Uncommitted changes?</p>
+        </div>
+        <div class="problem-card">
+          <span class="problem-icon">&#10060;</span>
+          <h3>Missing env variables</h3>
+          <p>API keys, database URLs, service tokens — all gone on the new machine.</p>
+        </div>
+        <div class="problem-card">
+          <span class="problem-icon">&#10060;</span>
+          <h3>Docker not running</h3>
+          <p>PostgreSQL, Redis, your custom services — nothing is started.</p>
+        </div>
+        <div class="problem-card">
+          <span class="problem-icon">&#10060;</span>
+          <h3>Lost mental context</h3>
+          <p>"What was I working on? Where did I leave off? What were the blockers?"</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="section section-alt" id="features">
+    <div class="container">
+      <h2 class="section-title">Everything You Need</h2>
+      <p class="section-subtitle">ctx-sync tracks your complete development context — not just config files.</p>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">&#128194;</div>
+          <h3>Project State</h3>
+          <p>Auto-detects Git repos, tracks branches, remotes, and uncommitted changes across all your projects.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128274;</div>
+          <h3>Encrypted Env Vars</h3>
+          <p>Import from .env files. All values encrypted by default with Age encryption. Zero manual entry on new machines.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128051;</div>
+          <h3>Docker Services</h3>
+          <p>Track docker-compose services and restore them with a single command. All commands confirmed before execution.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128161;</div>
+          <h3>Mental Context</h3>
+          <p>Track current tasks, blockers, next steps, and breadcrumbs. Never lose your train of thought again.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128259;</div>
+          <h3>Git-Backed Sync</h3>
+          <p>Uses Git as the backend. No servers, no accounts, no vendor lock-in. You own your data.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128101;</div>
+          <h3>Team Support</h3>
+          <p>Multi-recipient Age encryption. Share context with team members. Built-in key revocation.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="section" id="how-it-works">
+    <div class="container">
+      <h2 class="section-title">How It Works</h2>
+      <p class="section-subtitle">Three commands. That's it.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h3>Track</h3>
+            <div class="code-block">
+              <code>cd ~/projects/my-app<br />ctx-sync track</code>
+              <button class="copy-btn" data-copy="cd ~/projects/my-app && ctx-sync track" aria-label="Copy command">&#128203;</button>
+            </div>
+            <p>Auto-detects Git state, .env files, Docker services. Prompts for mental context. Everything encrypted.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h3>Sync</h3>
+            <div class="code-block">
+              <code>ctx-sync sync</code>
+              <button class="copy-btn" data-copy="ctx-sync sync" aria-label="Copy command">&#128203;</button>
+            </div>
+            <p>Pushes encrypted state to your private Git repo. Pulls updates from other machines.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h3>Restore</h3>
+            <div class="code-block">
+              <code>ctx-sync restore my-app</code>
+              <button class="copy-btn" data-copy="ctx-sync restore my-app" aria-label="Copy command">&#128203;</button>
+            </div>
+            <p>Decrypts env vars, shows mental context, prompts to start Docker services. Ready in seconds.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Security Section -->
+  <section class="section section-alt" id="security">
+    <div class="container">
+      <h2 class="section-title">Security First</h2>
+      <p class="section-subtitle">Designed with a zero-trust, encrypt-everything approach.</p>
+      <div class="security-grid">
+        <div class="security-card">
+          <h3>Encrypt Everything</h3>
+          <p>All state files encrypted with Age. Not just secrets — project names, paths, and mental context too. An attacker with your Git repo sees only ciphertext.</p>
+        </div>
+        <div class="security-card">
+          <h3>No Backend</h3>
+          <p>Git is the only transport. No servers, no accounts, no third-party access to your data. Works completely offline.</p>
+        </div>
+        <div class="security-card">
+          <h3>No Side-Channel Leaks</h3>
+          <p>Secrets never appear in CLI arguments, shell history, process lists, logs, or temp files. Encryption/decryption happens in memory only.</p>
+        </div>
+        <div class="security-card">
+          <h3>Command Confirmation</h3>
+          <p>Restored commands (Docker, services) always shown for explicit approval. Prevents remote code execution via compromised repos.</p>
+        </div>
+      </div>
+      <div class="security-cta">
+        <a href="/docs/security.html" class="btn btn-outline">Read the full security model</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison Section -->
+  <section class="section" id="comparison">
+    <div class="container">
+      <h2 class="section-title">How ctx-sync Compares</h2>
+      <div class="comparison-table-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th class="highlight">ctx-sync</th>
+              <th>Atuin</th>
+              <th>Dotfiles Managers</th>
+              <th>Cloud IDEs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Project state tracking</td>
+              <td class="highlight yes">Yes</td>
+              <td class="no">No</td>
+              <td class="no">No</td>
+              <td class="partial">Partial</td>
+            </tr>
+            <tr>
+              <td>Environment variables</td>
+              <td class="highlight yes">Encrypted</td>
+              <td class="no">No</td>
+              <td class="no">No</td>
+              <td class="partial">Varies</td>
+            </tr>
+            <tr>
+              <td>Docker state</td>
+              <td class="highlight yes">Yes</td>
+              <td class="no">No</td>
+              <td class="no">No</td>
+              <td class="partial">Some</td>
+            </tr>
+            <tr>
+              <td>Mental context</td>
+              <td class="highlight yes">Yes</td>
+              <td class="no">No</td>
+              <td class="no">No</td>
+              <td class="no">No</td>
+            </tr>
+            <tr>
+              <td>Shell history</td>
+              <td class="no">No</td>
+              <td class="yes">Yes</td>
+              <td class="no">No</td>
+              <td class="partial">Varies</td>
+            </tr>
+            <tr>
+              <td>End-to-end encryption</td>
+              <td class="highlight yes">Yes (Age)</td>
+              <td class="partial">Optional</td>
+              <td class="no">No</td>
+              <td class="no">No</td>
+            </tr>
+            <tr>
+              <td>No backend required</td>
+              <td class="highlight yes">Yes (Git)</td>
+              <td class="no">Server needed</td>
+              <td class="yes">Yes</td>
+              <td class="no">Cloud</td>
+            </tr>
+            <tr>
+              <td>Works offline</td>
+              <td class="highlight yes">Yes</td>
+              <td class="partial">Partial</td>
+              <td class="yes">Yes</td>
+              <td class="no">No</td>
+            </tr>
+            <tr>
+              <td>Team support</td>
+              <td class="highlight yes">Multi-key</td>
+              <td class="no">No</td>
+              <td class="no">No</td>
+              <td class="yes">Yes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Getting Started Section -->
+  <section class="section section-alt" id="get-started">
+    <div class="container center-text">
+      <h2 class="section-title">Get Started in 30 Seconds</h2>
+      <div class="getting-started-steps">
+        <div class="code-block code-block-lg">
+          <code><span class="code-comment"># Install</span><br />npm install -g ctx-sync<br /><br /><span class="code-comment"># Setup encryption + Git remote</span><br />ctx-sync init<br /><br /><span class="code-comment"># Track your first project</span><br />cd ~/projects/my-app<br />ctx-sync track<br /><br /><span class="code-comment"># Sync to remote</span><br />ctx-sync sync</code>
+          <button class="copy-btn" data-copy="npm install -g ctx-sync && ctx-sync init" aria-label="Copy install commands">&#128203;</button>
+        </div>
+        <a href="/docs/getting-started.html" class="btn btn-primary btn-lg">Read the full guide</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <span class="logo">ctx-sync</span>
+        <p>Sync your dev context across machines.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Documentation</h4>
+          <a href="/docs/getting-started.html">Getting Started</a>
+          <a href="/docs/commands.html">CLI Reference</a>
+          <a href="/docs/security.html">Security</a>
+          <a href="/docs/teams.html">Teams</a>
+          <a href="/docs/faq.html">FAQ</a>
+        </div>
+        <div class="footer-col">
+          <h4>Project</h4>
+          <a href="https://github.com/user/ctx-sync" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/user/ctx-sync/issues" target="_blank" rel="noopener">Issues</a>
+          <a href="https://www.npmjs.com/package/ctx-sync" target="_blank" rel="noopener">npm</a>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <a href="https://github.com/user/ctx-sync/blob/main/LICENSE">MIT License</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container">
+        <p>Built with zero frameworks. Encrypted by default.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>

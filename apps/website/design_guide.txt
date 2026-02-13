@@ -1,0 +1,144 @@
+Brand & Visual Identity Specification
+Color Palette
+Background System:
+	∙	Primary background: Deep charcoal black (#1a1a1a to #0d0d0d range)
+	∙	Secondary background: Slightly lighter black (#252525 to #2a2a2a) - used for elevated cards/panels
+	∙	Tertiary background: Mid-dark gray (#2f2f2f to #353535) - used for nested or hover states
+Accent Colors:
+	∙	Primary blue: Bright electric blue (#0ea5e9 to #06b6d4) - used for GET methods, primary interactive elements
+	∙	Success green: Vibrant lime/mint green (#22c55e to #10b981) - used for POST/PUT methods
+	∙	Warning orange: Coral/salmon (#fb923c to #f97316) - used for POST methods in some contexts
+	∙	Danger red: Bright red (#ef4444 to #dc2626) - used for DELETE methods
+	∙	Purple accent: Soft purple (#a855f7 to #9333ea) - decorative, used sparingly for visual interest
+	∙	Pink accent: Hot pink (#ec4899 to #db2777) - decorative, used sparingly
+Text Colors:
+	∙	Primary text: Pure white (#ffffff) or near-white (#fafafa)
+	∙	Secondary text: Light gray (#9ca3af to #a1a1aa)
+	∙	Tertiary text: Medium gray (#6b7280 to #71717a)
+	∙	Disabled text: Dark gray (#4b5563)
+Typography
+Font Family:
+	∙	Primary: Modern sans-serif, likely “Inter”, “SF Pro”, or similar - clean, tech-focused
+	∙	Monospace: For code/technical values - “JetBrains Mono”, “Fira Code”, or similar
+Font Weights:
+	∙	Headers/labels: Semi-bold (600)
+	∙	Body text: Regular (400)
+	∙	De-emphasized text: Regular (400) with lower opacity
+Font Sizes:
+	∙	Large headers: 16-18px
+	∙	Section headers: 14-15px
+	∙	Body/default: 13-14px
+	∙	Small labels: 11-12px
+	∙	Tiny metadata: 10-11px
+Letter Spacing:
+	∙	Slightly tight (-0.01em to -0.015em) for modern, compact feel
+	∙	Normal for body text
+Borders & Strokes
+Border Style:
+	∙	Width: Consistently thin (1px)
+	∙	Color: Very dark gray with slight transparency (#ffffff at 5-10% opacity or #2a2a2a to #3a3a3a)
+	∙	Radius: Generous, modern roundedness (6-8px for most elements, 4-5px for smaller elements)
+Dividers:
+	∙	Same color as borders but even more subtle
+	∙	Used sparingly to separate logical sections
+Shadows & Depth
+Elevation System:
+	∙	Subtle shadows throughout - not heavy drop shadows
+	∙	Cards/panels: box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)
+	∙	Hovered elements: Slightly stronger shadow with blue tint 0 4px 12px rgba(14, 165, 233, 0.15)
+	∙	Overlays: Stronger, more diffused 0 8px 24px rgba(0, 0, 0, 0.5)
+Glow Effects:
+	∙	Accent elements (like the blue GET badge) have subtle glow: box-shadow: 0 0 12px rgba(14, 165, 233, 0.3)
+	∙	Interactive elements get subtle color glow on hover
+Spacing & Layout
+Padding System (8px base unit):
+	∙	Tight: 8px (1 unit)
+	∙	Compact: 12px (1.5 units)
+	∙	Default: 16px (2 units)
+	∙	Comfortable: 24px (3 units)
+	∙	Spacious: 32px (4 units)
+Gap System:
+	∙	Between related items: 8-12px
+	∙	Between sections: 16-20px
+	∙	Between major components: 24-32px
+Layout Principles:
+	∙	Generous white space (well, black space) - never cramped
+	∙	Consistent padding within similar component types
+	∙	Optical alignment - elements aligned with intention, not just mathematically
+Interactive Elements
+Buttons & Pills:
+	∙	Method badges (GET, POST, etc.):
+	∙	Small, pill-shaped with generous horizontal padding (12-16px)
+	∙	Uppercase text (10-11px, bold/semi-bold)
+	∙	Background is the accent color at full opacity
+	∙	Subtle glow effect matching the color
+	∙	Border radius: 4-5px (quite rounded, almost fully pill-shaped)
+Hover States:
+	∙	Background: Lighten by 5-10% or add white overlay at 5% opacity
+	∙	Border: Increase brightness or add accent color tint
+	∙	Transition: Smooth, 150-200ms ease-in-out
+	∙	Cursor: Always pointer for interactive elements
+Focus States:
+	∙	Accent color border (2px) or outline
+	∙	Subtle glow matching accent color
+	∙	Never remove focus indicators
+Cards & Containers
+Panel Style:
+	∙	Background: Slightly lighter than main background
+	∙	Border: 1px solid subtle gray
+	∙	Border radius: 6-8px
+	∙	Padding: 16-20px
+	∙	Shadow: Subtle elevation shadow
+Nested Cards:
+	∙	Can have blue accent border (1-2px) for emphasis
+	∙	Slightly different background tone to show nesting
+	∙	Maintain consistent border radius
+Icons & Graphics
+Icon Style:
+	∙	Line-based, not filled
+	∙	Stroke width: 1.5-2px
+	∙	Size: 16-20px for inline, 20-24px for standalone
+	∙	Color: Matches text color of context (white or gray)
+	∙	Hover: Accent color transition
+Decorative Elements:
+	∙	Playful colored shapes/icons (purple wands, pink tags) used sparingly
+	∙	These add personality without overwhelming
+	∙	Positioned with intentional randomness - not rigid grid
+Component-Specific Styling
+Tags/Labels:
+	∙	Small, rounded rectangles (border-radius: 3-4px)
+	∙	Background: Semi-transparent or solid colored
+	∙	Padding: 4px horizontal, 2px vertical (very compact)
+	∙	Text: Uppercase, 10-11px, semi-bold
+Badges (number indicators like “5”, “2”):
+	∙	Square or slightly rounded (border-radius: 3px)
+	∙	Background: Dark gray (#3a3a3a)
+	∙	White text, 11-12px
+	∙	Compact padding: 3-4px
+Input Fields:
+	∙	Dark background matching secondary panels
+	∙	White text
+	∙	Border: 1px subtle gray
+	∙	Focus: Accent color border + glow
+	∙	Border radius: 6px
+	∙	Padding: 10-12px
+Overall Aesthetic Principles
+Mood:
+	∙	Professional yet playful
+	∙	Modern, tech-forward
+	∙	Dark but not oppressive
+	∙	High contrast for readability
+	∙	Colorful accents prevent monotony
+Contrast Strategy:
+	∙	White text on dark backgrounds for readability
+	∙	Colored accents pop dramatically
+	∙	Subtle grays for hierarchy without harshness
+Visual Rhythm:
+	∙	Consistent use of rounded corners creates softness
+	∙	Pill-shaped badges create visual flow
+	∙	Decorative icons break up technical density
+Whitespace Philosophy:
+	∙	Never crowded - elements breathe
+	∙	Padding is generous but not wasteful
+	∙	Grouping through proximity, not just lines
+This is a modern dark-themed developer tool aesthetic with playful touches - think “serious tool that doesn’t take itself too seriously.“​​​​​​​​​​​​​​​​

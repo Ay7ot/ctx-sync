@@ -3,6 +3,7 @@ node_modules/
 
 # Build output
 dist/
+apps/website/public/docs/
 
 # Coverage
 coverage/

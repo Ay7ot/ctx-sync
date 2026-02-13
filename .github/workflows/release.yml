@@ -28,5 +28,15 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Deploy website (placeholder)
-        run: echo "Website deployment will be added in Phase 17"
+      - name: Build website
+        run: npm run build -w apps/website
+
+      - name: Run website tests
+        run: npm run test -w apps/website
+
+      - name: Deploy website to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        if: github.ref_type == 'tag'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: apps/website/public

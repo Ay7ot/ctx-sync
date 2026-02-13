@@ -7,7 +7,16 @@
   "scripts": {
     "build": "npx tsx scripts/build-docs.ts",
     "serve": "npx serve public",
-    "dev": "npx serve public"
+    "dev": "npx serve public",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "test:unit": "NODE_OPTIONS='--experimental-vm-modules' jest test/"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "30.0.0",
+    "jest": "30.2.0",
+    "marked": "17.0.2",
+    "serve": "14.2.5",
+    "ts-jest": "29.4.6"
+  }
 }
