@@ -19,7 +19,7 @@
 11. [Phase 5 — Environment Variable Management ✅](#phase-5--environment-variable-management-)
 12. [Phase 6 — Sync Commands (`sync`, `push`, `pull`) ✅](#phase-6--sync-commands-sync-push-pull-)
 13. [Phase 7 — Restore Command & Command-Execution Safety](#phase-7--restore-command--command-execution-safety)
-14. [Phase 8 — Mental Context (`note`, `show`)](#phase-8--mental-context-note-show)
+14. [Phase 8 — Mental Context (`note`, `show`) ✅](#phase-8--mental-context-note-show-)
 15. [Phase 9 — Docker / Container State](#phase-9--docker--container-state)
 16. [Phase 10 — Running Services & Working Directories](#phase-10--running-services--working-directories)
 17. [Phase 11 — Key Rotation, Verification & Audit](#phase-11--key-rotation-verification--audit)
@@ -1369,14 +1369,14 @@ jobs:
 
 ---
 
-## Phase 8 — Mental Context (`note`, `show`)
+## Phase 8 — Mental Context (`note`, `show`) ✅
 
 > **Goal:** Track tasks, blockers, breadcrumbs, next steps — the "23-minute problem" solution.
 
 ### Task 8.1 — `ctx-sync note <project>` command
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/commands/note.ts`:
+- [x] Create `apps/cli/src/commands/note.ts`:
   - Interactive prompts: current task, blockers, next steps, related links, breadcrumbs.
   - Write to `mental-context.age` (encrypted).
   - Support updating existing context (merge, not overwrite).
@@ -1403,14 +1403,14 @@ jobs:
 - Context is encrypted.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
 ### Task 8.2 — `ctx-sync show <project>` command
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/commands/show.ts`:
+- [x] Create `apps/cli/src/commands/show.ts`:
   - Decrypt and display full project context: state, env var count, mental context, Docker services, running services.
   - Formatted, readable output with chalk.
 
@@ -1428,7 +1428,7 @@ jobs:
 - Full context visible at a glance.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
