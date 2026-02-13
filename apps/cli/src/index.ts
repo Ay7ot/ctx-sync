@@ -27,6 +27,7 @@ import { registerDirCommand } from './commands/dir.js';
 import { registerKeyCommand } from './commands/key.js';
 import { registerAuditCommand } from './commands/audit.js';
 import { registerTeamCommand } from './commands/team.js';
+import { registerConfigCommand } from './commands/config.js';
 
 /**
  * Create and configure the root CLI program.
@@ -59,6 +60,7 @@ export function createProgram(): Command {
   registerKeyCommand(program);
   registerAuditCommand(program);
   registerTeamCommand(program);
+  registerConfigCommand(program);
 
   return program;
 }

@@ -149,6 +149,16 @@ export interface RecipientsConfig {
   members: TeamMember[];
 }
 
+/**
+ * User configuration stored in ~/.config/ctx-sync/config.json (never synced).
+ *
+ * Contains local preferences such as custom safe-list additions.
+ */
+export interface UserConfig {
+  /** Custom env var keys added to the safe-list (merged with DEFAULT_SAFE_LIST) */
+  safeList?: string[];
+}
+
 /** File metadata in manifest */
 export interface ManifestFileEntry {
   lastModified: string;

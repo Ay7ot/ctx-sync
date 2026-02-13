@@ -24,7 +24,7 @@
 16. [Phase 10 — Running Services & Working Directories ✅](#phase-10--running-services--working-directories-)
 17. [Phase 11 — Key Rotation, Verification & Audit ✅](#phase-11--key-rotation-verification--audit-)
 18. [Phase 12 — Team / Multi-Recipient Support ✅](#phase-12--team--multi-recipient-support-)
-19. [Phase 13 — Config & Safe-List Management](#phase-13--config--safe-list-management)
+19. [Phase 13 — Config & Safe-List Management ✅](#phase-13--config--safe-list-management-)
 20. [Phase 14 — Security Hardening & Penetration Tests](#phase-14--security-hardening--penetration-tests)
 21. [Phase 15 — Performance Benchmarking](#phase-15--performance-benchmarking)
 22. [Phase 16 — Polish, UX & Error Handling](#phase-16--polish-ux--error-handling)
@@ -1835,36 +1835,57 @@ jobs:
 
 ---
 
-## Phase 13 — Config & Safe-List Management
+## Phase 13 — Config & Safe-List Management ✅
 
 > **Goal:** User-configurable safe-list and local preferences.
+>
+> **Status:** Complete. Config commands, config store, and full test coverage implemented.
 
-### Task 13.1 — `ctx-sync config safe-list` commands
+### Task 13.1 — `ctx-sync config safe-list` commands ✅
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/commands/config.ts`:
+- [x] Add `UserConfig` type to `packages/shared/src/types.ts` (with `safeList?: string[]`).
+- [x] Create `apps/cli/src/core/config-store.ts`:
+  - `getUserConfig(configDir)` / `saveUserConfig(configDir, config)` — read/write `config.json`.
+  - `getEffectiveSafeList(configDir)` — merge `DEFAULT_SAFE_LIST` with user additions (uppercased, deduplicated).
+  - `addToSafeList(configDir, key)` — add key with duplicate/default detection.
+  - `removeFromSafeList(configDir, key)` — remove key, protect built-in defaults.
+  - `listSafeList(configDir)` — return defaults, custom, and effective lists.
+- [x] Create `apps/cli/src/commands/config.ts`:
   - `config safe-list` — view current safe-list (default + custom).
   - `config safe-list add <key>` — add key to user's safe-list.
   - `config safe-list remove <key>` — remove key (will be encrypted on next sync).
-- [ ] Safe-list stored in `~/.config/ctx-sync/config.json` (local, never synced).
+- [x] Registered in `index.ts`.
+- [x] Safe-list stored in `~/.config/ctx-sync/config.json` (local, never synced).
 
 **Test plan:**
 
-- *Unit tests*:
-  - Add/remove/list operations on safe-list.
-  - Default safe-list always present.
-  - Custom additions merge with defaults.
+- *Unit tests* (`test/unit/config-store.test.ts`): ✅ 22 tests passing
+  - getUserConfig/saveUserConfig round-trip.
+  - getEffectiveSafeList merges defaults with custom, deduplicates, uppercases.
+  - addToSafeList: new key, default overlap rejected, duplicate rejected, case-insensitive.
+  - removeFromSafeList: custom removal, default protection, case-insensitive.
+  - listSafeList: defaults vs custom split.
 
-- *E2E tests*:
-  - Add custom key to safe-list → `env import --allow-plain` → that key treated as plain.
-  - Remove from safe-list → key encrypted on next import.
+- *Unit tests* (`test/unit/config-command.test.ts`): ✅ 8 tests passing
+  - executeSafeListView: defaults only, custom included.
+  - executeSafeListAdd: new key, default rejected, duplicate rejected.
+  - executeSafeListRemove: custom removed, default protected, missing reported.
+
+- *E2E tests* (`test/e2e/config-safelist.test.ts`): ✅ 12 tests passing
+  - View default safe-list, custom additions shown.
+  - Add custom key, reject default duplicate, reject custom duplicate, uppercase normalisation.
+  - Remove custom key, refuse default removal, report missing key.
+  - Config persists in config dir (not sync dir).
+  - Integration with `env import --allow-plain` uses custom safe-list.
+  - Removed key treated as encrypted on next import.
 
 **Acceptance criteria:**
 - Safe-list is customizable.
 - Changes apply correctly to future imports.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
