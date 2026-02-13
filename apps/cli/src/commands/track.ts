@@ -256,7 +256,7 @@ export function registerTrackCommand(program: Command): void {
         if (result.dockerComposeFound) {
           console.log(
             chalk.cyan(
-              '   ℹ Docker Compose found — service tracking coming in a future release',
+              '   ℹ Docker Compose found — use `ctx-sync docker track` to track services',
             ),
           );
         }

@@ -21,6 +21,7 @@ import { registerPullCommand } from './commands/pull.js';
 import { registerRestoreCommand } from './commands/restore.js';
 import { registerNoteCommand } from './commands/note.js';
 import { registerShowCommand } from './commands/show.js';
+import { registerDockerCommand } from './commands/docker.js';
 
 /**
  * Create and configure the root CLI program.
@@ -47,6 +48,7 @@ export function createProgram(): Command {
   registerRestoreCommand(program);
   registerNoteCommand(program);
   registerShowCommand(program);
+  registerDockerCommand(program);
 
   return program;
 }

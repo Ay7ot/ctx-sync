@@ -20,7 +20,7 @@
 12. [Phase 6 — Sync Commands (`sync`, `push`, `pull`) ✅](#phase-6--sync-commands-sync-push-pull-)
 13. [Phase 7 — Restore Command & Command-Execution Safety](#phase-7--restore-command--command-execution-safety)
 14. [Phase 8 — Mental Context (`note`, `show`) ✅](#phase-8--mental-context-note-show-)
-15. [Phase 9 — Docker / Container State](#phase-9--docker--container-state)
+15. [Phase 9 — Docker / Container State ✅](#phase-9--docker--container-state-)
 16. [Phase 10 — Running Services & Working Directories](#phase-10--running-services--working-directories)
 17. [Phase 11 — Key Rotation, Verification & Audit](#phase-11--key-rotation-verification--audit)
 18. [Phase 12 — Team / Multi-Recipient Support](#phase-12--team--multi-recipient-support)
@@ -1432,29 +1432,44 @@ jobs:
 
 ---
 
-## Phase 9 — Docker / Container State
+## Phase 9 — Docker / Container State ✅
 
 > **Goal:** Track and restore Docker compose services.
+>
+> **Status:** Complete. Both tasks done. Docker handler core module, docker command group (track, start, stop, status), command-validator integration, comprehensive tests.
 
-### Task 9.1 — Docker state tracking
+### Task 9.1 — Docker state tracking ✅
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/core/docker-handler.ts`:
-  - `detectDockerCompose(projectDir)` — finds `docker-compose.yml` / `compose.yml`.
-  - `parseComposeFile(filePath)` — extracts services, ports, images, volumes.
-  - `getRunningContainers(projectDir)` — queries Docker for current state.
-  - `saveDockerState(project, state, publicKey)` — encrypts to `docker-state.age`.
+- [x] Create `apps/cli/src/core/docker-handler.ts`:
+  - `detectDockerCompose(projectDir)` — finds `docker-compose.yml` / `compose.yml` / `docker-compose.yaml` / `compose.yaml`.
+  - `parseComposeFile(filePath)` — extracts services, ports, images, volumes, healthchecks, networks.
+  - `parseComposeContent(content)` — line-based YAML parser for compose files.
+  - `getRunningContainers(projectDir)` — queries Docker for current state via `docker compose ps`.
+  - `isDockerAvailable()` — checks Docker availability gracefully.
+  - `buildDockerStateEntry(projectName, projectDir)` — builds typed DockerState entry from compose file.
+  - `saveDockerState(syncDir, projectName, entry, publicKey, privateKey)` — encrypts to `docker-state.age`.
+  - `loadDockerState(syncDir, projectName, privateKey)` — loads single project Docker state.
+  - `loadAllDockerState(syncDir, privateKey)` — loads all Docker state.
+  - `removeDockerState(syncDir, projectName, publicKey, privateKey)` — removes project Docker state.
 
 **Test plan:**
 
-- *Unit tests*:
+- *Unit tests* (`test/unit/docker-handler.test.ts`): ✅ 31 tests passing
   - Parse a sample `docker-compose.yml` → correct service list.
   - Handle missing Docker gracefully (Docker not installed).
   - Handle missing compose file gracefully.
+  - Parse host ports in various formats (simple, three-part, with protocol suffix).
+  - Compose file detection priority (docker-compose.yml > compose.yml).
+  - Healthcheck parsing (inline array and multi-line).
+  - Save/load/remove encrypted Docker state round-trip.
 
-- *Integration tests*:
-  - Write docker state → read back → matches.
-  - Docker state encrypted on disk.
+- *Integration tests* (`test/integration/docker-workflow.test.ts`): ✅ 7 tests passing
+  - Full lifecycle: detect → parse → save → load → verify data matches.
+  - Multi-project Docker state.
+  - Docker state encrypted on disk (no plaintext).
+  - Wrong key → decryption failure.
+  - Remove Docker state for project.
 
 **Acceptance criteria:**
 - Docker compose files parsed correctly.
@@ -1462,39 +1477,52 @@ jobs:
 - Missing Docker → graceful message, not crash.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
-### Task 9.2 — `ctx-sync docker` commands
+### Task 9.2 — `ctx-sync docker` commands ✅
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/commands/docker.ts`:
+- [x] Create `apps/cli/src/commands/docker.ts`:
+  - `ctx-sync docker track` — detects and saves Docker Compose state for a project.
   - `ctx-sync docker start <project>` — shows Docker commands for approval, then executes approved ones.
   - `ctx-sync docker stop <project>` — stops tracked services.
-  - `ctx-sync docker status` — shows running services.
-- [ ] All start commands go through command validator (approval required).
+  - `ctx-sync docker status [project]` — shows tracked/running services.
+- [x] All start commands go through command validator (approval required).
+- [x] Registered in `index.ts`, updated `track.ts` hint to reference `docker track`.
 
 **Test plan:**
 
-- *Unit tests*:
+- *Unit tests* (`test/unit/docker-command.test.ts`): ✅ 14 tests passing
   - Commands shown for approval.
   - Docker images displayed explicitly.
   - No auto-execution.
+  - Non-interactive mode skips all commands.
+  - Interactive mode with promptFn executes approved commands.
 
-- *E2E tests*:
+- *E2E tests* (`test/e2e/docker.test.ts`): ✅ 8 tests passing
   - Track project with compose file → `docker status` → shows services.
   - `docker start` → shows commands for approval (non-interactive skips).
+  - Encrypt Docker state on disk (verified `.age` file content).
+  - Filter by project name in status.
+  - Graceful handling when Docker is not available.
 
-- *Security tests*:
-  - Suspicious Docker images flagged.
-  - No auto-pull without confirmation.
+- *Security tests* (`test/security/docker-security.test.ts`): ✅ 14 tests passing
+  - Docker state encrypted on disk (no plaintext service names, images, ports, paths).
+  - No plaintext `docker-state.json` file.
+  - Wrong key → decryption failure.
+  - Suspicious Docker images flagged (unknown registries).
+  - Official Docker Hub and known registries accepted.
+  - Command injection patterns detected (command substitution, piped to shell).
+  - Normal Docker compose commands accepted.
+  - `buildDockerStartCommands` builds commands without executing.
 
 **Acceptance criteria:**
 - Docker services managed through CLI with safety guards.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
