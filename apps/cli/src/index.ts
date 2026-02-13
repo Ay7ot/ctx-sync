@@ -19,6 +19,8 @@ import { registerSyncCommand } from './commands/sync.js';
 import { registerPushCommand } from './commands/push.js';
 import { registerPullCommand } from './commands/pull.js';
 import { registerRestoreCommand } from './commands/restore.js';
+import { registerNoteCommand } from './commands/note.js';
+import { registerShowCommand } from './commands/show.js';
 
 /**
  * Create and configure the root CLI program.
@@ -43,6 +45,8 @@ export function createProgram(): Command {
   registerPushCommand(program);
   registerPullCommand(program);
   registerRestoreCommand(program);
+  registerNoteCommand(program);
+  registerShowCommand(program);
 
   return program;
 }
