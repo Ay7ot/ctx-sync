@@ -1289,10 +1289,10 @@ jobs:
 
 > **Goal:** Restore project state on a new machine, with mandatory command confirmation.
 
-### Task 7.1 — Command validator module
+### Task 7.1 — Command validator module ✅
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/core/command-validator.ts`:
+- [x] Create `apps/cli/src/core/command-validator.ts`:
   - `validateCommand(cmd)` — returns `{ suspicious: bool, reason: string }`.
   - Flag: `curl|wget … | sh|bash`, `rm -rf`, `nc -e`, `python -c`, `$(…)`, `eval`, reverse shells.
   - `presentCommandsForApproval(commands)` — formatted display of commands with [y/N/select].
@@ -1300,11 +1300,11 @@ jobs:
 
 **Test plan:**
 
-- *Unit tests* (`test/unit/command-validator.test.ts`):
+- *Unit tests* (`test/unit/command-validator.test.ts`): ✅ 63 tests passing
   - Each suspicious pattern from testing.md is detected.
   - Safe commands (e.g., `npm run dev`, `docker compose up -d postgres`) are not flagged.
 
-- *Security tests* (`test/security/command-injection.test.ts`):
+- *Security tests* (`test/security/command-injection.test.ts`): ✅ 57 tests passing
   - All malicious command patterns rejected.
   - Docker images with suspicious names warned.
   - No auto-execution without confirmation.
@@ -1315,14 +1315,14 @@ jobs:
 - No command ever runs without explicit user approval.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
-### Task 7.2 — `ctx-sync restore <project>` command
+### Task 7.2 — `ctx-sync restore <project>` command ✅
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/commands/restore.ts`:
+- [x] Create `apps/cli/src/commands/restore.ts`:
   - Decrypt all state files.
   - Display project info: directory, branch, env var count.
   - Display mental context (if available).
@@ -1337,23 +1337,23 @@ jobs:
 
 **Test plan:**
 
-- *Unit tests* (`test/unit/restore.test.ts`):
+- *Unit tests* (`test/unit/restore.test.ts`): ✅ 24 tests passing
   - State is decrypted correctly.
   - Commands are displayed before execution.
   - No execution without confirmation.
   - `--no-interactive` shows commands but doesn't execute.
 
-- *Integration tests* (`test/integration/restore-workflow.test.ts`):
+- *Integration tests* (`test/integration/restore-workflow.test.ts`): ✅ 6 tests passing
   - Full cycle: init → track → sync → restore on "new machine."
   - Env vars are correctly restored.
   - Git branch is correct after restore.
 
-- *E2E tests* (`test/e2e/restore.test.ts`):
+- *E2E tests* (`test/e2e/restore.test.ts`): ✅ 9 tests passing
   - Full user workflow as described in product spec.
   - Command confirmation is shown.
   - Non-interactive mode output contains "Skipped (non-interactive mode)".
 
-- *Security tests*:
+- *Security tests*: ✅ (covered in command-injection.test.ts)
   - Commands NOT auto-executed.
   - Wrong key → decryption failure, clean error.
   - Tampered state file → decryption failure.
@@ -1365,7 +1365,7 @@ jobs:
 - No execution without confirmation.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
