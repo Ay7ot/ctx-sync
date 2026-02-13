@@ -24,6 +24,8 @@ import { registerShowCommand } from './commands/show.js';
 import { registerDockerCommand } from './commands/docker.js';
 import { registerServiceCommand } from './commands/service.js';
 import { registerDirCommand } from './commands/dir.js';
+import { registerKeyCommand } from './commands/key.js';
+import { registerAuditCommand } from './commands/audit.js';
 
 /**
  * Create and configure the root CLI program.
@@ -53,6 +55,8 @@ export function createProgram(): Command {
   registerDockerCommand(program);
   registerServiceCommand(program);
   registerDirCommand(program);
+  registerKeyCommand(program);
+  registerAuditCommand(program);
 
   return program;
 }
