@@ -18,6 +18,7 @@ import { registerEnvCommand } from './commands/env.js';
 import { registerSyncCommand } from './commands/sync.js';
 import { registerPushCommand } from './commands/push.js';
 import { registerPullCommand } from './commands/pull.js';
+import { registerRestoreCommand } from './commands/restore.js';
 
 /**
  * Create and configure the root CLI program.
@@ -41,6 +42,7 @@ export function createProgram(): Command {
   registerSyncCommand(program);
   registerPushCommand(program);
   registerPullCommand(program);
+  registerRestoreCommand(program);
 
   return program;
 }
