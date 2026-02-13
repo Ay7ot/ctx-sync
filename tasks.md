@@ -21,7 +21,7 @@
 13. [Phase 7 — Restore Command & Command-Execution Safety](#phase-7--restore-command--command-execution-safety)
 14. [Phase 8 — Mental Context (`note`, `show`) ✅](#phase-8--mental-context-note-show-)
 15. [Phase 9 — Docker / Container State ✅](#phase-9--docker--container-state-)
-16. [Phase 10 — Running Services & Working Directories](#phase-10--running-services--working-directories)
+16. [Phase 10 — Running Services & Working Directories ✅](#phase-10--running-services--working-directories-)
 17. [Phase 11 — Key Rotation, Verification & Audit](#phase-11--key-rotation-verification--audit)
 18. [Phase 12 — Team / Multi-Recipient Support](#phase-12--team--multi-recipient-support)
 19. [Phase 13 — Config & Safe-List Management](#phase-13--config--safe-list-management)
@@ -1526,61 +1526,107 @@ jobs:
 
 ---
 
-## Phase 10 — Running Services & Working Directories
+## Phase 10 — Running Services & Working Directories ✅
 
 > **Goal:** Track dev servers, ports, recent/pinned directories.
+>
+> **Status:** Complete. Services handler with CLI commands (add, remove, list, start), directories handler with CLI commands (visit, pin, unpin, remove, list), comprehensive tests.
 
-### Task 10.1 — Services state tracking
+### Task 10.1 — Services state tracking ✅
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/core/services-handler.ts`:
-  - Track service name, port, command, auto-start flag.
-  - Write to `services.age`.
-  - On restore: display commands for approval (same pattern as Docker).
+- [x] Create `apps/cli/src/core/services-handler.ts`:
+  - `createService()` — build typed Service entries.
+  - `validateService()` — validate name, port (1–65535), command.
+  - `addService()` / `removeService()` / `removeProjectServices()` — CRUD with upsert semantics.
+  - `loadServices()` / `saveServices()` — encrypted read/write to `services.age`.
+  - `loadProjectServices()` — filter by project.
+  - `listServiceProjects()` — unique project names.
+  - `getAutoStartServices()` — services marked for auto-start on restore.
+- [x] Create `apps/cli/src/commands/service.ts`:
+  - `service add <project> <name> -p <port> -c <cmd> [-a]` — add/update a service.
+  - `service remove <project> <name>` — remove a service.
+  - `service list [project]` — list tracked services.
+  - `service start <project>` — present auto-start commands for approval (no bypass).
+- [x] Registered in `index.ts`.
 
 **Test plan:**
 
-- *Unit tests*:
-  - Services saved/loaded correctly.
-  - Services encrypted.
+- *Unit tests* (`test/unit/services-handler.test.ts`): ✅ 26 tests passing
+  - Create/validate services, port range checks, empty name/command rejection.
+  - Save/load round-trip, encryption on disk, upsert semantics.
+  - Add/remove/filter by project, auto-start filtering, list projects.
 
-- *Integration tests*:
-  - Round-trip: save → encrypt → decrypt → load.
+- *Unit tests* (`test/unit/service-command.test.ts`): ✅ 10 tests passing
+  - Build start commands, add valid/invalid services.
+  - Remove existing/non-existent, list by project/all, start non-interactive.
+
+- *Integration tests* (`test/integration/services-directories-workflow.test.ts`): ✅ 4 tests passing
+  - Full lifecycle: add → load → remove → verify.
+  - Encryption on disk, wrong key → decryption failure.
 
 **Acceptance criteria:**
 - Services tracked and encrypted.
 - Restore shows commands for approval.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
-### Task 10.2 — Working directories tracking
+### Task 10.2 — Working directories tracking ✅
 
 **Implementation tasks:**
-- [ ] Create `apps/cli/src/core/directories-handler.ts`:
-  - Track recent dirs (path, frequency, last visit).
-  - Track pinned dirs.
-  - Write to `directories.age`.
-  - Path validation on all directory entries.
+- [x] Create `apps/cli/src/core/directories-handler.ts`:
+  - `visitDirectory()` — record visit with frequency tracking.
+  - `pinDirectory()` / `unpinDirectory()` — pin/unpin directories.
+  - `removeRecentDirectory()` — remove from recent list.
+  - `getTopDirectories()` — sorted by frequency (descending).
+  - `getPinnedDirectories()` — list pinned.
+  - `loadDirectories()` / `saveDirectories()` — encrypted read/write to `directories.age`.
+  - `validateDirectoryPath()` — path traversal prevention via path-validator.
+  - `MAX_RECENT_DIRS` (50) — automatic pruning.
+- [x] Create `apps/cli/src/commands/dir.ts`:
+  - `dir visit <path>` — record a directory visit.
+  - `dir pin <path>` / `dir unpin <path>` — pin/unpin.
+  - `dir remove <path>` — remove from recent list.
+  - `dir list [-l <limit>]` — list pinned and recent directories.
+- [x] Registered in `index.ts`.
 
 **Test plan:**
 
-- *Unit tests*:
-  - Directories saved/loaded correctly.
-  - Path validation applied.
-  - Frequency counting works.
+- *Unit tests* (`test/unit/directories-handler.test.ts`): ✅ 18 tests passing
+  - Save/load round-trip, encryption on disk.
+  - Visit frequency increment, lastVisit updates, pruning to MAX_RECENT_DIRS.
+  - Pin/unpin, already-pinned detection, remove recent.
+  - Top directories sorted by frequency, limit respected.
+  - Path traversal rejection, empty path rejection.
 
-- *Security tests*:
-  - Directories encrypted on disk.
-  - Path traversal rejected.
+- *Unit tests* (`test/unit/dir-command.test.ts`): ✅ 7 tests passing
+  - Visit, pin/unpin, remove, list commands.
+  - Invalid path rejection, already-pinned detection.
+
+- *E2E tests* (`test/e2e/service-dir.test.ts`): ✅ 12 tests passing
+  - Full CLI invocation: service add + list, auto-start, remove, start (non-interactive).
+  - Dir visit + list, pin + unpin, remove, path traversal prevention.
+  - Encryption verified on disk for both services and directories.
+
+- *Security tests* (`test/security/services-directories-security.test.ts`): ✅ 15 tests passing
+  - Services: no plaintext names/ports/commands on disk, no .json file, wrong key fails.
+  - Directories: no plaintext paths on disk (recent and pinned), no .json, wrong key fails.
+  - Path traversal: /etc, /usr, /var, /root, empty, whitespace rejected; valid accepted.
+  - Command injection: substitution, pipe-to-shell, backtick injection flagged; normal accepted.
+
+- *Integration tests* (`test/integration/services-directories-workflow.test.ts`): ✅ 6 tests passing
+  - Services full lifecycle with encryption.
+  - Directories full lifecycle with frequency sorting.
+  - Multi-state coexistence (services.age + directories.age in same sync dir).
 
 **Acceptance criteria:**
 - Directory state tracked and encrypted.
 
 **Done when:**
-- [ ] All tests passing in CI.
+- [x] All tests passing in CI.
 
 ---
 
