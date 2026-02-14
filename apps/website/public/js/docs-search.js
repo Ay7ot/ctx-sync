@@ -24,7 +24,7 @@
 
   // --- Load search index ---
   function loadSearchIndex() {
-    return fetch('/docs/search-index.json')
+    return fetch('./search-index.json')
       .then(function (res) {
         if (!res.ok) throw new Error('Failed to load search index');
         return res.json();
@@ -162,7 +162,7 @@
                       r.entry.accent === 'green' ? 'reference' : 'guide';
 
       return (
-        '<a href="/docs/' + r.entry.slug + '.html" class="search-result-item">' +
+        '<a href="./' + r.entry.slug + '.html" class="search-result-item">' +
         '<div class="result-title">' + title +
         ' <span class="result-badge" data-type="' + badgeType + '">' +
         (r.entry.category || 'Docs') + '</span></div>' +
@@ -222,7 +222,7 @@
       var activeClass = i === paletteActiveIndex ? ' active' : '';
 
       return (
-        '<a href="/docs/' + r.entry.slug + '.html" class="cmd-palette-result' + activeClass + '" data-index="' + i + '">' +
+        '<a href="./' + r.entry.slug + '.html" class="cmd-palette-result' + activeClass + '" data-index="' + i + '">' +
         '<div class="cmd-palette-result-icon">' + icon + '</div>' +
         '<div class="cmd-palette-result-text">' +
         '<div class="cmd-palette-result-title">' + title + '</div>' +

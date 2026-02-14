@@ -112,7 +112,7 @@ ctx-sync status
 
 ## Next Steps
 
-- [Full CLI Reference](/docs/commands.html) — All available commands
-- [Security Model](/docs/security.html) — How encryption and key management work
-- [Team Setup](/docs/teams.html) — Share context with your team
-- [FAQ](/docs/faq.html) — Common questions and troubleshooting
+- [Full CLI Reference](./commands.html) — All available commands
+- [Security Model](./security.html) — How encryption and key management work
+- [Team Setup](./teams.html) — Share context with your team
+- [FAQ](./faq.html) — Common questions and troubleshooting

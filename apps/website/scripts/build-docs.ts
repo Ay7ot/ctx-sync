@@ -183,9 +183,9 @@ function generateBreadcrumbs(title: string, slug: string): string {
   if (!slug) return '';
 
   return `<nav class="docs-breadcrumbs" aria-label="Breadcrumb">
-  <a href="/">Home</a>
+  <a href="../">Home</a>
   <span class="breadcrumb-sep">${sepSvg}</span>
-  <a href="/docs/">Docs</a>
+  <a href="./">Docs</a>
   <span class="breadcrumb-sep">${sepSvg}</span>
   <span class="breadcrumb-current">${title}</span>
 </nav>`;
@@ -209,7 +209,7 @@ function generatePageMeta(readingTime: number): string {
 function generateSidebarNav(pages: DocPage[], currentSlug: string): string {
   let nav = '<nav class="docs-sidebar" id="docs-sidebar">\n';
   nav += '  <div class="sidebar-header">\n';
-  nav += '    <a href="/docs/" class="sidebar-title">Documentation</a>\n';
+  nav += '    <a href="./" class="sidebar-title">Documentation</a>\n';
   nav += '    <button class="sidebar-close" id="sidebar-close" aria-label="Close sidebar">&times;</button>\n';
   nav += '  </div>\n';
   nav += '  <div class="sidebar-search">\n';
@@ -229,7 +229,7 @@ function generateSidebarNav(pages: DocPage[], currentSlug: string): string {
 
     const active = page.slug === currentSlug ? ' class="active"' : '';
     const accentAttr = page.slug === currentSlug ? ` data-accent="${page.accent}"` : '';
-    nav += `    <li${active}${accentAttr}><a href="/docs/${page.slug}.html"><span class="nav-icon">${page.icon}</span>${page.title}</a></li>\n`;
+    nav += `    <li${active}${accentAttr}><a href="./${page.slug}.html"><span class="nav-icon">${page.icon}</span>${page.title}</a></li>\n`;
   }
 
   nav += '  </ul>\n';
@@ -304,16 +304,16 @@ function wrapInLayout(
   <meta name="twitter:image" content="https://ctx-sync.dev/assets/images/og-image.png" />
 
   <!-- Favicon & Icons -->
-  <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg" />
-  <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.svg" />
-  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
+  <link rel="apple-touch-icon" href="../assets/images/apple-touch-icon.svg" />
+  <link rel="manifest" href="../site.webmanifest" />
 
   <!-- Preconnect to Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/main.css" />
-  <link rel="stylesheet" href="/css/docs.css" />
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/docs.css" />
 
   <!-- Structured Data: BreadcrumbList (JSON-LD) -->
   <script type="application/ld+json">
@@ -353,13 +353,13 @@ function wrapInLayout(
       <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
         <span></span><span></span><span></span>
       </button>
-      <a href="/" class="logo" aria-label="ctx-sync home">
+      <a href="../" class="logo" aria-label="ctx-sync home">
         ${LOGO_SVG}
         <span class="logo-text">ctx-sync</span>
       </a>
       <nav class="header-nav" aria-label="Documentation navigation">
-        <a href="/docs/">Docs</a>
-        <a href="https://github.com/user/ctx-sync" target="_blank" rel="noopener">GitHub</a>
+        <a href="./">Docs</a>
+        <a href="https://github.com/Ay7ot/ctx-sync" target="_blank" rel="noopener">GitHub</a>
       </nav>
       <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light mode">
         <span class="theme-icon">&#127769;</span>
@@ -400,9 +400,9 @@ function wrapInLayout(
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 15l-6-6-6 6"/></svg>
   </button>
 
-  <script src="/js/main.js"></script>
-  <script src="/js/docs-nav.js"></script>
-  <script src="/js/docs-search.js"></script>
+  <script src="../js/main.js"></script>
+  <script src="../js/docs-nav.js"></script>
+  <script src="../js/docs-search.js"></script>
 </body>
 </html>`;
 }
@@ -555,7 +555,7 @@ async function build(): Promise<void> {
       ${pages
         .map(
           (p) => `
-        <a href="/docs/${p.slug}.html" class="docs-card">
+        <a href="./${p.slug}.html" class="docs-card">
           <h3>${p.title}</h3>
           <p>${createSnippet(p.content, 120)}</p>
           <span class="docs-card-arrow">&rarr;</span>
