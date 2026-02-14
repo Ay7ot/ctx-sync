@@ -2,7 +2,11 @@
  * E2E tests for CLI basics: --version, --help, unknown commands.
  */
 
+import { createRequire } from 'node:module';
 import { TestEnvironment } from './helpers/test-env.js';
+
+const require = createRequire(import.meta.url);
+const pkg = require('../../../package.json') as { version: string };
 
 declare global {
   var TEST_DIR: string;
@@ -52,6 +56,6 @@ describe('E2E: CLI Basics', () => {
 
   it('version matches package.json', () => {
     const result = env.execCommand('--version');
-    expect(result.stdout.trim()).toBe('1.0.0');
+    expect(result.stdout.trim()).toBe(pkg.version);
   });
 });

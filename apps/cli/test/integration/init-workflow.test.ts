@@ -1,3 +1,5 @@
+import { VERSION } from '@ctx-sync/shared';
+
 /**
  * Integration tests for the init workflow.
  *
@@ -67,7 +69,7 @@ describe('Integration: Init Workflow', () => {
       expect(fs.existsSync(manifestPath)).toBe(true);
 
       const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
-      expect(manifest.version).toBe('1.0.0');
+      expect(manifest.version).toBe(VERSION);
     });
   });
 

@@ -3,6 +3,7 @@
  */
 
 import * as fs from 'node:fs';
+import { VERSION } from '@ctx-sync/shared';
 import * as path from 'node:path';
 import { TestEnvironment } from './helpers/test-env.js';
 
@@ -57,7 +58,7 @@ describe('E2E: ctx-sync init', () => {
     expect(fs.existsSync(manifestPath)).toBe(true);
 
     const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
-    expect(manifest.version).toBe('1.0.0');
+    expect(manifest.version).toBe(VERSION);
     expect(manifest).toHaveProperty('lastSync');
     expect(manifest).toHaveProperty('files');
   });

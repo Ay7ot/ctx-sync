@@ -1,3 +1,5 @@
+import { VERSION } from '@ctx-sync/shared';
+
 /**
  * Integration tests for the sync workflow.
  *
@@ -186,7 +188,7 @@ describe('Sync Workflow Integration', () => {
 
       const manifestB = readManifest(machineBDir);
       expect(manifestB).not.toBeNull();
-      expect(manifestB!.version).toBe('1.0.0');
+      expect(manifestB!.version).toBe(VERSION);
     });
   });
 
