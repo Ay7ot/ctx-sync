@@ -17,6 +17,7 @@
     "@ctx-sync/shared"
   ],
   "scripts": {
+    "prepack": "cd ../.. && npm run build -w packages/shared && cd apps/cli && rm -rf node_modules/@ctx-sync/shared && mkdir -p node_modules/@ctx-sync/shared && cp -r ../../packages/shared/dist node_modules/@ctx-sync/shared/dist && cp ../../packages/shared/package.json node_modules/@ctx-sync/shared/package.json",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "dev": "tsx src/index.ts",
