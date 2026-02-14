@@ -30,12 +30,20 @@ beforeEach(() => {
   }
 });
 
-// Cleanup after all tests
+// Cleanup after all tests — only remove CONTENTS, not the directory itself.
+// With ESM module caching, afterAll fires when the first test file in a worker
+// completes, but beforeEach guards are not re-registered for subsequent files.
+// Keeping TEST_DIR itself alive prevents ENOENT errors in later files.
 afterAll(() => {
   try {
-    fs.rmSync(TEST_DIR, { recursive: true, force: true });
+    if (fs.existsSync(TEST_DIR)) {
+      const entries = fs.readdirSync(TEST_DIR);
+      for (const entry of entries) {
+        fs.rmSync(path.join(TEST_DIR, entry), { recursive: true, force: true });
+      }
+    }
   } catch {
-    /* Already deleted by another file in this worker — ignore */
+    /* Already cleaned by another file in this worker — ignore */
   }
 });
 

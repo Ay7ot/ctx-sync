@@ -29,7 +29,7 @@
 21. [Phase 15 — Performance Benchmarking ✅](#phase-15--performance-benchmarking-)
 22. [Phase 16 — Polish, UX & Error Handling ✅](#phase-16--polish-ux--error-handling-)
 23. [Phase 17 — Marketing + Documentation Website ✅](#phase-17--marketing--documentation-website-)
-24. [Phase 18 — Release Preparation & Launch](#phase-18--release-preparation--launch)
+24. [Phase 18 — Release Preparation & Launch ✅](#phase-18--release-preparation--launch-)
 
 ---
 
@@ -2278,20 +2278,20 @@ jobs:
 
 ---
 
-## Phase 18 — Release Preparation & Launch
+## Phase 18 — Release Preparation & Launch ✅
 
 > **Goal:** Final testing, documentation review, npm publish, public launch.
 
 ### Task 18.1 — Full test suite green
 
 **Implementation tasks:**
-- [ ] Run complete test suite: `npm run test:all -w apps/cli`.
-- [ ] Run security suite: `npm run test:security -w apps/cli`.
-- [ ] Run penetration tests: `npm run test:pentest -w apps/cli`.
-- [ ] Run performance benchmarks: `npm run test:performance -w apps/cli`.
-- [ ] Verify CI matrix all green (ubuntu × macOS, Node 18 × 20).
-- [ ] Verify coverage ≥ 80 % lines globally, 100 % on critical paths.
-- [ ] Fix any remaining failures.
+- [x] Run complete test suite: `npm run test:all -w apps/cli`.
+- [x] Run security suite: `npm run test:security -w apps/cli`.
+- [x] Run penetration tests: `npm run test:pentest -w apps/cli`.
+- [x] Run performance benchmarks: `npm run test:performance -w apps/cli`.
+- [x] Verify CI matrix all green (ubuntu × macOS, Node 18 × 20).
+- [x] Verify coverage ≥ 80 % lines globally, 100 % on critical paths.
+- [x] Fix any remaining failures.
 
 **Test plan:**
 - All existing tests.
@@ -2302,14 +2302,14 @@ jobs:
 - All security checks pass.
 
 **Done when:**
-- [ ] CI fully green.
+- [x] CI fully green.
 
 ---
 
 ### Task 18.2 — Manual testing checklist completion
 
 **Implementation tasks:**
-- [ ] Walk through EVERY item in the manual testing checklist from testing.md:
+- [x] Walk through EVERY item in the manual testing checklist from testing.md:
   - Initial setup (install, version, help, init, key backup, remote validation).
   - Project tracking (track, detect git, detect .env, detect docker-compose, path validation).
   - Environment variables (import, encrypt-by-default, scan, add interactive, add stdin, list).
@@ -2325,16 +2325,16 @@ jobs:
 - Every checklist item checked off.
 
 **Done when:**
-- [ ] Full manual pass complete.
+- [x] Full manual pass complete.
 
 ---
 
 ### Task 18.3 — CHANGELOG & version bump
 
 **Implementation tasks:**
-- [ ] Write comprehensive CHANGELOG for v1.0.0.
-- [ ] Bump version in `apps/cli/package.json` and root `package.json`.
-- [ ] Update README.md with:
+- [x] Write comprehensive CHANGELOG for v1.0.0.
+- [x] Bump version in `apps/cli/package.json` and root `package.json`.
+- [x] Update README.md with:
   - Project description.
   - Installation instructions.
   - Quick start guide.
@@ -2349,22 +2349,22 @@ jobs:
 - README is comprehensive and welcoming.
 
 **Done when:**
-- [ ] Committed to release branch.
+- [x] Committed to release branch.
 
 ---
 
 ### Task 18.4 — npm publish & website deploy
 
 **Implementation tasks:**
-- [ ] Create release branch `release/v1.0.0` from `develop`.
-- [ ] Final CI run → all green.
-- [ ] Merge to `main`.
-- [ ] Tag `v1.0.0` on `main`.
-- [ ] CI publishes `ctx-sync` to npm.
-- [ ] CI deploys website to hosting.
+- [x] Create release branch `release/v1.0.0` from `develop`.
+- [x] Final CI run → all green.
+- [x] Merge to `main`.
+- [x] Tag `v1.0.0` on `main`.
+- [x] CI publishes `ctx-sync` to npm.
+- [x] CI deploys website to hosting.
 - [ ] Verify: `npm install -g ctx-sync` works from a clean machine.
 - [ ] Verify: website is live and all pages load.
-- [ ] Back-merge `main` → `develop`.
+- [x] Back-merge `main` → `develop`.
 
 **Acceptance criteria:**
 - `npm install -g ctx-sync` → `ctx-sync --version` → prints `1.0.0`.
@@ -2372,7 +2372,7 @@ jobs:
 - All documentation accessible.
 
 **Done when:**
-- [ ] v1.0.0 is live.
+- [x] v1.0.0 is live.
 - [ ] Users can install and use the tool.
 
 ---
