@@ -82,9 +82,10 @@ jobs:
       - run: npm ci
       - run: npm run build -w packages/shared
       - name: npm audit
-        run: npm audit --audit-level=moderate || true
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
       - name: Run security tests
-        run: npm run test:security -w apps/cli || true
+        run: npm run test:security -w apps/cli
       - name: Scan for plaintext secrets in artifacts
         run: bash tooling/ci/check-secrets.sh
 

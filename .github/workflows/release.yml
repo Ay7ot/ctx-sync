@@ -5,12 +5,62 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
-  release:
+  validate:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build -w packages/shared
+      - run: npm run build -w apps/cli
+
+  test:
+    needs: [validate]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node-version: ['18.x', '20.x']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build -w packages/shared
+      - run: npm run test -w apps/cli
+      - run: npm run test -w packages/shared
+
+  security:
+    needs: [validate]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build -w packages/shared
+      - run: npm audit --audit-level=moderate
+      - run: npm run test:security -w apps/cli
+      - run: bash tooling/ci/check-secrets.sh
+
+  publish-npm:
+    needs: [test, security]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -18,25 +68,70 @@ jobs:
           node-version: '20.x'
           cache: 'npm'
           registry-url: 'https://registry.npmjs.org'
-
       - run: npm ci
-      - run: npm run build
-      - run: npm run test:all
+      - run: npm run build -w packages/shared
+      - run: npm run build -w apps/cli
 
-      - name: Publish to npm (dry-run for now)
-        run: npm publish --dry-run -w apps/cli
+      - name: Publish ctx-sync to npm
+        run: npm publish --access public -w apps/cli
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Build website
+  deploy-website:
+    needs: [test, security]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      - run: npm ci
+
+      - name: Build documentation from Markdown
         run: npm run build -w apps/website
 
       - name: Run website tests
         run: npm run test -w apps/website
 
-      - name: Deploy website to GitHub Pages
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
-        if: github.ref_type == 'tag'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: apps/website/public
+
+  create-github-release:
+    needs: [publish-npm, deploy-website]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ctx-sync v${{ steps.version.outputs.VERSION }}
+          body: |
+            ## ctx-sync v${{ steps.version.outputs.VERSION }}
+
+            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for full release notes.
+
+            ### Install
+
+            ```bash
+            npm install -g ctx-sync
+            ```
+
+            ### Verify
+
+            ```bash
+            ctx-sync --version
+            ```
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
