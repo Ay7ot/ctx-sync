@@ -14,6 +14,18 @@ npm install -g ctx-sync
 Requires **Node.js 18+** and **Git** installed on your system.
 :::
 
+## Create a Sync Repository
+
+Before running `ctx-sync init`, create a dedicated **private** Git repository to store your encrypted context. This is separate from your project repos — it is a single repo that holds encrypted snapshots of all your projects in one place.
+
+1. Go to [GitHub](https://github.com/new), [GitLab](https://gitlab.com/projects/new), or your preferred Git host.
+2. Create a new **private** repository (e.g. `dev-context` or `my-context-sync`).
+3. Copy the SSH or HTTPS URL (e.g. `git@github.com:you/dev-context.git`).
+
+:::info This Is Not Your Project Repo
+The sync repository is dedicated to ctx-sync and is separate from your project repos. ctx-sync never modifies your project repositories — it only reads their Git state (branch, remote, uncommitted changes). All your encrypted context is stored in `~/.context-sync/` locally and pushed to this dedicated remote.
+:::
+
 ## First-Time Setup
 
 Run the init command to generate your encryption key and configure your sync repository:
@@ -26,7 +38,11 @@ This will:
 
 1. **Generate an encryption key pair** — Your private key is saved to `~/.config/ctx-sync/key.txt` with secure permissions (600).
 2. **Prompt you to back up your private key** — Save it to a password manager like 1Password or Bitwarden. You will need this key to restore on another machine.
-3. **Ask for your Git remote URL** — This is where your encrypted context will be synced. Use a private repository.
+3. **Ask for your Git remote URL** — Paste the URL of the dedicated private repository you created above. ctx-sync will validate that it uses a secure transport (SSH or HTTPS).
+
+:::tip Skipping the Remote
+You can press Enter to skip the remote URL during init. ctx-sync will work locally without syncing. To add a remote later, run: `ctx-sync init --remote <url>`
+:::
 
 ## Back Up Your Key
 

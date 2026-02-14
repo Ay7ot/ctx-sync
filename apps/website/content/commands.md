@@ -12,12 +12,17 @@ Initialize ctx-sync on a new machine. Generates encryption keys and sets up the 
 ctx-sync init
 ```
 
+The remote URL should point to a **dedicated private repository** you created for ctx-sync (e.g. `git@github.com:you/dev-context.git`), not one of your project repos. See [Getting Started](./getting-started.html) for setup steps.
+
 **Options:**
 
 | Flag | Description |
 |------|-------------|
 | `--restore` | Restore mode — paste an existing private key instead of generating a new one |
 | `--skip-backup` | Skip the key backup prompt (not recommended) |
+| `--remote <url>` | Git remote URL for syncing (SSH or HTTPS) |
+| `--no-interactive` | Skip interactive prompts (use defaults) |
+| `--stdin` | Read private key from stdin (for `--restore`) |
 
 ### `ctx-sync init --restore`
 

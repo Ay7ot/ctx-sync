@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Transport validation output (SSH/HTTPS detected) when remote is configured
 - Hint message when no remote is configured, suggesting `ctx-sync init --remote <url>`
 - Automatic push of initial commit when remote is configured during init
+- Docs: step-by-step sync repository creation guide in Getting Started
+- Docs: FAQ entries for "sync repo vs project repo" and "can I skip the remote"
+- Docs: clarify that ctx-sync requires a dedicated private Git repo across all docs
+- Docs: document `--remote`, `--no-interactive`, and `--stdin` flags in CLI reference
 
 ## [1.0.2] — 2026-02-14
 

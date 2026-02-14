@@ -19,11 +19,23 @@ ctx-sync preserves and restores all of this in seconds.
 
 ### Do I need a server?
 
-No. ctx-sync uses Git as the backend. You just need a private Git repository (GitHub, GitLab, Bitbucket, or self-hosted).
+No. ctx-sync uses Git as the backend. You just need to create a dedicated private Git repository (GitHub, GitLab, Bitbucket, or self-hosted) to store your encrypted context. This is a one-time setup — one repo holds all your projects.
 
 :::info No Cloud Required
 ctx-sync works completely offline for local operations. You only need network access when syncing to your Git remote.
 :::
+
+### Is the sync repo the same as my project repo?
+
+No. ctx-sync uses its own dedicated repository at `~/.context-sync/` to store encrypted snapshots of **all** your projects in one place. Your project repos (the code you work on) are tracked but never modified by ctx-sync. When you run `ctx-sync init`, the remote URL you provide should point to a dedicated private repo you created for ctx-sync — not one of your project repos.
+
+### Can I skip the Git remote?
+
+Yes. ctx-sync works locally without a remote. If you press Enter when prompted for a remote URL during `ctx-sync init`, everything will work — your context is saved to `~/.context-sync/` on your machine. You just won't be able to sync across machines until you add a remote. To add one later, run:
+
+```bash
+ctx-sync init --remote <url>
+```
 
 ### Is it free?
 

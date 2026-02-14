@@ -302,6 +302,60 @@ describe('Build docs script', () => {
   });
 });
 
+describe('Sync repo documentation', () => {
+  it('getting-started should explain dedicated sync repository', () => {
+    const html = fs.readFileSync(
+      path.join(DOCS_OUT, 'getting-started.html'),
+      'utf-8',
+    );
+
+    expect(html).toContain('dedicated');
+    expect(html).toContain('separate from your project');
+  });
+
+  it('getting-started should include repo creation steps', () => {
+    const html = fs.readFileSync(
+      path.join(DOCS_OUT, 'getting-started.html'),
+      'utf-8',
+    );
+
+    // Should mention creating a private repo on GitHub/GitLab
+    expect(html).toContain('Create a Sync Repository');
+    expect(html).toMatch(/GitHub|GitLab/);
+    expect(html).toContain('private');
+  });
+
+  it('faq should explain sync repo vs project repo distinction', () => {
+    const html = fs.readFileSync(
+      path.join(DOCS_OUT, 'faq.html'),
+      'utf-8',
+    );
+
+    expect(html).toContain('sync repo the same as my project repo');
+    expect(html).toContain('~/.context-sync/');
+  });
+
+  it('landing page should mention dedicated repo in how-it-works', () => {
+    const html = fs.readFileSync(
+      path.join(WEBSITE_ROOT, 'public', 'index.html'),
+      'utf-8',
+    );
+
+    // The how-it-works Sync step should clarify the dedicated repo
+    expect(html).toContain('dedicated');
+  });
+
+  it('commands should document --remote option for init', () => {
+    const html = fs.readFileSync(
+      path.join(DOCS_OUT, 'commands.html'),
+      'utf-8',
+    );
+
+    expect(html).toContain('--remote');
+    expect(html).toContain('--no-interactive');
+  });
+});
+
 describe('Landing page validation', () => {
   const indexPath = path.join(WEBSITE_ROOT, 'public', 'index.html');
 

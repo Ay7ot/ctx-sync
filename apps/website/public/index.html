@@ -141,7 +141,7 @@
         "name": "Does ctx-sync require a server or cloud account?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "No. ctx-sync uses Git as the only backend. You sync through your own private Git repository (GitHub, GitLab, or self-hosted). There are no servers, no accounts, and no third-party services involved. It works completely offline."
+          "text": "No. ctx-sync uses Git as the only backend. You create a dedicated private Git repository (GitHub, GitLab, or self-hosted) to store your encrypted context. This is separate from your project repos — one repo holds all your projects. There are no servers, no accounts, and no third-party services involved. It works completely offline."
         }
       },
       {
@@ -420,7 +420,7 @@
               <code>ctx-sync sync</code>
               <button class="copy-btn" data-copy="ctx-sync sync" aria-label="Copy command">Copy</button>
             </div>
-            <p>Pushes encrypted state to your private Git repo. Pulls updates from other machines. Transport is validated every time &mdash; SSH or HTTPS only.</p>
+            <p>Pushes encrypted state to your dedicated private Git repo (one repo for all projects &mdash; separate from your code repos). Pulls updates from other machines. Transport is validated every time &mdash; SSH or HTTPS only.</p>
           </div>
         </div>
 
@@ -589,7 +589,7 @@
 
         <div class="getting-started-steps">
           <div class="code-block code-block-lg">
-            <code><span class="code-comment"># Install</span><br />npm install -g ctx-sync<br /><br /><span class="code-comment"># Setup encryption + Git remote</span><br />ctx-sync init<br /><br /><span class="code-comment"># Track your first project</span><br />cd ~/projects/my-app<br />ctx-sync track<br /><br /><span class="code-comment"># Sync to remote</span><br />ctx-sync sync</code>
+            <code><span class="code-comment"># Install</span><br />npm install -g ctx-sync<br /><br /><span class="code-comment"># Create a dedicated private repo on GitHub first, then:</span><br />ctx-sync init<br /><br /><span class="code-comment"># Track your first project</span><br />cd ~/projects/my-app<br />ctx-sync track<br /><br /><span class="code-comment"># Sync to remote</span><br />ctx-sync sync</code>
             <button class="copy-btn" data-copy="npm install -g ctx-sync && ctx-sync init" aria-label="Copy install commands">Copy</button>
           </div>
           <a href="./docs/getting-started.html" class="btn btn-primary btn-lg">
