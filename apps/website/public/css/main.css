@@ -411,8 +411,11 @@ img { max-width: 100%; height: auto; }
   gap: var(--space-4);
 }
 
-/* Logo — monospace, bold, with accent hover glow */
+/* Logo — monospace, bold, with SVG mark + text */
 .logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--font-mono);
   font-size: 17px;
   font-weight: 700;
@@ -420,14 +423,20 @@ img { max-width: 100%; height: auto; }
   letter-spacing: -0.03em;
   position: relative;
   transition: color var(--transition);
+  text-decoration: none;
 }
 
-.logo::before {
-  content: '>';
-  color: var(--accent-blue);
-  margin-right: 4px;
-  opacity: 0.7;
-  font-weight: 400;
+.logo-mark {
+  flex-shrink: 0;
+  transition: transform var(--duration-normal) var(--ease-out);
+}
+
+.logo:hover .logo-mark {
+  transform: rotate(15deg);
+}
+
+.logo-text {
+  line-height: 1;
 }
 
 .logo:hover {
@@ -1568,7 +1577,7 @@ img { max-width: 100%; height: auto; }
 }
 
 .footer-brand .logo {
-  display: block;
+  display: inline-flex;
   margin-bottom: var(--space-3);
 }
 

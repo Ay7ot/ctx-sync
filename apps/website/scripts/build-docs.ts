@@ -115,25 +115,106 @@ function generateSidebarNav(pages: DocPage[], currentSlug: string): string {
   return nav;
 }
 
+/** SVG logo mark used inline in docs header */
+const LOGO_SVG = `<svg class="logo-mark" width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <linearGradient id="doc-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0ea5e9"/>
+      <stop offset="50%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+  </defs>
+  <circle cx="20" cy="20" r="18" stroke="url(#doc-grad)" stroke-width="2.5" fill="none" opacity="0.25"/>
+  <path d="M20 4 A16 16 0 0 1 34.5 14" stroke="url(#doc-grad)" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <polygon points="33,10.5 36.5,15 31,15.5" fill="url(#doc-grad)"/>
+  <path d="M20 36 A16 16 0 0 1 5.5 26" stroke="url(#doc-grad)" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <polygon points="7,29.5 3.5,25 9,24.5" fill="url(#doc-grad)"/>
+  <path d="M16 16 L12.5 20 L16 24" stroke="url(#doc-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M24 16 L27.5 20 L24 24" stroke="url(#doc-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>`;
+
 /**
- * Wrap HTML content in the shared docs layout template.
+ * Wrap HTML content in the shared docs layout template with full SEO support.
  */
 function wrapInLayout(
   title: string,
   sidebar: string,
   bodyHtml: string,
+  slug = '',
+  description = '',
 ): string {
+  const pageTitle = `${title} — ctx-sync docs`;
+  const pageDesc = description || `${title} documentation for ctx-sync, the CLI tool that syncs your dev context across machines.`;
+  const canonicalPath = slug ? `/docs/${slug}.html` : '/docs/';
+  const canonicalUrl = `https://ctx-sync.dev${canonicalPath}`;
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>${title} — ctx-sync docs</title>
+
+  <!-- Primary Meta Tags -->
+  <title>${pageTitle}</title>
+  <meta name="title" content="${pageTitle}" />
+  <meta name="description" content="${pageDesc}" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="canonical" href="${canonicalUrl}" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="${canonicalUrl}" />
+  <meta property="og:title" content="${pageTitle}" />
+  <meta property="og:description" content="${pageDesc}" />
+  <meta property="og:image" content="https://ctx-sync.dev/assets/images/og-image.png" />
+  <meta property="og:site_name" content="ctx-sync" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="${canonicalUrl}" />
+  <meta name="twitter:title" content="${pageTitle}" />
+  <meta name="twitter:description" content="${pageDesc}" />
+  <meta name="twitter:image" content="https://ctx-sync.dev/assets/images/og-image.png" />
+
+  <!-- Favicon & Icons -->
+  <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg" />
+  <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.svg" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <!-- Preconnect to Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/main.css" />
   <link rel="stylesheet" href="/css/docs.css" />
+
+  <!-- Structured Data: BreadcrumbList (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://ctx-sync.dev/" },
+      { "@type": "ListItem", "position": 2, "name": "Docs", "item": "https://ctx-sync.dev/docs/" }${slug ? `,\n      { "@type": "ListItem", "position": 3, "name": "${title}", "item": "${canonicalUrl}" }` : ''}
+    ]
+  }
+  </script>
+
+  <!-- Structured Data: TechArticle (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "${title}",
+    "description": "${pageDesc}",
+    "url": "${canonicalUrl}",
+    "author": { "@type": "Organization", "name": "ctx-sync", "url": "https://ctx-sync.dev" },
+    "publisher": { "@type": "Organization", "name": "ctx-sync", "url": "https://ctx-sync.dev", "logo": { "@type": "ImageObject", "url": "https://ctx-sync.dev/assets/images/logo.svg" } },
+    "mainEntityOfPage": "${canonicalUrl}",
+    "image": "https://ctx-sync.dev/assets/images/og-image.png"
+  }
+  </script>
 </head>
 <body class="docs-page">
   <header class="docs-header">
@@ -141,13 +222,16 @@ function wrapInLayout(
       <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
         <span></span><span></span><span></span>
       </button>
-      <a href="/" class="logo">ctx-sync</a>
-      <nav class="header-nav">
+      <a href="/" class="logo" aria-label="ctx-sync home">
+        ${LOGO_SVG}
+        <span class="logo-text">ctx-sync</span>
+      </a>
+      <nav class="header-nav" aria-label="Documentation navigation">
         <a href="/docs/">Docs</a>
         <a href="https://github.com/user/ctx-sync" target="_blank" rel="noopener">GitHub</a>
       </nav>
       <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light mode">
-        <span class="theme-icon">🌙</span>
+        <span class="theme-icon">&#127769;</span>
       </button>
     </div>
   </header>
@@ -238,7 +322,8 @@ async function build(): Promise<void> {
   // Generate HTML for each page
   for (const page of pages) {
     const sidebar = generateSidebarNav(pages, page.slug);
-    const html = wrapInLayout(page.title, sidebar, page.htmlContent);
+    const snippet = createSnippet(page.content, 160);
+    const html = wrapInLayout(page.title, sidebar, page.htmlContent, page.slug, snippet);
     const outPath = path.join(DOCS_OUT_DIR, `${page.slug}.html`);
     fs.writeFileSync(outPath, html, 'utf-8');
     console.log(`  ✅ ${page.slug}.html`);
@@ -272,7 +357,13 @@ async function build(): Promise<void> {
         .join('\n')}
     </div>`;
 
-  const docsIndexHtml = wrapInLayout('Documentation', docsIndexSidebar, docsIndexBody);
+  const docsIndexHtml = wrapInLayout(
+    'Documentation',
+    docsIndexSidebar,
+    docsIndexBody,
+    '',
+    'Complete documentation for ctx-sync — the CLI tool that syncs your dev context across machines. Installation, commands, security model, team setup, and FAQ.',
+  );
   fs.writeFileSync(path.join(DOCS_OUT_DIR, 'index.html'), docsIndexHtml, 'utf-8');
   console.log(`  ✅ index.html (docs home)`);
 

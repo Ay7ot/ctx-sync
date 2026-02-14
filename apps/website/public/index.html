@@ -3,8 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Primary Meta Tags -->
   <title>ctx-sync — Sync your dev context across machines</title>
-  <meta name="description" content="CLI tool that syncs your complete development context across machines using Git. Encrypted by default. No backend required." />
+  <meta name="title" content="ctx-sync — Sync your dev context across machines" />
+  <meta name="description" content="CLI tool that syncs your complete development context — projects, env vars, Docker services, mental state — across machines using Git. Encrypted by default with Age encryption. No backend required." />
+  <meta name="keywords" content="ctx-sync, developer tools, context switching, environment variables, CLI, Git sync, encrypted, Age encryption, Docker, dev tools, productivity, multi-machine development" />
+  <meta name="author" content="ctx-sync" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <meta name="color-scheme" content="dark light" />
+  <link rel="canonical" href="https://ctx-sync.dev/" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://ctx-sync.dev/" />
+  <meta property="og:title" content="ctx-sync — Stop losing 23 minutes every context switch" />
+  <meta property="og:description" content="Sync your complete dev context across machines. Projects, env vars, Docker services, mental state — encrypted by default with Age. No backend. Git-backed." />
+  <meta property="og:image" content="https://ctx-sync.dev/assets/images/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="ctx-sync — Sync your dev context across machines. Terminal showing track, sync, and restore commands." />
+  <meta property="og:site_name" content="ctx-sync" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://ctx-sync.dev/" />
+  <meta name="twitter:title" content="ctx-sync — Stop losing 23 minutes every context switch" />
+  <meta name="twitter:description" content="Sync your complete dev context across machines. Encrypted by default. Git-backed. No servers." />
+  <meta name="twitter:image" content="https://ctx-sync.dev/assets/images/og-image.png" />
+  <meta name="twitter:image:alt" content="ctx-sync — Sync your dev context across machines" />
+
+  <!-- Favicon & Icons -->
+  <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg" />
+  <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.svg" />
+  <link rel="manifest" href="/site.webmanifest" />
 
   <!-- Preconnect to Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -12,14 +46,141 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="/css/main.css" />
+
+  <!-- Structured Data: SoftwareApplication (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "ctx-sync",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "macOS, Linux, Windows (WSL)",
+    "description": "CLI tool that syncs your complete development context across machines using Git. Encrypted by default with Age encryption. No backend required.",
+    "url": "https://ctx-sync.dev",
+    "downloadUrl": "https://www.npmjs.com/package/ctx-sync",
+    "softwareVersion": "1.0.0",
+    "author": {
+      "@type": "Organization",
+      "name": "ctx-sync",
+      "url": "https://ctx-sync.dev"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "license": "https://opensource.org/licenses/MIT",
+    "featureList": [
+      "Full project state tracking (Git branches, remotes, stash)",
+      "Encrypted environment variable sync (Age encryption)",
+      "Docker and container state tracking",
+      "Mental context preservation (tasks, blockers, breadcrumbs)",
+      "Git-backed sync — no backend required",
+      "Multi-recipient team support with key revocation",
+      "Built-in security audit command",
+      "Zero side-channel leaks — secrets never in CLI args or logs"
+    ]
+  }
+  </script>
+
+  <!-- Structured Data: Organization (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "ctx-sync",
+    "url": "https://ctx-sync.dev",
+    "logo": "https://ctx-sync.dev/assets/images/logo.svg",
+    "sameAs": [
+      "https://github.com/user/ctx-sync",
+      "https://www.npmjs.com/package/ctx-sync"
+    ]
+  }
+  </script>
+
+  <!-- Structured Data: WebSite with SearchAction (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "ctx-sync",
+    "url": "https://ctx-sync.dev",
+    "description": "Sync your complete development context across machines using Git. Encrypted by default.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://ctx-sync.dev/docs/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
+  <!-- Structured Data: FAQPage (JSON-LD) — for GEO/rich snippets -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is ctx-sync?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "ctx-sync is a CLI tool that syncs your complete development context — projects, environment variables, Docker services, and mental state — across machines using Git. Everything is encrypted by default with Age encryption, and no backend server is required."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does ctx-sync keep my secrets safe?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "ctx-sync encrypts everything by default using Age encryption. All state files (env vars, project state, Docker config, mental context) are encrypted as .age blobs. Secrets are never stored as CLI arguments, never appear in shell history or process lists, and all crypto operations happen in memory only."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does ctx-sync require a server or cloud account?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. ctx-sync uses Git as the only backend. You sync through your own private Git repository (GitHub, GitLab, or self-hosted). There are no servers, no accounts, and no third-party services involved. It works completely offline."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How long does it take to restore a project on a new machine?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "ctx-sync can restore a full project context in under 10 seconds. This includes decrypting environment variables, restoring .env files, showing your mental context (what you were working on), and offering to start Docker services — all with your explicit approval before executing any commands."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
 
   <!-- ======== NAVIGATION ======== -->
   <header class="site-header" id="site-header">
     <div class="container header-inner">
-      <a href="/" class="logo">ctx-sync</a>
-      <nav class="main-nav" id="main-nav">
+      <a href="/" class="logo" aria-label="ctx-sync home">
+        <svg class="logo-mark" width="28" height="28" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="hdr-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#0ea5e9"/>
+              <stop offset="50%" stop-color="#a855f7"/>
+              <stop offset="100%" stop-color="#ec4899"/>
+            </linearGradient>
+          </defs>
+          <circle cx="20" cy="20" r="18" stroke="url(#hdr-grad)" stroke-width="2.5" fill="none" opacity="0.25"/>
+          <path d="M20 4 A16 16 0 0 1 34.5 14" stroke="url(#hdr-grad)" stroke-width="3" stroke-linecap="round" fill="none"/>
+          <polygon points="33,10.5 36.5,15 31,15.5" fill="url(#hdr-grad)"/>
+          <path d="M20 36 A16 16 0 0 1 5.5 26" stroke="url(#hdr-grad)" stroke-width="3" stroke-linecap="round" fill="none"/>
+          <polygon points="7,29.5 3.5,25 9,24.5" fill="url(#hdr-grad)"/>
+          <path d="M16 16 L12.5 20 L16 24" stroke="url(#hdr-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <path d="M24 16 L27.5 20 L24 24" stroke="url(#hdr-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+        <span class="logo-text">ctx-sync</span>
+      </a>
+      <nav class="main-nav" id="main-nav" aria-label="Main navigation">
         <a href="#features">Features</a>
         <a href="#how-it-works">How It Works</a>
         <a href="#security">Security</a>
@@ -445,7 +606,25 @@
     <div class="container">
       <div class="footer-inner">
         <div class="footer-brand">
-          <a href="/" class="logo">ctx-sync</a>
+          <a href="/" class="logo" aria-label="ctx-sync home">
+            <svg class="logo-mark" width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <defs>
+                <linearGradient id="ftr-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#0ea5e9"/>
+                  <stop offset="50%" stop-color="#a855f7"/>
+                  <stop offset="100%" stop-color="#ec4899"/>
+                </linearGradient>
+              </defs>
+              <circle cx="20" cy="20" r="18" stroke="url(#ftr-grad)" stroke-width="2.5" fill="none" opacity="0.25"/>
+              <path d="M20 4 A16 16 0 0 1 34.5 14" stroke="url(#ftr-grad)" stroke-width="3" stroke-linecap="round" fill="none"/>
+              <polygon points="33,10.5 36.5,15 31,15.5" fill="url(#ftr-grad)"/>
+              <path d="M20 36 A16 16 0 0 1 5.5 26" stroke="url(#ftr-grad)" stroke-width="3" stroke-linecap="round" fill="none"/>
+              <polygon points="7,29.5 3.5,25 9,24.5" fill="url(#ftr-grad)"/>
+              <path d="M16 16 L12.5 20 L16 24" stroke="url(#ftr-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              <path d="M24 16 L27.5 20 L24 24" stroke="url(#ftr-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+            <span class="logo-text">ctx-sync</span>
+          </a>
           <p>Sync your complete dev context across machines. Encrypted by default. No backend required.</p>
         </div>
         <div class="footer-links">
