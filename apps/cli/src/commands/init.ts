@@ -16,7 +16,7 @@ import type { Manifest } from '@ctx-sync/shared';
 import { generateKey } from '../core/encryption.js';
 import { decryptState } from '../core/encryption.js';
 import { saveKey, loadKey } from '../core/key-store.js';
-import { initRepo, addRemote, commitState } from '../core/git-sync.js';
+import { initRepo, addRemote, commitState, pushState } from '../core/git-sync.js';
 import { validateRemoteUrl } from '../core/transport.js';
 import { withErrorHandler } from '../utils/errors.js';
 
@@ -115,6 +115,18 @@ export async function executeInit(options: InitOptions): Promise<InitResult> {
   if (options.remote) {
     validateRemoteUrl(options.remote);
     remoteUrl = options.remote;
+  } else if (!options.noInteractive) {
+    const Enquirer = (await import('enquirer')).default;
+    const enquirer = new Enquirer<{ remoteUrl: string }>();
+    const response = await enquirer.prompt({
+      type: 'input',
+      name: 'remoteUrl',
+      message: 'Git remote URL for syncing (press Enter to skip):',
+    } as Parameters<typeof enquirer.prompt>[0]);
+    if (response.remoteUrl.trim()) {
+      validateRemoteUrl(response.remoteUrl.trim());
+      remoteUrl = response.remoteUrl.trim();
+    }
   }
 
   // 7. Init sync repo
@@ -128,8 +140,17 @@ export async function executeInit(options: InitOptions): Promise<InitResult> {
   // 9. Create manifest
   createManifest(syncDir);
 
-  // 10. Commit
+  // 10. Commit and push
   await commitState(syncDir, [STATE_FILES.MANIFEST], 'chore: initialize context sync');
+
+  if (remoteUrl) {
+    try {
+      await pushState(syncDir);
+    } catch {
+      // Push failure is non-fatal — remote may be unreachable during init.
+      // User can push later via `ctx-sync sync`.
+    }
+  }
 
   return {
     publicKey,
@@ -181,6 +202,18 @@ export async function executeRestore(
   if (options.remote) {
     validateRemoteUrl(options.remote);
     remoteUrl = options.remote;
+  } else if (!options.noInteractive) {
+    const Enquirer = (await import('enquirer')).default;
+    const enquirer = new Enquirer<{ remoteUrl: string }>();
+    const response = await enquirer.prompt({
+      type: 'input',
+      name: 'remoteUrl',
+      message: 'Git remote URL to clone from (press Enter to skip):',
+    } as Parameters<typeof enquirer.prompt>[0]);
+    if (response.remoteUrl.trim()) {
+      validateRemoteUrl(response.remoteUrl.trim());
+      remoteUrl = response.remoteUrl.trim();
+    }
   }
 
   // 5. Clone or init repo
@@ -303,7 +336,12 @@ export function registerInitCommand(program: Command): void {
           console.log(`📂 Sync directory: ${result.syncDir}`);
 
           if (result.remoteUrl) {
+            const isSSH = result.remoteUrl.startsWith('git@') || result.remoteUrl.includes('ssh://');
+            const transport = isSSH ? 'SSH' : 'HTTPS';
+            console.log(chalk.green(`✅ ${transport} transport detected (secure)`));
             console.log(chalk.green('✅ Remote configured:') + ` ${result.remoteUrl}`);
+          } else {
+            console.log(chalk.dim('   No remote configured — local only.'));
           }
 
           if (result.projectCount > 0) {
@@ -337,7 +375,13 @@ export function registerInitCommand(program: Command): void {
           }
 
           if (result.remoteUrl) {
-            console.log(chalk.green('\n✅ Remote configured:') + ` ${result.remoteUrl}`);
+            const isSSH = result.remoteUrl.startsWith('git@') || result.remoteUrl.includes('ssh://');
+            const transport = isSSH ? 'SSH' : 'HTTPS';
+            console.log(chalk.green(`\n✅ ${transport} transport detected (secure)`));
+            console.log(chalk.green('✅ Remote configured:') + ` ${result.remoteUrl}`);
+          } else {
+            console.log(chalk.dim('\n   No remote configured — syncing locally only.'));
+            console.log(chalk.dim('   To add a remote later: ctx-sync init --remote <url>'));
           }
 
           console.log(chalk.green('\n✅ All set!'));

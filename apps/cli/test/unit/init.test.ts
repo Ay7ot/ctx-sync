@@ -217,6 +217,32 @@ describe('Init Command', () => {
       expect(mockAddRemote).not.toHaveBeenCalled();
     });
 
+    it('should push to remote after commit when remote is provided', async () => {
+      // After addRemote, getRemotes should return the configured remote
+      mockGetRemotes.mockResolvedValueOnce([]).mockResolvedValueOnce([
+        {
+          name: 'origin',
+          refs: {
+            fetch: 'git@github.com:user/repo.git',
+            push: 'git@github.com:user/repo.git',
+          },
+        },
+      ]);
+
+      await executeInit({
+        noInteractive: true,
+        remote: 'git@github.com:user/repo.git',
+      });
+
+      expect(mockPush).toHaveBeenCalledWith('origin', 'main', ['--set-upstream']);
+    });
+
+    it('should not push when no remote is provided', async () => {
+      await executeInit({ noInteractive: true });
+
+      expect(mockPush).not.toHaveBeenCalled();
+    });
+
     it('should return the public key (never the private key)', async () => {
       const result = await executeInit({ noInteractive: true });
 

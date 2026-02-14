@@ -109,6 +109,28 @@ describe('Integration: Init Workflow', () => {
       });
       expect(log).toContain('initialize context sync');
     });
+
+    it('should push initial commit when remote is configured', async () => {
+      const { execSync } = await import('node:child_process');
+
+      // Create a bare repo to act as the remote
+      const bareRepo = path.join(testHome, 'remote.git');
+      fs.mkdirSync(bareRepo, { recursive: true });
+      execSync('git init --bare', { cwd: bareRepo, encoding: 'utf-8' });
+
+      // Init with the local bare repo as remote
+      await executeInit({
+        noInteractive: true,
+        remote: bareRepo,
+      });
+
+      // Verify the bare repo received the commit
+      const remoteLog = execSync('git log --oneline', {
+        cwd: bareRepo,
+        encoding: 'utf-8',
+      });
+      expect(remoteLog).toContain('initialize context sync');
+    });
   });
 
   describe('Restore workflow', () => {

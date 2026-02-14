@@ -760,7 +760,7 @@ jobs:
 
 > **Goal:** Wire up Commander.js, implement the `init` and `init --restore` flows.
 >
-> **Status:** Complete. All 3 tasks done. Commander.js CLI framework wired with --version/--help, `ctx-sync init` for fresh setup (key gen, permissions, Git repo, manifest), and `ctx-sync init --restore` for new-machine onboarding (key restore via stdin/prompt, remote validation, repo clone). 204 tests passing (119 unit + 21 integration + 46 security + 18 E2E).
+> **Status:** Complete. All 3 tasks done. Commander.js CLI framework wired with --version/--help, `ctx-sync init` for fresh setup (key gen, permissions, Git repo, manifest), and `ctx-sync init --restore` for new-machine onboarding (key restore via stdin/prompt, remote validation, repo clone). Enhanced: interactive remote URL prompt added to both init and restore flows (per product spec), pushState on init when remote is configured, transport validation and no-remote hint in CLI output.
 
 ### Task 3.1 — CLI entry point & commander setup ✅
 

@@ -87,12 +87,28 @@ describe('E2E: ctx-sync init', () => {
     expect(combined).toContain('Insecure Git remote');
   });
 
-  it('init with valid SSH remote succeeds', () => {
+  it('init with valid SSH remote succeeds and shows transport validation', () => {
     const result = env.execCommand('init --no-interactive --remote git@github.com:user/repo.git');
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain('All set!');
     expect(result.stdout).toContain('git@github.com:user/repo.git');
+    expect(result.stdout).toContain('SSH transport detected');
+  });
+
+  it('init with valid HTTPS remote shows transport validation', () => {
+    const result = env.execCommand('init --no-interactive --remote https://github.com/user/repo.git');
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain('All set!');
+    expect(result.stdout).toContain('HTTPS transport detected');
+  });
+
+  it('init --no-interactive without remote shows hint about adding remote later', () => {
+    const result = env.execCommand('init --no-interactive');
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain('No remote configured');
   });
 });
 
