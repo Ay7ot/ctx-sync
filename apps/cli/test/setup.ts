@@ -2,8 +2,12 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 
-/** Global test directory — unique per test run */
-const TEST_DIR = path.join(os.tmpdir(), 'ctx-sync-test', Date.now().toString());
+/** Global test directory — unique per worker (pid + timestamp + random) */
+const TEST_DIR = path.join(
+  os.tmpdir(),
+  'ctx-sync-test',
+  `${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+);
 
 // Make TEST_DIR available globally
 declare global {
