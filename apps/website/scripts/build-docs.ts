@@ -3,7 +3,14 @@
  *
  * Reads each .md file from content/, converts to HTML via `marked`,
  * wraps in a shared layout template, writes to public/docs/<slug>.html,
- * generates sidebar navigation, and produces a search index JSON file.
+ * generates accent-coded sidebar navigation with section categories,
+ * produces a search index JSON file, and adds:
+ *   - Breadcrumbs with decorative separators
+ *   - Page metadata (reading time, last updated)
+ *   - Table of contents per page
+ *   - Enhanced code blocks with language badges and copy buttons
+ *   - Callout/admonition parsing (:::info, :::warning, :::tip, etc.)
+ *   - Accent-colored docs index cards
  */
 
 import fs from 'node:fs';
@@ -25,6 +32,10 @@ interface DocPage {
   headings: Array<{ level: number; text: string; id: string }>;
   content: string;
   htmlContent: string;
+  category: string;
+  accent: string;
+  icon: string;
+  readingTime: number;
 }
 
 /** Represents an entry in the search index. */
@@ -33,7 +44,28 @@ interface SearchEntry {
   title: string;
   headings: string[];
   snippet: string;
+  category: string;
+  accent: string;
 }
+
+/** Section categories with accent colors and icons */
+const SECTION_CONFIG: Record<string, { category: string; accent: string; icon: string }> = {
+  'getting-started': { category: 'Getting Started', accent: 'blue', icon: '&#9889;' },
+  'commands': { category: 'Core Reference', accent: 'green', icon: '&#9000;' },
+  'security': { category: 'Security', accent: 'orange', icon: '&#128274;' },
+  'teams': { category: 'Advanced', accent: 'purple', icon: '&#128101;' },
+  'faq': { category: 'Help', accent: 'pink', icon: '&#10067;' },
+};
+
+/** Callout type configuration */
+const CALLOUT_CONFIG: Record<string, { icon: string; title: string }> = {
+  'info': { icon: '&#128161;', title: 'Info' },
+  'warning': { icon: '&#9888;&#65039;', title: 'Warning' },
+  'tip': { icon: '&#128640;', title: 'Pro Tip' },
+  'success': { icon: '&#9989;', title: 'Best Practice' },
+  'danger': { icon: '&#9888;&#65039;', title: 'Danger' },
+  'security': { icon: '&#128274;', title: 'Security Note' },
+};
 
 /**
  * Extract a title from Markdown content (first # heading) or fall back to
@@ -75,6 +107,14 @@ function extractHeadings(
 }
 
 /**
+ * Estimate reading time in minutes.
+ */
+function estimateReadingTime(markdown: string): number {
+  const words = markdown.replace(/```[\s\S]*?```/g, '').split(/\s+/).length;
+  return Math.max(1, Math.ceil(words / 200));
+}
+
+/**
  * Create a plain-text snippet from Markdown for the search index.
  */
 function createSnippet(markdown: string, maxLength = 200): string {
@@ -83,6 +123,8 @@ function createSnippet(markdown: string, maxLength = 200): string {
     .replace(/```[\s\S]*?```/g, '') // Remove code blocks
     .replace(/`[^`]+`/g, '') // Remove inline code
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Links → text
+    .replace(/:::(info|warning|tip|success|danger|security)\b[^\n]*/g, '') // Remove callout markers
+    .replace(/^:::\s*$/gm, '')
     .replace(/[*_~]/g, '') // Remove emphasis markers
     .replace(/\n+/g, ' ')
     .trim();
@@ -90,7 +132,79 @@ function createSnippet(markdown: string, maxLength = 200): string {
 }
 
 /**
- * Generate a sidebar navigation HTML string from the list of pages.
+ * Process callout blocks in markdown before marked conversion.
+ * Syntax: :::type optional title\ncontent\n:::
+ */
+function processCallouts(markdown: string): string {
+  const calloutRegex = /^:::(info|warning|tip|success|danger|security)\s*(.*?)$\n([\s\S]*?)^:::$/gm;
+
+  return markdown.replace(calloutRegex, (_match, type: string, customTitle: string, content: string) => {
+    const config = CALLOUT_CONFIG[type] ?? { icon: '&#128161;', title: 'Note' };
+    const title = customTitle.trim() || config.title;
+    const trimmedContent = content.trim();
+
+    return `<div class="docs-callout callout-${type}">
+  <div class="docs-callout-icon">${config.icon}</div>
+  <div class="docs-callout-content">
+    <div class="docs-callout-title">${title}</div>
+    <p>${trimmedContent}</p>
+  </div>
+</div>`;
+  });
+}
+
+/**
+ * Generate a table of contents HTML from page headings.
+ */
+function generateTableOfContents(headings: Array<{ level: number; text: string; id: string }>): string {
+  const tocHeadings = headings.filter((h) => h.level === 2 || h.level === 3);
+  if (tocHeadings.length < 3) return ''; // Skip TOC for short pages
+
+  let toc = '<div class="docs-toc">\n';
+  toc += '  <div class="docs-toc-title">On this page</div>\n';
+  toc += '  <ul>\n';
+
+  for (const h of tocHeadings) {
+    const cls = h.level === 3 ? ' class="toc-h3"' : '';
+    toc += `    <li${cls}><a href="#${h.id}">${h.text}</a></li>\n`;
+  }
+
+  toc += '  </ul>\n';
+  toc += '</div>\n';
+  return toc;
+}
+
+/**
+ * Generate breadcrumbs HTML for a page.
+ */
+function generateBreadcrumbs(title: string, slug: string): string {
+  const sepSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>';
+
+  if (!slug) return '';
+
+  return `<nav class="docs-breadcrumbs" aria-label="Breadcrumb">
+  <a href="/">Home</a>
+  <span class="breadcrumb-sep">${sepSvg}</span>
+  <a href="/docs/">Docs</a>
+  <span class="breadcrumb-sep">${sepSvg}</span>
+  <span class="breadcrumb-current">${title}</span>
+</nav>`;
+}
+
+/**
+ * Generate page metadata HTML (reading time).
+ */
+function generatePageMeta(readingTime: number): string {
+  return `<div class="docs-page-meta">
+  <span class="docs-meta-item">
+    <svg class="docs-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    ${readingTime} min read
+  </span>
+</div>`;
+}
+
+/**
+ * Generate accent-coded sidebar navigation HTML with section categories.
  */
 function generateSidebarNav(pages: DocPage[], currentSlug: string): string {
   let nav = '<nav class="docs-sidebar" id="docs-sidebar">\n';
@@ -99,15 +213,23 @@ function generateSidebarNav(pages: DocPage[], currentSlug: string): string {
   nav += '    <button class="sidebar-close" id="sidebar-close" aria-label="Close sidebar">&times;</button>\n';
   nav += '  </div>\n';
   nav += '  <div class="sidebar-search">\n';
-  nav +=
-    '    <input type="text" id="docs-search-input" placeholder="Search docs..." aria-label="Search documentation" />\n';
+  nav += '    <input type="text" id="docs-search-input" placeholder="Search docs..." aria-label="Search documentation" />\n';
+  nav += '    <span class="search-shortcut">\u2318K</span>\n';
   nav += '    <div id="docs-search-results" class="search-results"></div>\n';
   nav += '  </div>\n';
   nav += '  <ul class="sidebar-nav-list">\n';
 
+  let lastCategory = '';
   for (const page of pages) {
+    // Add section label if category changed
+    if (page.category !== lastCategory) {
+      nav += `    <li class="sidebar-section-label"><span class="sidebar-section-dot" data-accent="${page.accent}"></span>${page.category}</li>\n`;
+      lastCategory = page.category;
+    }
+
     const active = page.slug === currentSlug ? ' class="active"' : '';
-    nav += `    <li${active}><a href="/docs/${page.slug}.html">${page.title}</a></li>\n`;
+    const accentAttr = page.slug === currentSlug ? ` data-accent="${page.accent}"` : '';
+    nav += `    <li${active}${accentAttr}><a href="/docs/${page.slug}.html"><span class="nav-icon">${page.icon}</span>${page.title}</a></li>\n`;
   }
 
   nav += '  </ul>\n';
@@ -135,6 +257,9 @@ const LOGO_SVG = `<svg class="logo-mark" width="24" height="24" viewBox="0 0 40 
 
 /**
  * Wrap HTML content in the shared docs layout template with full SEO support.
+ * The toc (table of contents) is rendered as a sticky right sidebar, separate
+ * from the main article content — matching the layout pattern used by Stripe,
+ * Vercel, and Next.js documentation.
  */
 function wrapInLayout(
   title: string,
@@ -142,6 +267,7 @@ function wrapInLayout(
   bodyHtml: string,
   slug = '',
   description = '',
+  toc = '',
 ): string {
   const pageTitle = `${title} — ctx-sync docs`;
   const pageDesc = description || `${title} documentation for ctx-sync, the CLI tool that syncs your dev context across machines.`;
@@ -217,7 +343,12 @@ function wrapInLayout(
   </script>
 </head>
 <body class="docs-page">
-  <header class="docs-header">
+  <!-- Scroll Progress Bar -->
+  <div class="docs-progress-bar" id="docs-progress-bar">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+
+  <header class="docs-header" id="docs-header">
     <div class="docs-header-inner">
       <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
         <span></span><span></span><span></span>
@@ -243,13 +374,52 @@ function wrapInLayout(
         ${bodyHtml}
       </article>
     </main>
+    ${toc ? `<aside class="docs-toc-sidebar" id="docs-toc-sidebar">${toc}</aside>` : ''}
   </div>
+
+  <!-- CMD+K Command Palette -->
+  <div class="cmd-palette-overlay" id="cmd-palette-overlay">
+    <div class="cmd-palette" id="cmd-palette">
+      <div class="cmd-palette-input-wrap">
+        <span class="cmd-palette-search-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </span>
+        <input type="text" class="cmd-palette-input" id="cmd-palette-input" placeholder="Search documentation..." autocomplete="off" />
+      </div>
+      <div class="cmd-palette-results" id="cmd-palette-results"></div>
+      <div class="cmd-palette-footer">
+        <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> navigate</span>
+        <span><kbd>&#9166;</kbd> open</span>
+        <span><kbd>esc</kbd> close</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Back to Top -->
+  <button class="back-to-top" id="back-to-top" aria-label="Back to top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 15l-6-6-6 6"/></svg>
+  </button>
 
   <script src="/js/main.js"></script>
   <script src="/js/docs-nav.js"></script>
   <script src="/js/docs-search.js"></script>
 </body>
 </html>`;
+}
+
+/**
+ * Post-process HTML to enhance code blocks with headers, language badges,
+ * and copy buttons.
+ */
+function enhanceCodeBlocks(html: string): string {
+  // Match <pre><code class="language-xxx"> blocks produced by marked
+  return html.replace(
+    /<pre><code class="language-(\w+)">([\s\S]*?)<\/code><\/pre>/g,
+    (_match, lang: string, code: string) => {
+      const langDisplay = lang.toUpperCase();
+      return `<pre data-lang="${lang}"><div class="code-block-header"><span class="code-lang-badge">${langDisplay}</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-${lang}">${code}</code></pre>`;
+    },
+  );
 }
 
 /**
@@ -285,6 +455,22 @@ async function build(): Promise<void> {
     const raw = fs.readFileSync(path.join(CONTENT_DIR, file), 'utf-8');
     const title = extractTitle(raw, slug);
     const headings = extractHeadings(raw);
+    const readingTime = estimateReadingTime(raw);
+
+    // Get section config
+    const sectionCfg = SECTION_CONFIG[slug] ?? {
+      category: 'Documentation',
+      accent: 'blue',
+      icon: '&#128196;',
+    };
+
+    // Strip the first # heading (and its subtitle paragraph) from the markdown
+    // since the build script already renders <h1> + page meta from extracted data.
+    // This prevents the title from appearing twice on the page.
+    const strippedMd = raw.replace(/^#\s+.+\n+(?:[^#\n][^\n]*\n+)?/, '');
+
+    // Process callouts before marked conversion
+    const processedMd = processCallouts(strippedMd);
 
     // Configure marked for heading IDs
     const renderer = new marked.Renderer();
@@ -297,9 +483,22 @@ async function build(): Promise<void> {
       return `<h${depth} id="${id}">${text}</h${depth}>`;
     };
 
-    const htmlContent = await marked(raw, { renderer });
+    let htmlContent = await marked(processedMd, { renderer });
 
-    pages.push({ slug, title, headings, content: raw, htmlContent });
+    // Enhance code blocks with headers + copy buttons
+    htmlContent = enhanceCodeBlocks(htmlContent);
+
+    pages.push({
+      slug,
+      title,
+      headings,
+      content: raw,
+      htmlContent,
+      category: sectionCfg.category,
+      accent: sectionCfg.accent,
+      icon: sectionCfg.icon,
+      readingTime,
+    });
   }
 
   // Define page order (explicit ordering)
@@ -322,8 +521,13 @@ async function build(): Promise<void> {
   // Generate HTML for each page
   for (const page of pages) {
     const sidebar = generateSidebarNav(pages, page.slug);
+    const breadcrumbs = generateBreadcrumbs(page.title, page.slug);
+    const pageMeta = generatePageMeta(page.readingTime);
+    const toc = generateTableOfContents(page.headings);
     const snippet = createSnippet(page.content, 160);
-    const html = wrapInLayout(page.title, sidebar, page.htmlContent, page.slug, snippet);
+
+    const bodyHtml = `${breadcrumbs}\n<h1>${page.title}</h1>\n${pageMeta}\n${page.htmlContent}`;
+    const html = wrapInLayout(page.title, sidebar, bodyHtml, page.slug, snippet, toc);
     const outPath = path.join(DOCS_OUT_DIR, `${page.slug}.html`);
     fs.writeFileSync(outPath, html, 'utf-8');
     console.log(`  ✅ ${page.slug}.html`);
@@ -335,6 +539,8 @@ async function build(): Promise<void> {
     title: page.title,
     headings: page.headings.map((h) => h.text),
     snippet: createSnippet(page.content),
+    category: page.category,
+    accent: page.accent,
   }));
 
   fs.writeFileSync(SEARCH_INDEX_PATH, JSON.stringify(searchIndex, null, 2), 'utf-8');
@@ -344,14 +550,15 @@ async function build(): Promise<void> {
   const docsIndexSidebar = generateSidebarNav(pages, '');
   const docsIndexBody = `
     <h1>ctx-sync Documentation</h1>
-    <p>Welcome to the ctx-sync documentation. Choose a topic from the sidebar or start with the getting started guide.</p>
+    <p class="docs-index-subtitle">Everything you need to sync your development context across machines.</p>
     <div class="docs-grid">
       ${pages
         .map(
           (p) => `
         <a href="/docs/${p.slug}.html" class="docs-card">
           <h3>${p.title}</h3>
-          <p>${createSnippet(p.content, 100)}</p>
+          <p>${createSnippet(p.content, 120)}</p>
+          <span class="docs-card-arrow">&rarr;</span>
         </a>`,
         )
         .join('\n')}

@@ -21,6 +21,10 @@ ctx-sync init
 
 Share public keys through a secure channel (in person, encrypted message, etc.). **Never share private keys.**
 
+:::security Verify Keys Out-of-Band
+Always exchange and verify public keys through a channel separate from your Git repository. This prevents impersonation attacks where a malicious actor injects their key into the recipient list.
+:::
+
 ### Step 3: Add the team member
 
 ```bash
@@ -66,6 +70,10 @@ This:
 
 The removed member can no longer decrypt any state — including previously encrypted data.
 
+:::danger Revoke Promptly
+When a team member leaves, revoke their key immediately. They retain access to any data they have already decrypted locally, but cannot decrypt new or re-encrypted state.
+:::
+
 ## Key Revocation
 
 For immediate key revocation (e.g., suspected compromise):
@@ -107,3 +115,7 @@ ctx-sync pull
 ctx-sync team revoke age1bob...
 # All state re-encrypted without Bob's key
 ```
+
+:::success Complete Forward Secrecy
+After revocation, all state is re-encrypted. Even if Bob retained a copy of the Git history, new state files are unreadable to him.
+:::

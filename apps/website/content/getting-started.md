@@ -10,7 +10,9 @@ Install ctx-sync globally via npm:
 npm install -g ctx-sync
 ```
 
+:::info Requirements
 Requires **Node.js 18+** and **Git** installed on your system.
+:::
 
 ## First-Time Setup
 
@@ -28,7 +30,9 @@ This will:
 
 ## Back Up Your Key
 
-Your private key is the only way to decrypt your synced context. If you lose it, your data is gone. ctx-sync will prompt you to back up during init:
+:::security Key Backup Is Critical
+Your private key is the **only way** to decrypt your synced context. If you lose it, your data is gone. There is no backdoor by design. ctx-sync will prompt you to back up during init.
+:::
 
 - **Recommended:** Save to 1Password / Bitwarden
 - **Alternative:** Copy to clipboard (auto-clears after 30 seconds)
@@ -48,6 +52,10 @@ ctx-sync will automatically detect:
 - **.env file** — prompts to import environment variables (all encrypted by default)
 - **docker-compose.yml** — prompts to track Docker services
 - **Mental context** — asks what you are currently working on
+
+:::tip Quick Track
+Use `ctx-sync track --yes` to skip confirmation prompts and accept all defaults.
+:::
 
 ## Sync Your Context
 
@@ -81,6 +89,10 @@ This will:
 - Show your mental context (what you were working on, blockers, next steps)
 - Decrypt and restore environment variables
 - Show Docker services and commands for your approval before executing
+
+:::success Full Context in Seconds
+The entire restore process takes under 10 seconds. You go from a blank machine to knowing exactly where you left off.
+:::
 
 ## Daily Usage
 

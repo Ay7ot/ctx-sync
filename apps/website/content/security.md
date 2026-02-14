@@ -48,7 +48,9 @@ Every state file is encrypted as a single Age blob:
 └── directories.age     # Encrypted: recent and pinned directories
 ```
 
-The `manifest.json` file contains only version and timestamps — no project names, paths, or hostnames.
+:::security Manifest Is the Only Plaintext
+The `manifest.json` file contains only version and timestamps — no project names, paths, or hostnames. Everything else is a binary Age ciphertext blob.
+:::
 
 ### Encrypt-by-Default for Environment Variables
 
@@ -63,6 +65,10 @@ A safe-list of known non-sensitive keys (like `NODE_ENV`, `PORT`, `DEBUG`) can o
 - Private key: `~/.config/ctx-sync/key.txt` (permissions: 600)
 - Config directory: `~/.config/ctx-sync/` (permissions: 700)
 - The config directory is **never** committed to Git
+
+:::warning Permission Enforcement
+ctx-sync refuses to load a key file with permissions other than 600. If your permissions drift, run `chmod 600 ~/.config/ctx-sync/key.txt` to fix.
+:::
 
 ### Key Rotation
 
@@ -95,6 +101,10 @@ ctx-sync enforces secure transport for all Git operations. Only SSH and HTTPS re
 Transport is validated at:
 - `ctx-sync init` (when setting up remote)
 - `ctx-sync sync` / `push` / `pull` (on every operation)
+
+:::danger Insecure Transports Blocked
+HTTP, git://, and ftp:// protocols are permanently blocked. ctx-sync will reject any attempt to use these transports, even if the remote is on a local network.
+:::
 
 ## Command Execution Safety
 
@@ -130,6 +140,10 @@ Secrets are never accepted as command-line arguments. CLI arguments are visible 
 ### Log Sanitization
 
 All log output is sanitized to remove patterns that look like secrets (API keys, tokens, credentials in URLs).
+
+:::tip Debug Safely
+Even with `DEBUG=*` enabled, ctx-sync sanitizes all output. Secret patterns (Stripe keys, GitHub tokens, AWS credentials, JWTs, PEM keys) are automatically redacted.
+:::
 
 ### No Temporary Files
 

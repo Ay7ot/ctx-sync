@@ -76,8 +76,8 @@ describe('Build docs script', () => {
         'utf-8',
       );
 
-      expect(commands).toContain('<pre>');
-      expect(commands).toContain('<code>');
+      expect(commands).toContain('<pre');
+      expect(commands).toContain('<code');
     });
 
     it('should convert Markdown tables to HTML tables', () => {

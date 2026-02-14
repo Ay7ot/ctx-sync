@@ -72,7 +72,9 @@ ctx-sync restore my-app
 
 This displays your mental context, decrypts environment variables, and shows all commands (Docker, services) for explicit approval before execution.
 
-**Security:** Commands are always shown for review before execution. There is no flag to skip command confirmation.
+:::security Command Approval Required
+Commands are always shown for review before execution. There is no flag to skip command confirmation. This prevents remote code execution from compromised repos.
+:::
 
 ## Environment Variables
 
@@ -106,7 +108,9 @@ ctx-sync env add STRIPE_KEY
 | `--stdin` | Read value from stdin pipe |
 | `--from-fd N` | Read value from file descriptor N |
 
-**Security:** Values are never accepted as CLI arguments to prevent exposure in shell history and process lists.
+:::warning Never Pass Secrets as Arguments
+Values are never accepted as CLI arguments to prevent exposure in shell history and process lists. Use interactive prompt, stdin, or file descriptor instead.
+:::
 
 ### `ctx-sync env scan`
 
@@ -166,6 +170,10 @@ Update mental context — current task, blockers, next steps, breadcrumbs, and l
 ctx-sync note my-app
 ```
 
+:::tip Beat the 23-Minute Problem
+Use `ctx-sync note` at the end of each session to capture what you were doing, where you left off, and what you planned to do next. Your future self will thank you.
+:::
+
 ### `ctx-sync show <project>`
 
 Display the full context for a project — Git state, environment variables, Docker services, and mental context.
@@ -224,7 +232,9 @@ ctx-sync key rotate
 3. Rewrites Git history to remove old encrypted blobs
 4. Force-pushes to remote
 
-After rotation, all other machines must run `ctx-sync key update`.
+:::danger Coordinate Key Rotation
+After rotation, all other machines must run `ctx-sync key update`. Failure to do so will prevent decryption on those machines.
+:::
 
 ### `ctx-sync key verify`
 
@@ -319,3 +329,7 @@ ctx-sync audit
 - Git history for plaintext leaks
 - Repository size
 - All state files are encrypted
+
+:::success Run Audits Regularly
+Make `ctx-sync audit` part of your routine. It catches permission drift, insecure remotes, and accidentally committed plaintext files.
+:::

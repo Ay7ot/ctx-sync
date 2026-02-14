@@ -21,6 +21,10 @@ ctx-sync preserves and restores all of this in seconds.
 
 No. ctx-sync uses Git as the backend. You just need a private Git repository (GitHub, GitLab, Bitbucket, or self-hosted).
 
+:::info No Cloud Required
+ctx-sync works completely offline for local operations. You only need network access when syncing to your Git remote.
+:::
+
 ### Is it free?
 
 Yes. ctx-sync is free and open-source under the MIT license.
@@ -37,7 +41,9 @@ ctx-sync uses [Age encryption](https://age-encryption.org/), a modern, audited e
 
 ### What if I lose my private key?
 
+:::danger No Recovery Without Key
 If you lose your private key, your encrypted data cannot be recovered. This is by design — there is no backdoor. Always back up your private key to a password manager.
+:::
 
 ### Can I rotate my key?
 
@@ -121,8 +127,11 @@ chmod 600 ~/.config/ctx-sync/key.txt
 
 This usually means you are using the wrong private key, or the encrypted file is corrupted.
 
-- Verify you are using the correct key: `ctx-sync key show`
-- If the file is corrupted, try pulling a fresh copy: `ctx-sync pull`
+:::tip Troubleshooting Decryption
+1. Verify you are using the correct key: `ctx-sync key show`
+2. If the file is corrupted, try pulling a fresh copy: `ctx-sync pull`
+3. If you rotated keys on another machine, run `ctx-sync key update` to sync the new key.
+:::
 
 ### ctx-sync is slow
 
