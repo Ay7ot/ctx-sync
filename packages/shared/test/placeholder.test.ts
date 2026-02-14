@@ -2,7 +2,7 @@ import { VERSION, DEFAULT_SAFE_LIST, STATE_FILES, CONFIG_DIR, SYNC_DIR } from '.
 
 describe('@ctx-sync/shared', () => {
   it('should export VERSION', () => {
-    expect(VERSION).toBe('1.0.0');
+    expect(VERSION).toMatch(/^\d+\.\d+\.\d+$/);
   });
 
   it('should export DEFAULT_SAFE_LIST with known keys', () => {

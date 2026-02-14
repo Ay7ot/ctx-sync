@@ -1,6 +1,7 @@
 import { jest } from '@jest/globals';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { VERSION } from '@ctx-sync/shared';
 
 declare global {
   var TEST_DIR: string;
@@ -119,7 +120,7 @@ describe('Init Command', () => {
 
       const manifest = createManifest(syncDir);
 
-      expect(manifest.version).toBe('1.0.0');
+      expect(manifest.version).toBe(VERSION);
       expect(manifest.lastSync).toBeDefined();
       expect(manifest.files).toEqual({});
 
@@ -127,7 +128,7 @@ describe('Init Command', () => {
       const onDisk = JSON.parse(
         fs.readFileSync(path.join(syncDir, 'manifest.json'), 'utf-8'),
       );
-      expect(onDisk.version).toBe('1.0.0');
+      expect(onDisk.version).toBe(VERSION);
     });
 
     it('should contain only version, lastSync, and files (no sensitive data)', () => {

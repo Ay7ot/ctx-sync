@@ -8,9 +8,12 @@
  * @module ctx-sync
  */
 
+import { createRequire } from 'node:module';
 import { Command } from 'commander';
-import { VERSION } from '@ctx-sync/shared';
 import { formatError } from './utils/errors.js';
+
+const require = createRequire(import.meta.url);
+const { version: VERSION } = require('../package.json') as { version: string };
 import { registerInitCommand } from './commands/init.js';
 import { registerTrackCommand } from './commands/track.js';
 import { registerListCommand } from './commands/list.js';
