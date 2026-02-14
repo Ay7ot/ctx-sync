@@ -226,8 +226,9 @@ describe('Build docs script', () => {
         'utf-8',
       );
 
-      expect(html).toContain('class="docs-card"');
-      expect(html).toContain('class="docs-grid"');
+      // Redesigned index uses docs-index-card and docs-index-cards
+      expect(html).toContain('docs-index-card');
+      expect(html).toContain('docs-index-cards');
     });
   });
 

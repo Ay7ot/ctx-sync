@@ -407,6 +407,139 @@ function wrapInLayout(
 </html>`;
 }
 
+/** Icon SVGs for docs index cards */
+const INDEX_CARD_ICONS: Record<string, string> = {
+  'getting-started': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+  'commands': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>',
+  'security': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+  'teams': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  'faq': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+};
+
+/** Accent color CSS values for docs index cards */
+const ACCENT_CSS: Record<string, string> = {
+  'blue': 'rgba(14,165,233,0.08)',
+  'green': 'rgba(34,197,94,0.08)',
+  'orange': 'rgba(251,146,60,0.08)',
+  'purple': 'rgba(168,85,247,0.08)',
+  'pink': 'rgba(236,72,153,0.08)',
+};
+
+const ACCENT_CSS_VAR: Record<string, string> = {
+  'blue': 'var(--accent-blue)',
+  'green': 'var(--accent-green)',
+  'orange': 'var(--accent-orange)',
+  'purple': 'var(--accent-purple)',
+  'pink': 'var(--accent-pink)',
+};
+
+const ACCENT_DOT_SHADOW: Record<string, string> = {
+  'blue': '0 0 8px rgba(14,165,233,0.4)',
+  'green': '0 0 8px rgba(34,197,94,0.4)',
+  'orange': '0 0 8px rgba(251,146,60,0.4)',
+  'purple': '0 0 8px rgba(168,85,247,0.4)',
+  'pink': '0 0 8px rgba(236,72,153,0.4)',
+};
+
+const ARROW_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+
+/**
+ * Generate the redesigned docs index page body HTML.
+ */
+function generateDocsIndexBody(pages: DocPage[]): string {
+  // Group pages by category
+  const sectionTitles: Record<string, string> = {
+    'Getting Started': 'Essentials',
+    'Core Reference': 'Essentials',
+    'Security': 'Security &amp; Architecture',
+    'Advanced': 'Advanced',
+    'Help': 'Help',
+  };
+
+  // Build cards grouped by section
+  const sections: Record<string, DocPage[]> = {};
+  for (const page of pages) {
+    const sectionTitle = sectionTitles[page.category] ?? page.category;
+    const arr = sections[sectionTitle] ?? (sections[sectionTitle] = []);
+    arr.push(page);
+  }
+
+  let cardsHtml = '';
+  for (const sectionTitle of ['Essentials', 'Security &amp; Architecture', 'Advanced', 'Help']) {
+    const sectionPages = sections[sectionTitle];
+    if (!sectionPages || sectionPages.length === 0) continue;
+
+    const firstPage = sectionPages[0];
+    if (!firstPage) continue;
+    const dotColor = ACCENT_CSS_VAR[firstPage.accent] ?? 'var(--accent-blue)';
+    const dotShadow = ACCENT_DOT_SHADOW[firstPage.accent] ?? '';
+
+    cardsHtml += `
+        <div class="docs-index-section">
+          <div class="docs-index-section-header">
+            <span class="docs-index-section-dot" style="background: ${dotColor}; box-shadow: ${dotShadow}"></span>
+            <h2 class="docs-index-section-title">${sectionTitle}</h2>
+          </div>
+          <div class="docs-index-cards">`;
+
+    for (const p of sectionPages) {
+      const iconSvg = INDEX_CARD_ICONS[p.slug] ?? '';
+      const bgColor = ACCENT_CSS[p.accent] ?? 'rgba(14,165,233,0.08)';
+      const fgColor = ACCENT_CSS_VAR[p.accent] ?? 'var(--accent-blue)';
+
+      cardsHtml += `
+            <a href="./${p.slug}.html" class="docs-index-card" data-accent="${p.accent}">
+              <div class="docs-index-card-icon" style="background: ${bgColor}; color: ${fgColor}">
+                ${iconSvg}
+              </div>
+              <div class="docs-index-card-body">
+                <h3>${p.title}</h3>
+                <p>${createSnippet(p.content, 140)}</p>
+              </div>
+              <span class="docs-index-card-arrow">${ARROW_SVG}</span>
+            </a>`;
+    }
+
+    cardsHtml += `
+          </div>
+        </div>`;
+  }
+
+  return `
+    <div class="docs-index-page">
+      <div class="docs-index-hero">
+        <div class="docs-index-hero-badge"><span class="hero-badge-dot"></span>v1.0.0</div>
+        <h1 class="docs-index-title">ctx-sync Documentation</h1>
+        <p class="docs-index-description">Learn how to sync your complete development context across machines. From installation to team workflows, find everything you need to get started.</p>
+        <div class="docs-index-actions">
+          <a href="./getting-started.html" class="docs-index-cta">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Quick Start
+          </a>
+          <a href="./commands.html" class="docs-index-cta docs-index-cta-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            CLI Reference
+          </a>
+        </div>
+      </div>
+
+      <div class="docs-index-install">
+        <div class="docs-index-install-label">Install</div>
+        <code class="docs-index-install-cmd">npm install -g ctx-sync</code>
+        <button class="docs-index-install-copy" aria-label="Copy install command" onclick="navigator.clipboard.writeText('npm install -g ctx-sync');this.classList.add('copied');setTimeout(()=>this.classList.remove('copied'),2000)">
+          <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+      </div>
+
+      ${cardsHtml}
+
+      <div class="docs-index-footer-info">
+        <p>Need help? <a href="https://github.com/Ay7ot/ctx-sync/issues" target="_blank" rel="noopener">Open an issue on GitHub</a> or check the <a href="./faq.html">FAQ</a>.</p>
+      </div>
+    </div>`;
+}
+
 /**
  * Post-process HTML to enhance code blocks with headers, language badges,
  * and copy buttons.
@@ -546,24 +679,9 @@ async function build(): Promise<void> {
   fs.writeFileSync(SEARCH_INDEX_PATH, JSON.stringify(searchIndex, null, 2), 'utf-8');
   console.log(`  ✅ search-index.json`);
 
-  // Generate docs index page
+  // Generate docs index page with redesigned hero layout
   const docsIndexSidebar = generateSidebarNav(pages, '');
-  const docsIndexBody = `
-    <h1>ctx-sync Documentation</h1>
-    <p class="docs-index-subtitle">Everything you need to sync your development context across machines.</p>
-    <div class="docs-grid">
-      ${pages
-        .map(
-          (p) => `
-        <a href="./${p.slug}.html" class="docs-card">
-          <h3>${p.title}</h3>
-          <p>${createSnippet(p.content, 120)}</p>
-          <span class="docs-card-arrow">&rarr;</span>
-        </a>`,
-        )
-        .join('\n')}
-    </div>`;
-
+  const docsIndexBody = generateDocsIndexBody(pages);
   const docsIndexHtml = wrapInLayout(
     'Documentation',
     docsIndexSidebar,
