@@ -105,13 +105,13 @@ describe('Build docs script', () => {
       expect(html).toContain('class="docs-sidebar"');
       // Should have main content
       expect(html).toContain('class="docs-content"');
-      // Should link CSS
-      expect(html).toContain('href="/css/main.css"');
-      expect(html).toContain('href="/css/docs.css"');
+      // Should link CSS (relative paths for GitHub Pages subpath support)
+      expect(html).toContain('href="../css/main.css"');
+      expect(html).toContain('href="../css/docs.css"');
       // Should link JS
-      expect(html).toContain('src="/js/main.js"');
-      expect(html).toContain('src="/js/docs-nav.js"');
-      expect(html).toContain('src="/js/docs-search.js"');
+      expect(html).toContain('src="../js/main.js"');
+      expect(html).toContain('src="../js/docs-nav.js"');
+      expect(html).toContain('src="../js/docs-search.js"');
     });
 
     it('should include page title in <title> tag', () => {
@@ -213,11 +213,11 @@ describe('Build docs script', () => {
         'utf-8',
       );
 
-      expect(html).toContain('/docs/getting-started.html');
-      expect(html).toContain('/docs/commands.html');
-      expect(html).toContain('/docs/security.html');
-      expect(html).toContain('/docs/teams.html');
-      expect(html).toContain('/docs/faq.html');
+      expect(html).toContain('./getting-started.html');
+      expect(html).toContain('./commands.html');
+      expect(html).toContain('./security.html');
+      expect(html).toContain('./teams.html');
+      expect(html).toContain('./faq.html');
     });
 
     it('should display docs cards with titles and snippets', () => {
@@ -241,13 +241,14 @@ describe('Build docs script', () => {
 
       for (const file of htmlFiles) {
         const html = fs.readFileSync(path.join(DOCS_OUT, file), 'utf-8');
-        const linkRegex = /href="\/docs\/([^"]+)"/g;
+        // Match relative docs links: ./slug.html
+        const linkRegex = /href="\.\/([^"]+\.html)"/g;
         let match;
 
         while ((match = linkRegex.exec(html)) !== null) {
           const linkedFile = match[1];
           if (linkedFile && !fs.existsSync(path.join(DOCS_OUT, linkedFile))) {
-            brokenLinks.push(`${file} -> /docs/${linkedFile}`);
+            brokenLinks.push(`${file} -> ./${linkedFile}`);
           }
         }
       }
@@ -343,14 +344,14 @@ describe('Landing page validation', () => {
 
   it('should link to documentation', () => {
     const html = fs.readFileSync(indexPath, 'utf-8');
-    expect(html).toContain('/docs/');
-    expect(html).toContain('/docs/getting-started.html');
+    expect(html).toContain('./docs/');
+    expect(html).toContain('./docs/getting-started.html');
   });
 
   it('should reference CSS and JS assets', () => {
     const html = fs.readFileSync(indexPath, 'utf-8');
-    expect(html).toContain('href="/css/main.css"');
-    expect(html).toContain('src="/js/main.js"');
+    expect(html).toContain('href="./css/main.css"');
+    expect(html).toContain('src="./js/main.js"');
   });
 
   it('should be responsive with mobile meta viewport', () => {
