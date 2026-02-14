@@ -16,6 +16,7 @@ jobs:
           node-version: '20.x'
           cache: 'npm'
       - run: npm ci
+      - run: npm run build -w packages/shared
       - run: npm run lint
       - run: npm run typecheck
 
@@ -125,9 +126,9 @@ jobs:
           BROKEN=0
           for f in apps/website/public/docs/*.html; do
             if [ -f "$f" ]; then
-              # Extract /docs/ links and verify targets exist
-              grep -oP 'href="/docs/[^"]*"' "$f" | grep -oP '/docs/[^"]*' | while read link; do
-                TARGET="apps/website/public${link}"
+              # Extract relative docs links (./slug.html) and verify targets exist
+              grep -oP 'href="\.\/[^"]*\.html"' "$f" | grep -oP '\.\/[^"]*\.html' | while read link; do
+                TARGET="apps/website/public/docs/${link#./}"
                 if [ ! -f "$TARGET" ]; then
                   echo "ERROR: Broken link in $(basename $f): $link"
                   BROKEN=1
