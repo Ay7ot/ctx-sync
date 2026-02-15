@@ -243,7 +243,23 @@
 <td><code>--no-pull</code></td>
 <td>Skip the automatic pull and restore from local state only</td>
 </tr>
+<tr>
+<td><code>--path &lt;dir&gt;</code></td>
+<td>Use a different local directory for the project (for cross-machine restores where the project lives at a different path)</td>
+</tr>
 </tbody></table>
+<div class="docs-callout callout-tip">
+  <div class="docs-callout-icon">&#128640;</div>
+  <div class="docs-callout-content">
+    <div class="docs-callout-title">Cross-Machine Path Resolution</div>
+    <p>When you restore on a different machine, the stored project path may not exist. Use `--path` to tell ctx-sync where the project lives on this machine:
+
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync restore my-app --path ~/code/my-app
+</code></pre>
+<p>If the stored path doesn&#39;t exist and <code>--path</code> is not provided, ctx-sync falls back to the current working directory with a warning.</p>
+  </div></p>
+</div>
+
 <div class="docs-callout callout-security">
   <div class="docs-callout-icon">&#128274;</div>
   <div class="docs-callout-content">

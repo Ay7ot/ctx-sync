@@ -247,9 +247,13 @@ ctx-sync init --restore
 <p><code>restore</code> automatically pulls the latest state from the remote before decrypting, so you always get the most up-to-date context. If you want to skip the pull (e.g. you are offline), use <code>--no-pull</code>:</p>
 <pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync restore my-app --no-pull
 </code></pre>
+<p>If your project is at a different path on this machine (common when switching between macOS, Linux, and Windows), use <code>--path</code> to tell ctx-sync where it lives:</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync restore my-app --path ~/code/my-app
+</code></pre>
 <p>This will:</p>
 <ul>
 <li>Pull the latest state from the remote (unless <code>--no-pull</code> is used)</li>
+<li>Resolve the local project directory (using <code>--path</code> if provided, or the stored path)</li>
 <li>Show your mental context (what you were working on, blockers, next steps)</li>
 <li>Decrypt and restore environment variables</li>
 <li>Show Docker services and commands for your approval before executing</li>

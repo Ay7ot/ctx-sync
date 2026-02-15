@@ -185,6 +185,7 @@
       "Paste your private key",
       "I ran `init` again and lost my key — what happened?",
       "Does restore use the latest data from the remote?",
+      "What if my project is at a different path on another machine?",
       "How do I add environment variables?",
       "How do I sync between machines?",
       "Can I use this with Docker?",

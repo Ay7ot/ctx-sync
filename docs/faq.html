@@ -148,7 +148,7 @@
 <div class="docs-page-meta">
   <span class="docs-meta-item">
     <svg class="docs-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-    6 min read
+    7 min read
   </span>
 </div>
 <h2 id="general">General</h2><h3 id="what-is-ctx-sync">What is ctx-sync?</h3><p>ctx-sync is a CLI tool that syncs your complete development context across multiple machines using Git as the backend. It tracks your projects, environment variables, Docker services, mental context, and more — all encrypted with Age encryption.</p>
@@ -202,6 +202,10 @@ ctx-sync restore my-app
 <h3 id="does-restore-use-the-latest-data-from-the-remote">Does restore use the latest data from the remote?</h3><p>Yes. Starting in v1.2.0, <code>ctx-sync restore</code> automatically pulls the latest state from the remote before decrypting. If you are offline or prefer to use local state, pass <code>--no-pull</code>:</p>
 <pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync restore my-app --no-pull
 </code></pre>
+<h3 id="what-if-my-project-is-at-a-different-path-on-another-machine">What if my project is at a different path on another machine?</h3><p>When restoring on a new machine, the stored project path (e.g. <code>/Users/ayo/projects/my-app</code> from macOS) may not exist (e.g. on a Windows machine at <code>C:\Users\ayo\code\my-app</code>). Use the <code>--path</code> flag to tell ctx-sync where the project lives on this machine:</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync restore my-app --path ~/code/my-app
+</code></pre>
+<p>If you don&#39;t provide <code>--path</code> and the stored path doesn&#39;t exist, ctx-sync will fall back to your current working directory and show a warning. The stored path in the encrypted state is never modified — <code>--path</code> only affects the current restore operation.</p>
 <h3 id="how-do-i-add-environment-variables">How do I add environment variables?</h3><p>Import from a .env file:</p>
 <pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync env import .env
 </code></pre>
@@ -274,6 +278,7 @@ ctx-sync restore my-app
     <li class="toc-h3"><a href="#how-do-i-restore-on-a-new-machine">How do I restore on a new machine?</a></li>
     <li class="toc-h3"><a href="#i-ran-init-again-and-lost-my-key-what-happened">I ran `init` again and lost my key — what happened?</a></li>
     <li class="toc-h3"><a href="#does-restore-use-the-latest-data-from-the-remote">Does restore use the latest data from the remote?</a></li>
+    <li class="toc-h3"><a href="#what-if-my-project-is-at-a-different-path-on-another-machine">What if my project is at a different path on another machine?</a></li>
     <li class="toc-h3"><a href="#how-do-i-add-environment-variables">How do I add environment variables?</a></li>
     <li class="toc-h3"><a href="#how-do-i-sync-between-machines">How do I sync between machines?</a></li>
     <li class="toc-h3"><a href="#can-i-use-this-with-docker">Can I use this with Docker?</a></li>
