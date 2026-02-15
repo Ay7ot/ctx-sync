@@ -293,7 +293,7 @@ function wrapInLayout(
   <meta property="og:url" content="${canonicalUrl}" />
   <meta property="og:title" content="${pageTitle}" />
   <meta property="og:description" content="${pageDesc}" />
-  <meta property="og:image" content="https://ctx-sync.live/assets/images/og-image.png" />
+  <meta property="og:image" content="https://ctx-sync.live/assets/images/og-image.jpg" />
   <meta property="og:site_name" content="ctx-sync" />
 
   <!-- Twitter Card -->
@@ -301,7 +301,7 @@ function wrapInLayout(
   <meta name="twitter:url" content="${canonicalUrl}" />
   <meta name="twitter:title" content="${pageTitle}" />
   <meta name="twitter:description" content="${pageDesc}" />
-  <meta name="twitter:image" content="https://ctx-sync.live/assets/images/og-image.png" />
+  <meta name="twitter:image" content="https://ctx-sync.live/assets/images/og-image.jpg" />
 
   <!-- Favicon & Icons -->
   <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
@@ -338,7 +338,7 @@ function wrapInLayout(
     "author": { "@type": "Organization", "name": "ctx-sync", "url": "https://ctx-sync.live" },
     "publisher": { "@type": "Organization", "name": "ctx-sync", "url": "https://ctx-sync.live", "logo": { "@type": "ImageObject", "url": "https://ctx-sync.live/assets/images/logo.svg" } },
     "mainEntityOfPage": "${canonicalUrl}",
-    "image": "https://ctx-sync.live/assets/images/og-image.png"
+    "image": "https://ctx-sync.live/assets/images/og-image.jpg"
   }
   </script>
 </head>
