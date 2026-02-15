@@ -48,6 +48,10 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run build -w packages/shared
+      - name: Configure Git identity for tests
+        run: |
+          git config --global user.name "CI Test"
+          git config --global user.email "ci@test.local"
       - run: npm run test:unit -w apps/cli
       - run: npm run test:integration -w apps/cli
       - run: npm run test:e2e -w apps/cli
