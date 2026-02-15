@@ -221,6 +221,13 @@ Start tracked Docker services for a project. Commands are shown for confirmation
 ctx-sync docker start my-app
 ```
 
+**Options:**
+
+| Flag | Description |
+|------|-------------|
+| `--path <dir>` | Use a different local directory (for cross-machine restores where the project lives at a different path) |
+| `--no-interactive` | Show commands but skip execution |
+
 ### `ctx-sync docker stop <project>`
 
 Stop tracked Docker services.
@@ -228,6 +235,23 @@ Stop tracked Docker services.
 ```bash
 ctx-sync docker stop my-app
 ```
+
+**Options:**
+
+| Flag | Description |
+|------|-------------|
+| `--path <dir>` | Use a different local directory (for cross-machine restores where the project lives at a different path) |
+
+:::tip Cross-Machine Docker Support
+When you run Docker commands on a different machine, the stored Docker Compose path may not exist. Use `--path` to tell ctx-sync where the project (and its `docker-compose.yml`) lives on this machine:
+
+```bash
+ctx-sync docker start my-app --path ~/code/my-app
+ctx-sync docker stop my-app --path ~/code/my-app
+```
+
+If the stored path doesn't exist and `--path` is not provided, ctx-sync falls back to the current working directory with a warning.
+:::
 
 ### `ctx-sync docker status`
 

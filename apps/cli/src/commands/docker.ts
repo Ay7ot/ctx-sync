@@ -70,6 +70,8 @@ export interface DockerTrackResult {
 export interface DockerStartOptions {
   /** Non-interactive mode: show commands but skip execution */
   noInteractive?: boolean;
+  /** Explicit local path override for the project directory (cross-machine support) */
+  localPath?: string;
   /** Override prompt function (for testing) */
   promptFn?: (commands: PendingCommand[]) => Promise<'all' | 'none' | 'select'>;
   /** Override per-command select function (for testing) */
@@ -88,6 +90,16 @@ export interface DockerStartResult {
   executedCommands: string[];
   /** Commands that failed */
   failedCommands: Array<{ command: string; error: string }>;
+  /** The resolved local directory used for Docker commands */
+  localPath?: string;
+  /** Whether the path was resolved differently from the stored compose file dir */
+  pathResolved: boolean;
+}
+
+/** Options for docker stop */
+export interface DockerStopOptions {
+  /** Explicit local path override for the project directory (cross-machine support) */
+  localPath?: string;
 }
 
 /** Result of docker stop */
@@ -100,6 +112,10 @@ export interface DockerStopResult {
   stopped: boolean;
   /** Error message if stop failed */
   error?: string;
+  /** The resolved local directory used for Docker commands */
+  localPath?: string;
+  /** Whether the path was resolved differently from the stored compose file dir */
+  pathResolved: boolean;
 }
 
 /** Docker service status info */
@@ -124,6 +140,42 @@ export interface DockerStatusResult {
     composeFile: string;
     services: DockerServiceStatus[];
   }>;
+}
+
+// ─── Path Resolution ──────────────────────────────────────────────────────
+
+/**
+ * Resolve the effective directory for Docker Compose operations.
+ *
+ * Uses the following resolution order (first match wins):
+ * 1. Explicit `--path` override from the user.
+ * 2. Stored compose directory exists on disk — same machine or identical layout.
+ * 3. Fallback — use `process.cwd()`.
+ *
+ * @param storedComposeFile - The absolute compose file path stored in encrypted state.
+ * @param options - Options with optional `localPath` override.
+ * @returns An object with the resolved directory and whether it differs from the stored dir.
+ */
+export function resolveDockerComposeDir(
+  storedComposeFile: string,
+  options: { localPath?: string } = {},
+): { resolvedDir: string; pathResolved: boolean } {
+  const storedDir = path.dirname(storedComposeFile);
+
+  // 1. Explicit --path override
+  if (options.localPath) {
+    const resolved = path.resolve(options.localPath);
+    return { resolvedDir: resolved, pathResolved: resolved !== storedDir };
+  }
+
+  // 2. Stored dir exists on this machine
+  if (fs.existsSync(storedDir)) {
+    return { resolvedDir: storedDir, pathResolved: false };
+  }
+
+  // 3. Fallback to cwd
+  const cwd = process.cwd();
+  return { resolvedDir: cwd, pathResolved: true };
 }
 
 // ─── Track Logic ──────────────────────────────────────────────────────────
@@ -201,15 +253,25 @@ export async function executeDockerTrack(
 /**
  * Build pending commands from tracked Docker services.
  *
+ * Supports cross-machine path resolution: when `localPath` is provided or
+ * the stored compose directory doesn't exist, commands use the resolved path.
+ *
  * @param projectName - The project name.
  * @param projectDocker - The Docker state for the project.
+ * @param localPath - Optional override for the project directory (cross-machine support).
  * @returns List of pending commands for approval.
  */
 export function buildDockerStartCommands(
   projectName: string,
   projectDocker: DockerState[string],
+  localPath?: string,
 ): PendingCommand[] {
   const commands: PendingCommand[] = [];
+
+  // Resolve compose directory with cross-machine fallback
+  const resolvedCwd = projectDocker.composeFile
+    ? resolveDockerComposeDir(projectDocker.composeFile, { localPath }).resolvedDir
+    : localPath ?? undefined;
 
   for (const service of projectDocker.services) {
     if (service.autoStart) {
@@ -218,9 +280,7 @@ export function buildDockerStartCommands(
         label: '🐳 Docker services',
         port: service.port > 0 ? service.port : undefined,
         image: service.image || undefined,
-        cwd: projectDocker.composeFile
-          ? path.dirname(projectDocker.composeFile)
-          : undefined,
+        cwd: resolvedCwd,
       });
     }
   }
@@ -230,6 +290,9 @@ export function buildDockerStartCommands(
 
 /**
  * Execute Docker start: show Docker commands for approval and execute.
+ *
+ * Supports cross-machine path resolution via `--path` option. When the
+ * stored compose directory doesn't exist, falls back to `--path` or `cwd`.
  *
  * @param projectName - The project name.
  * @param options - Start options.
@@ -257,8 +320,31 @@ export async function executeDockerStart(
     );
   }
 
-  // Build commands
-  const commandsPresented = buildDockerStartCommands(projectName, projectDocker);
+  // Resolve compose directory (cross-machine support)
+  let resolvedLocalPath: string | undefined;
+  let pathResolved = false;
+
+  if (projectDocker.composeFile) {
+    const resolution = resolveDockerComposeDir(projectDocker.composeFile, {
+      localPath: options.localPath,
+    });
+    resolvedLocalPath = resolution.resolvedDir;
+    pathResolved = resolution.pathResolved;
+
+    if (pathResolved && !options.localPath) {
+      // Warn when falling back to cwd (not an explicit override)
+      console.warn(
+        `⚠️  Stored compose path "${projectDocker.composeFile}" not found on this machine. Using "${resolvedLocalPath}" instead.`,
+      );
+    }
+  }
+
+  // Build commands with resolved path
+  const commandsPresented = buildDockerStartCommands(
+    projectName,
+    projectDocker,
+    options.localPath ? path.resolve(options.localPath) : undefined,
+  );
 
   if (commandsPresented.length === 0) {
     return {
@@ -267,6 +353,8 @@ export async function executeDockerStart(
       approval: { approved: [], rejected: [], skippedAll: false },
       executedCommands: [],
       failedCommands: [],
+      localPath: resolvedLocalPath,
+      pathResolved,
     };
   }
 
@@ -301,6 +389,8 @@ export async function executeDockerStart(
     approval,
     executedCommands,
     failedCommands,
+    localPath: resolvedLocalPath,
+    pathResolved,
   };
 }
 
@@ -309,11 +399,16 @@ export async function executeDockerStart(
 /**
  * Execute Docker stop: stop all tracked services for a project.
  *
+ * Supports cross-machine path resolution via `--path` option. When the
+ * stored compose directory doesn't exist, falls back to `--path` or `cwd`.
+ *
  * @param projectName - The project name.
+ * @param options - Stop options (optional).
  * @returns Stop result.
  */
 export async function executeDockerStop(
   projectName: string,
+  options: DockerStopOptions = {},
 ): Promise<DockerStopResult> {
   const configDir = getConfigDir();
   const syncDir = getSyncDir();
@@ -331,19 +426,41 @@ export async function executeDockerStop(
       composeFound: false,
       stopped: false,
       error: `No Docker state found for project "${projectName}".`,
+      pathResolved: false,
     };
   }
 
-  const composeDir = projectDocker.composeFile
-    ? path.dirname(projectDocker.composeFile)
-    : null;
-
-  if (!composeDir || !fs.existsSync(composeDir)) {
+  if (!projectDocker.composeFile) {
     return {
       projectName,
       composeFound: false,
       stopped: false,
-      error: `Compose directory not found: ${composeDir ?? 'unknown'}`,
+      error: 'No compose file path stored for this project.',
+      pathResolved: false,
+    };
+  }
+
+  // Resolve compose directory (cross-machine support)
+  const { resolvedDir: composeDir, pathResolved } = resolveDockerComposeDir(
+    projectDocker.composeFile,
+    { localPath: options.localPath },
+  );
+
+  if (pathResolved && !options.localPath) {
+    // Warn when falling back to cwd (not an explicit override)
+    console.warn(
+      `⚠️  Stored compose path "${projectDocker.composeFile}" not found on this machine. Using "${composeDir}" instead.`,
+    );
+  }
+
+  if (!fs.existsSync(composeDir)) {
+    return {
+      projectName,
+      composeFound: false,
+      stopped: false,
+      error: `Compose directory not found: ${composeDir}`,
+      localPath: composeDir,
+      pathResolved,
     };
   }
 
@@ -357,6 +474,8 @@ export async function executeDockerStop(
       projectName,
       composeFound: true,
       stopped: true,
+      localPath: composeDir,
+      pathResolved,
     };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
@@ -365,6 +484,8 @@ export async function executeDockerStop(
       composeFound: true,
       stopped: false,
       error: message,
+      localPath: composeDir,
+      pathResolved,
     };
   }
 }
@@ -459,9 +580,11 @@ export function registerDockerCommand(program: Command): void {
     .command('start <project>')
     .description('Start tracked Docker services (with confirmation)')
     .option('--no-interactive', 'Show commands but skip execution')
+    .option('--path <dir>', 'Local project directory (use when Docker Compose is at a different path on this machine)')
     .action(withErrorHandler(async (projectName: string, opts: Record<string, unknown>) => {
       const options: DockerStartOptions = {
         noInteractive: opts['interactive'] === false,
+        localPath: opts['path'] as string | undefined,
       };
 
       const chalk = (await import('chalk')).default;
@@ -477,6 +600,11 @@ export function registerDockerCommand(program: Command): void {
       if (result.commandsPresented.length === 0) {
         console.log(chalk.yellow('No auto-start Docker services configured.'));
         return;
+      }
+
+      // Show path resolution info if path differs
+      if (result.pathResolved && result.localPath) {
+        console.log(chalk.dim(`   Using project directory: ${result.localPath}`));
       }
 
       console.log(chalk.yellow('\n⚠️  The following Docker commands will be executed:'));
@@ -502,7 +630,8 @@ export function registerDockerCommand(program: Command): void {
   docker
     .command('stop <project>')
     .description('Stop tracked Docker services')
-    .action(withErrorHandler(async (projectName: string) => {
+    .option('--path <dir>', 'Local project directory (use when Docker Compose is at a different path on this machine)')
+    .action(withErrorHandler(async (projectName: string, opts: Record<string, unknown>) => {
       const chalk = (await import('chalk')).default;
       const { default: ora } = await import('ora');
 
@@ -512,8 +641,12 @@ export function registerDockerCommand(program: Command): void {
         return;
       }
 
+      const stopOptions: DockerStopOptions = {
+        localPath: opts['path'] as string | undefined,
+      };
+
       const spinner = ora(`Stopping Docker services for ${projectName}...`).start();
-      const result = await executeDockerStop(projectName);
+      const result = await executeDockerStop(projectName, stopOptions);
       spinner.stop();
 
       if (!result.composeFound) {

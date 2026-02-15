@@ -53,8 +53,10 @@ const { writeState } = await import('../../src/core/state-manager.js');
 const {
   executeDockerTrack,
   executeDockerStart,
+  executeDockerStop,
   executeDockerStatus,
   buildDockerStartCommands,
+  resolveDockerComposeDir,
 } = await import('../../src/commands/docker.js');
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────
@@ -187,8 +189,12 @@ describe('Docker Commands', () => {
 
   describe('buildDockerStartCommands()', () => {
     it('should build commands for auto-start services', () => {
+      // Create the directory so path resolution finds the stored compose dir
+      const composeDir = path.join(globalThis.TEST_DIR, `docker-bsc-${Date.now()}`);
+      fs.mkdirSync(composeDir, { recursive: true });
+
       const projectDocker = {
-        composeFile: '/projects/my-app/docker-compose.yml',
+        composeFile: path.join(composeDir, 'docker-compose.yml'),
         services: [
           {
             name: 'postgres',
@@ -213,7 +219,7 @@ describe('Docker Commands', () => {
       expect(commands[0]!.label).toBe('🐳 Docker services');
       expect(commands[0]!.port).toBe(5432);
       expect(commands[0]!.image).toBe('postgres:15');
-      expect(commands[0]!.cwd).toBe('/projects/my-app');
+      expect(commands[0]!.cwd).toBe(composeDir);
     });
 
     it('should skip services with autoStart=false', () => {
@@ -405,6 +411,243 @@ describe('Docker Commands', () => {
       expect(result.approval.approved).toHaveLength(1);
       expect(result.executedCommands).toHaveLength(1);
       expect(result.executedCommands[0]).toContain('docker compose up -d postgres');
+    });
+  });
+
+  // ─── resolveDockerComposeDir ────────────────────────────────────────────
+
+  describe('resolveDockerComposeDir()', () => {
+    it('should return --path override when provided', () => {
+      const dir = path.join(globalThis.TEST_DIR, `docker-rcd-override-${Date.now()}`);
+      fs.mkdirSync(dir, { recursive: true });
+
+      const result = resolveDockerComposeDir('/nonexistent/project/docker-compose.yml', { localPath: dir });
+
+      expect(result.resolvedDir).toBe(dir);
+      expect(result.pathResolved).toBe(true);
+    });
+
+    it('should return stored compose dir when it exists on disk', () => {
+      const dir = path.join(globalThis.TEST_DIR, `docker-rcd-exists-${Date.now()}`);
+      fs.mkdirSync(dir, { recursive: true });
+      const composeFile = path.join(dir, 'docker-compose.yml');
+
+      const result = resolveDockerComposeDir(composeFile);
+
+      expect(result.resolvedDir).toBe(dir);
+      expect(result.pathResolved).toBe(false);
+    });
+
+    it('should fall back to cwd when stored compose dir is missing and no --path', () => {
+      const result = resolveDockerComposeDir('/nonexistent/project/docker-compose.yml');
+
+      expect(result.resolvedDir).toBe(process.cwd());
+      expect(result.pathResolved).toBe(true);
+    });
+
+    it('should resolve relative --path to absolute', () => {
+      const result = resolveDockerComposeDir('/nonexistent/project/docker-compose.yml', { localPath: '.' });
+
+      expect(path.isAbsolute(result.resolvedDir)).toBe(true);
+      expect(result.resolvedDir).toBe(path.resolve('.'));
+    });
+
+    it('should set pathResolved to false when --path matches stored dir', () => {
+      const dir = path.join(globalThis.TEST_DIR, `docker-rcd-same-${Date.now()}`);
+      fs.mkdirSync(dir, { recursive: true });
+      const composeFile = path.join(dir, 'docker-compose.yml');
+
+      const result = resolveDockerComposeDir(composeFile, { localPath: dir });
+
+      expect(result.resolvedDir).toBe(dir);
+      expect(result.pathResolved).toBe(false);
+    });
+  });
+
+  // ─── buildDockerStartCommands (cross-machine) ────────────────────────────
+
+  describe('buildDockerStartCommands() cross-machine', () => {
+    it('should use --path override for cwd when stored compose dir does not exist', () => {
+      const overrideDir = path.join(globalThis.TEST_DIR, `docker-bsc-override-${Date.now()}`);
+      fs.mkdirSync(overrideDir, { recursive: true });
+
+      const projectDocker = {
+        composeFile: '/nonexistent/macOS/project/docker-compose.yml',
+        services: [
+          {
+            name: 'postgres',
+            container: 'db',
+            image: 'postgres:15',
+            port: 5432,
+            autoStart: true,
+          },
+        ],
+      };
+
+      const commands = buildDockerStartCommands('my-app', projectDocker, overrideDir);
+      expect(commands).toHaveLength(1);
+      expect(commands[0]!.cwd).toBe(overrideDir);
+    });
+
+    it('should use stored dir when it exists even if localPath is not provided', () => {
+      const dir = path.join(globalThis.TEST_DIR, `docker-bsc-stored-${Date.now()}`);
+      fs.mkdirSync(dir, { recursive: true });
+
+      const projectDocker = {
+        composeFile: path.join(dir, 'docker-compose.yml'),
+        services: [
+          {
+            name: 'redis',
+            container: 'cache',
+            image: 'redis:7',
+            port: 6379,
+            autoStart: true,
+          },
+        ],
+      };
+
+      const commands = buildDockerStartCommands('my-app', projectDocker);
+      expect(commands).toHaveLength(1);
+      expect(commands[0]!.cwd).toBe(dir);
+    });
+
+    it('should fall back to cwd when stored compose dir is missing and no localPath', () => {
+      const projectDocker = {
+        composeFile: '/nonexistent/macOS/project/docker-compose.yml',
+        services: [
+          {
+            name: 'postgres',
+            container: 'db',
+            image: 'postgres:15',
+            port: 5432,
+            autoStart: true,
+          },
+        ],
+      };
+
+      const commands = buildDockerStartCommands('my-app', projectDocker);
+      expect(commands).toHaveLength(1);
+      expect(commands[0]!.cwd).toBe(process.cwd());
+    });
+  });
+
+  // ─── executeDockerStop ─────────────────────────────────────────────────
+
+  describe('executeDockerStop()', () => {
+    it('should return composeFound: false when no Docker state exists', async () => {
+      await setupTestEnv();
+
+      const result = await executeDockerStop('nonexistent');
+      expect(result.composeFound).toBe(false);
+      expect(result.stopped).toBe(false);
+    });
+
+    it('should use --path override when stored compose dir does not exist', async () => {
+      const { syncDir, publicKey, homeDir } = await setupTestEnv();
+
+      // Create override dir with a compose file
+      const overrideDir = path.join(homeDir, 'override', 'my-app');
+      fs.mkdirSync(overrideDir, { recursive: true });
+      fs.writeFileSync(path.join(overrideDir, 'docker-compose.yml'), SAMPLE_COMPOSE);
+
+      const dockerState = {
+        'my-app': {
+          composeFile: '/nonexistent/macOS/my-app/docker-compose.yml',
+          services: [
+            { name: 'postgres', container: 'db', image: 'postgres:15', port: 5432, autoStart: true },
+          ],
+        },
+      };
+      await writeState(syncDir, dockerState, publicKey, 'docker-state');
+
+      mockExecSync.mockReturnValue(Buffer.from(''));
+
+      const result = await executeDockerStop('my-app', { localPath: overrideDir });
+
+      expect(result.composeFound).toBe(true);
+      expect(result.pathResolved).toBe(true);
+      expect(result.localPath).toBe(overrideDir);
+      expect(mockExecSync).toHaveBeenCalledWith(
+        'docker compose down',
+        expect.objectContaining({ cwd: overrideDir }),
+      );
+    });
+
+    it('should include pathResolved in result', async () => {
+      const { projectDir, syncDir, publicKey } = await setupTestEnv();
+
+      const dockerState = {
+        'my-app': {
+          composeFile: path.join(projectDir, 'docker-compose.yml'),
+          services: [
+            { name: 'postgres', container: 'db', image: 'postgres:15', port: 5432, autoStart: true },
+          ],
+        },
+      };
+      await writeState(syncDir, dockerState, publicKey, 'docker-state');
+
+      mockExecSync.mockReturnValue(Buffer.from(''));
+
+      const result = await executeDockerStop('my-app');
+
+      expect(result.pathResolved).toBe(false);
+      expect(result.localPath).toBe(projectDir);
+    });
+  });
+
+  // ─── executeDockerStart (cross-machine) ────────────────────────────────
+
+  describe('executeDockerStart() cross-machine', () => {
+    it('should use --path override when stored compose dir does not exist', async () => {
+      const { syncDir, publicKey, homeDir } = await setupTestEnv();
+
+      const overrideDir = path.join(homeDir, 'override', 'my-app');
+      fs.mkdirSync(overrideDir, { recursive: true });
+
+      const dockerState = {
+        'my-app': {
+          composeFile: '/nonexistent/macOS/my-app/docker-compose.yml',
+          services: [
+            { name: 'postgres', container: 'db', image: 'postgres:15', port: 5432, autoStart: true },
+          ],
+        },
+      };
+      await writeState(syncDir, dockerState, publicKey, 'docker-state');
+
+      mockExecSync.mockReturnValue(Buffer.from(''));
+
+      const result = await executeDockerStart('my-app', {
+        noInteractive: false,
+        localPath: overrideDir,
+        promptFn: async () => 'all',
+      });
+
+      expect(result.pathResolved).toBe(true);
+      expect(result.localPath).toBe(overrideDir);
+      expect(result.executedCommands).toHaveLength(1);
+      expect(mockExecSync).toHaveBeenCalledWith(
+        expect.stringContaining('docker compose up -d postgres'),
+        expect.objectContaining({ cwd: overrideDir }),
+      );
+    });
+
+    it('should include pathResolved: false when stored dir exists', async () => {
+      const { projectDir, syncDir, publicKey } = await setupTestEnv();
+
+      const dockerState = {
+        'my-app': {
+          composeFile: path.join(projectDir, 'docker-compose.yml'),
+          services: [
+            { name: 'postgres', container: 'db', image: 'postgres:15', port: 5432, autoStart: true },
+          ],
+        },
+      };
+      await writeState(syncDir, dockerState, publicKey, 'docker-state');
+
+      const result = await executeDockerStart('my-app', { noInteractive: true });
+
+      expect(result.pathResolved).toBe(false);
+      expect(result.localPath).toBe(projectDir);
     });
   });
 

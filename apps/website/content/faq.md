@@ -111,7 +111,14 @@ When restoring on a new machine, the stored project path (e.g. `/Users/ayo/proje
 ctx-sync restore my-app --path ~/code/my-app
 ```
 
-If you don't provide `--path` and the stored path doesn't exist, ctx-sync will fall back to your current working directory and show a warning. The stored path in the encrypted state is never modified — `--path` only affects the current restore operation.
+The same applies to Docker commands — the stored Docker Compose path may not exist either. Use `--path` for Docker start and stop as well:
+
+```bash
+ctx-sync docker start my-app --path ~/code/my-app
+ctx-sync docker stop my-app --path ~/code/my-app
+```
+
+If you don't provide `--path` and the stored path doesn't exist, ctx-sync will fall back to your current working directory and show a warning. The stored path in the encrypted state is never modified — `--path` only affects the current operation.
 
 ### How do I add environment variables?
 

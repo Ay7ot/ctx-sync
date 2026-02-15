@@ -94,25 +94,37 @@ export interface RestoreResult {
  * Collect all commands that need to be executed for a project restore.
  *
  * Gathers Docker service commands and auto-start service commands from
- * the encrypted state files.
+ * the encrypted state files. Supports cross-machine path resolution for
+ * Docker commands via the `localPath` parameter.
  *
  * @param projectName - The name of the project to restore.
  * @param syncDir - The sync directory path.
  * @param privateKey - The Age private key for decryption.
+ * @param localPath - Optional resolved local path for cross-machine support.
  * @returns List of pending commands for approval.
  */
 export async function collectRestoreCommands(
   projectName: string,
   syncDir: string,
   privateKey: string,
+  localPath?: string,
 ): Promise<PendingCommand[]> {
   const commands: PendingCommand[] = [];
 
-  // Collect Docker service commands
+  // Collect Docker service commands (with cross-machine path resolution)
   const dockerState = await readState<DockerState>(syncDir, privateKey, 'docker-state');
   if (dockerState && dockerState[projectName]) {
     const projectDocker = dockerState[projectName];
     if (projectDocker) {
+      // Resolve compose directory: use stored path if it exists, otherwise fall back to localPath
+      const storedComposeDir = projectDocker.composeFile
+        ? path.dirname(projectDocker.composeFile)
+        : undefined;
+      const resolvedCwd =
+        storedComposeDir && fs.existsSync(storedComposeDir)
+          ? storedComposeDir
+          : localPath ?? storedComposeDir;
+
       for (const service of projectDocker.services) {
         if (service.autoStart) {
           commands.push({
@@ -120,9 +132,7 @@ export async function collectRestoreCommands(
             label: '🐳 Docker services',
             port: service.port,
             image: service.image,
-            cwd: projectDocker.composeFile
-              ? path.dirname(projectDocker.composeFile)
-              : undefined,
+            cwd: resolvedCwd,
           });
         }
       }
@@ -345,11 +355,12 @@ export async function executeRestore(
   );
   const mentalContext = mentalContextData?.[project.name] ?? null;
 
-  // 4. Collect commands to be executed
+  // 4. Collect commands to be executed (pass localPath for Docker cross-machine resolution)
   const commandsPresented = await collectRestoreCommands(
     project.name,
     syncDir,
     privateKey,
+    localPath,
   );
 
   // 5. Present commands for approval

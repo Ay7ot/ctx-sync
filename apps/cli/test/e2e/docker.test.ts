@@ -213,5 +213,78 @@ describe('E2E: ctx-sync docker', () => {
           output.includes('Docker is not available'),
       ).toBe(true);
     });
+
+    it('should accept --path flag for cross-machine usage', () => {
+      env.execCommand('init --no-interactive');
+
+      // Track Docker from "Machine A" path
+      const machineADir = path.join(env.homeDir, 'machineA', 'my-app');
+      fs.mkdirSync(machineADir, { recursive: true });
+      fs.writeFileSync(path.join(machineADir, 'docker-compose.yml'), SAMPLE_COMPOSE);
+
+      env.execCommand(`docker track --path ${machineADir} --project my-app --no-sync`);
+
+      // Create "Machine B" path (different location)
+      const machineBDir = path.join(env.homeDir, 'machineB', 'code', 'my-app');
+      fs.mkdirSync(machineBDir, { recursive: true });
+      fs.writeFileSync(path.join(machineBDir, 'docker-compose.yml'), SAMPLE_COMPOSE);
+
+      // Start with --path pointing to Machine B
+      const result = env.execCommand(`docker start my-app --no-interactive --path ${machineBDir}`);
+      const output = result.stdout + result.stderr;
+
+      if (output.includes('Docker is not available')) {
+        // Skip assertion if Docker is unavailable
+        expect(result.exitCode).not.toBe(0);
+      } else {
+        // --path was accepted and commands were shown
+        expect(output).toContain('Docker');
+        expect(output).toContain('Skipped');
+      }
+    });
+  });
+
+  // ─── docker stop ──────────────────────────────────────────────────────
+
+  describe('docker stop', () => {
+    it('should accept --path flag for cross-machine usage', () => {
+      env.execCommand('init --no-interactive');
+
+      // Track Docker from "Machine A" path
+      const machineADir = path.join(env.homeDir, 'machineA', 'my-app');
+      fs.mkdirSync(machineADir, { recursive: true });
+      fs.writeFileSync(path.join(machineADir, 'docker-compose.yml'), SAMPLE_COMPOSE);
+
+      env.execCommand(`docker track --path ${machineADir} --project my-app --no-sync`);
+
+      // Try to stop with --path pointing to a different location
+      const machineBDir = path.join(env.homeDir, 'machineB', 'code', 'my-app');
+      fs.mkdirSync(machineBDir, { recursive: true });
+      fs.writeFileSync(path.join(machineBDir, 'docker-compose.yml'), SAMPLE_COMPOSE);
+
+      const result = env.execCommand(`docker stop my-app --path ${machineBDir}`);
+      const output = result.stdout + result.stderr;
+
+      if (output.includes('Docker is not available')) {
+        // Docker not installed — just verify the flag was accepted
+        expect(result.exitCode).not.toBe(0);
+      } else {
+        // Docker is available — it either stopped or failed (both are fine, flag was accepted)
+        expect(output).not.toContain('unknown option');
+      }
+    });
+
+    it('should report missing state for unknown project', () => {
+      env.execCommand('init --no-interactive');
+
+      const result = env.execCommand('docker stop nonexistent');
+      const output = result.stdout + result.stderr;
+
+      if (output.includes('Docker is not available')) {
+        expect(result.exitCode).not.toBe(0);
+      } else {
+        expect(output).toContain('No Docker state found');
+      }
+    });
   });
 });

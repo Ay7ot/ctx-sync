@@ -53,7 +53,7 @@ jest.unstable_mockModule('ora', () => ({
 }));
 
 // Import modules under test (after mocks)
-const { executeRestore, writeEnvFile, checkoutBranch, formatMentalContext, resolveLocalPath } =
+const { executeRestore, writeEnvFile, checkoutBranch, formatMentalContext, resolveLocalPath, collectRestoreCommands } =
   await import('../../src/commands/restore.js');
 const { generateKey } = await import('../../src/core/encryption.js');
 const { saveKey } = await import('../../src/core/key-store.js');
@@ -585,6 +585,60 @@ describe('Restore Command', () => {
 
       expect(result.resolvedPath).toBe(dir);
       expect(result.pathResolved).toBe(false);
+    });
+  });
+
+  describe('collectRestoreCommands() with cross-machine Docker path', () => {
+    it('should use stored compose dir when it exists locally', async () => {
+      const { syncDir, publicKey, privateKey, homeDir } = await setupTestEnv();
+
+      const projectDir = path.join(homeDir, 'projects', 'my-app');
+      fs.mkdirSync(projectDir, { recursive: true });
+
+      await writeState(
+        syncDir,
+        {
+          'my-app': {
+            composeFile: path.join(projectDir, 'docker-compose.yml'),
+            services: [
+              { name: 'redis', container: 'cache', image: 'redis:7', port: 6379, autoStart: true },
+            ],
+          },
+        },
+        publicKey,
+        'docker-state',
+      );
+
+      const commands = await collectRestoreCommands('my-app', syncDir, privateKey);
+
+      expect(commands).toHaveLength(1);
+      expect(commands[0]!.cwd).toBe(projectDir);
+    });
+
+    it('should fall back to localPath when stored compose dir does not exist', async () => {
+      const { syncDir, publicKey, privateKey, homeDir } = await setupTestEnv();
+
+      const overridePath = path.join(homeDir, 'override', 'my-app');
+      fs.mkdirSync(overridePath, { recursive: true });
+
+      await writeState(
+        syncDir,
+        {
+          'my-app': {
+            composeFile: '/nonexistent/macOS/my-app/docker-compose.yml',
+            services: [
+              { name: 'postgres', container: 'db', image: 'postgres:15', port: 5432, autoStart: true },
+            ],
+          },
+        },
+        publicKey,
+        'docker-state',
+      );
+
+      const commands = await collectRestoreCommands('my-app', syncDir, privateKey, overridePath);
+
+      expect(commands).toHaveLength(1);
+      expect(commands[0]!.cwd).toBe(overridePath);
     });
   });
 
