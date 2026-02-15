@@ -44,6 +44,10 @@ This will:
 You can press Enter to skip the remote URL during init. ctx-sync will work locally without syncing. To add a remote later, run: `ctx-sync init --remote <url>`
 :::
 
+:::info Re-running Init
+If you already have a key and just need to update the remote URL, simply run `ctx-sync init` again — it will **reuse your existing key** and only update the remote configuration. To force a new key pair, use `ctx-sync init --force`.
+:::
+
 ## Back Up Your Key
 
 :::security Key Backup Is Critical
@@ -100,8 +104,15 @@ Then restore a specific project:
 ctx-sync restore my-app
 ```
 
+`restore` automatically pulls the latest state from the remote before decrypting, so you always get the most up-to-date context. If you want to skip the pull (e.g. you are offline), use `--no-pull`:
+
+```bash
+ctx-sync restore my-app --no-pull
+```
+
 This will:
 
+- Pull the latest state from the remote (unless `--no-pull` is used)
 - Show your mental context (what you were working on, blockers, next steps)
 - Decrypt and restore environment variables
 - Show Docker services and commands for your approval before executing

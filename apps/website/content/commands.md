@@ -19,10 +19,15 @@ The remote URL should point to a **dedicated private repository** you created fo
 | Flag | Description |
 |------|-------------|
 | `--restore` | Restore mode — paste an existing private key instead of generating a new one |
+| `--force` | Force key regeneration even if a key already exists (see below) |
 | `--skip-backup` | Skip the key backup prompt (not recommended) |
 | `--remote <url>` | Git remote URL for syncing (SSH or HTTPS) |
 | `--no-interactive` | Skip interactive prompts (use defaults) |
 | `--stdin` | Read private key from stdin (for `--restore`) |
+
+:::tip Smart Init
+If you already have a key on this machine (e.g. you ran `init` before), running `ctx-sync init` again will **reuse your existing key** and only update the remote configuration. This is useful when you need to add or change a remote URL without accidentally regenerating your encryption key. To force a new key pair, pass `--force`.
+:::
 
 ### `ctx-sync init --restore`
 
@@ -75,7 +80,15 @@ Restore a project's full context on the current machine.
 ctx-sync restore my-app
 ```
 
+By default, `restore` automatically **pulls the latest state from the remote** before decrypting, so you always get the most current context — even if you synced from another machine moments ago.
+
 This displays your mental context, decrypts environment variables, and shows all commands (Docker, services) for explicit approval before execution.
+
+**Options:**
+
+| Flag | Description |
+|------|-------------|
+| `--no-pull` | Skip the automatic pull and restore from local state only |
 
 :::security Command Approval Required
 Commands are always shown for review before execution. There is no flag to skip command confirmation. This prevents remote code execution from compromised repos.

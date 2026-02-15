@@ -20,9 +20,9 @@ jobs:
           node-version: '20.x'
           cache: 'npm'
       - run: npm ci
+      - run: npm run build -w packages/shared
       - run: npm run lint
       - run: npm run typecheck
-      - run: npm run build -w packages/shared
       - run: npm run build -w apps/cli
 
   test:

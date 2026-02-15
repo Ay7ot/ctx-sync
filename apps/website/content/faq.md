@@ -87,6 +87,22 @@ ctx-sync init --restore
 ctx-sync restore my-app
 ```
 
+### I ran `init` again and lost my key — what happened?
+
+Starting in v1.2.0, `ctx-sync init` uses **smart init**: if a key already exists on your machine, it reuses it and only updates the remote configuration. Your key is never silently overwritten. If you explicitly need a new key pair, pass `--force`:
+
+```bash
+ctx-sync init --force
+```
+
+### Does restore use the latest data from the remote?
+
+Yes. Starting in v1.2.0, `ctx-sync restore` automatically pulls the latest state from the remote before decrypting. If you are offline or prefer to use local state, pass `--no-pull`:
+
+```bash
+ctx-sync restore my-app --no-pull
+```
+
 ### How do I add environment variables?
 
 Import from a .env file:
@@ -135,14 +151,27 @@ Fix:
 chmod 600 ~/.config/ctx-sync/key.txt
 ```
 
-### "Decryption failed" error
+### "Decryption failed" or "no identity matched" error
 
-This usually means you are using the wrong private key, or the encrypted file is corrupted.
+This usually means the private key on this machine does not match the key used to encrypt your state files. This is common when setting up a second machine.
 
 :::tip Troubleshooting Decryption
-1. Verify you are using the correct key: `ctx-sync key show`
-2. If the file is corrupted, try pulling a fresh copy: `ctx-sync pull`
-3. If you rotated keys on another machine, run `ctx-sync key update` to sync the new key.
+1. **Multi-machine setup:** Make sure you used `ctx-sync init --restore` on the new machine and pasted the **same private key** from your first machine. If you ran `ctx-sync init` without `--restore`, a brand-new key was generated that cannot decrypt your existing data.
+2. **Verify your key:** Run `ctx-sync key show` and compare the public key against the one on your other machine.
+3. **Pull a fresh copy:** If the file may be corrupted, try `ctx-sync pull` to fetch the latest from the remote.
+4. **After key rotation:** If you rotated keys on another machine, run `ctx-sync key update` to sync the new key.
+:::
+
+### Git authentication errors or hanging
+
+If ctx-sync shows an error about "terminal prompts disabled" or "authentication failed", it means Git cannot authenticate with your remote.
+
+:::tip Fixing Git Authentication
+ctx-sync disables interactive Git credential prompts to prevent the CLI from hanging indefinitely. To fix:
+1. **GitHub:** Run `gh auth login` or set up an SSH key with `ssh-keygen -t ed25519`
+2. **GitLab/Other:** Configure SSH keys or a credential manager
+3. **HTTPS users:** Set up `git credential-manager` or a personal access token
+4. **Verify manually:** Try `git ls-remote <your-remote-url>` — if that fails, ctx-sync will too.
 :::
 
 ### ctx-sync is slow

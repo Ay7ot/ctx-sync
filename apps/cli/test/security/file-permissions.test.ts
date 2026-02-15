@@ -1,5 +1,10 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+
+declare global {
+  var TEST_DIR: string;
+}
+
 import {
   saveKey,
   loadKey,
@@ -12,7 +17,7 @@ describe('Security: File Permissions', () => {
   let configDir: string;
 
   beforeEach(() => {
-    configDir = path.join(globalThis.TEST_DIR, 'security-perms-test');
+    configDir = path.join(TEST_DIR, 'security-perms-test');
   });
 
   it('should set key file permissions to exactly 0o600 after save', () => {
