@@ -49,8 +49,9 @@ const mockStashList = jest
 const mockPush = jest
   .fn<(remote: string, branch: string, options: string[]) => Promise<void>>()
   .mockResolvedValue(undefined);
+const mockEnv = jest.fn<(key: string, value: string) => unknown>();
 
-const mockSimpleGit = jest.fn().mockReturnValue({
+const mockGitInstance = {
   init: mockInit,
   add: mockAdd,
   commit: mockCommit,
@@ -61,7 +62,12 @@ const mockSimpleGit = jest.fn().mockReturnValue({
   status: mockStatus,
   branch: mockBranch,
   stashList: mockStashList,
-});
+  env: mockEnv,
+};
+
+mockEnv.mockReturnValue(mockGitInstance);
+
+const mockSimpleGit = jest.fn().mockReturnValue(mockGitInstance);
 
 jest.unstable_mockModule('simple-git', () => ({
   simpleGit: mockSimpleGit,

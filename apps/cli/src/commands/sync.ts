@@ -19,8 +19,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { Command } from 'commander';
 import { STATE_FILES, VERSION } from '@ctx-sync/shared';
-import { simpleGit } from 'simple-git';
-import { commitState, pushState } from '../core/git-sync.js';
+import { commitState, pushState, createGit } from '../core/git-sync.js';
 import { validateRemoteUrl } from '../core/transport.js';
 import { readManifest, writeManifest, listStateFiles } from '../core/state-manager.js';
 import { getSyncDir } from './init.js';
@@ -64,7 +63,7 @@ export interface SyncResult {
  * @throws If the remote URL uses an insecure protocol.
  */
 export async function validateSyncRemote(syncDir: string): Promise<string | null> {
-  const git = simpleGit(syncDir);
+  const git = createGit(syncDir);
   const remotes = await git.getRemotes(true);
   const origin = remotes.find((r) => r.name === 'origin');
 
@@ -90,7 +89,7 @@ export async function validateSyncRemote(syncDir: string): Promise<string | null
 export async function pullWithConflictDetection(
   syncDir: string,
 ): Promise<{ pulled: boolean; conflictFiles: string[] }> {
-  const git = simpleGit(syncDir);
+  const git = createGit(syncDir);
 
   // Verify remote exists
   const remotes = await git.getRemotes(true);
@@ -136,7 +135,7 @@ export async function resolveConflicts(
   conflictFiles: string[],
   useLocal: boolean = true,
 ): Promise<void> {
-  const git = simpleGit(syncDir);
+  const git = createGit(syncDir);
 
   for (const file of conflictFiles) {
     if (useLocal) {

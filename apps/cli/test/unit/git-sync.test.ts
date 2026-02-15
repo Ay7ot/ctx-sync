@@ -43,7 +43,9 @@ const mockGetRemotes = jest.fn<() => Promise<MockRemoteEntry[]>>().mockResolvedV
 const mockAddRemote = jest.fn<(name: string, url: string) => Promise<void>>().mockResolvedValue(undefined);
 const mockRemote = jest.fn<(args: string[]) => Promise<void>>().mockResolvedValue(undefined);
 
-const mockSimpleGit = jest.fn().mockReturnValue({
+const mockEnv = jest.fn<(key: string, value: string) => unknown>();
+
+const mockGitInstance = {
   init: mockInit,
   add: mockAdd,
   commit: mockCommit,
@@ -53,7 +55,13 @@ const mockSimpleGit = jest.fn().mockReturnValue({
   getRemotes: mockGetRemotes,
   addRemote: mockAddRemote,
   remote: mockRemote,
-});
+  env: mockEnv,
+};
+
+// Make .env() chainable — returns the same instance
+mockEnv.mockReturnValue(mockGitInstance);
+
+const mockSimpleGit = jest.fn().mockReturnValue(mockGitInstance);
 
 // Register mock before any import of the module under test
 jest.unstable_mockModule('simple-git', () => ({
@@ -62,6 +70,7 @@ jest.unstable_mockModule('simple-git', () => ({
 }));
 
 // Module-under-test functions, assigned in beforeAll after dynamic import
+let createGit: (dir: string) => unknown;
 let initRepo: (dir: string) => Promise<boolean>;
 let addRemote: (dir: string, url: string, remoteName?: string) => Promise<void>;
 let commitState: (dir: string, files: string[], message: string) => Promise<string | null>;
@@ -71,6 +80,7 @@ let getStatus: (dir: string) => Promise<{ files: string[]; ahead: number; behind
 
 beforeAll(async () => {
   const mod = await import('../../src/core/git-sync.js');
+  createGit = mod.createGit;
   initRepo = mod.initRepo;
   addRemote = mod.addRemote;
   commitState = mod.commitState;
@@ -82,6 +92,24 @@ beforeAll(async () => {
 describe('Git Sync Module', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Re-enable chainable .env()
+    mockEnv.mockReturnValue(mockGitInstance);
+  });
+
+  describe('createGit()', () => {
+    it('should set GIT_TERMINAL_PROMPT=0 to suppress credential prompts', () => {
+      createGit('/some/dir');
+
+      expect(mockSimpleGit).toHaveBeenCalledWith('/some/dir');
+      expect(mockEnv).toHaveBeenCalledWith('GIT_TERMINAL_PROMPT', '0');
+    });
+
+    it('should return a chainable git instance', () => {
+      const git = createGit('/some/dir');
+
+      // The returned value should be the mock git instance (from .env() return)
+      expect(git).toBe(mockGitInstance);
+    });
   });
 
   describe('initRepo()', () => {

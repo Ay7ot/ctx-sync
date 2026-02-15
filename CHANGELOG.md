@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] — 2026-02-15
+
+### Added
+- Smart `init`: rerunning `init` reuses existing key and updates remote config only; use `--force` to regenerate key
+- `restore` auto-pull: fetches latest state from remote before decrypting (`--no-pull` to skip)
+- `createGit()` helper sets `GIT_TERMINAL_PROMPT=0` on all Git operations to prevent credential prompt hangs
+- Decryption failure warning in `init --restore` instead of false "All state decrypted!" message
+- Multi-machine guidance in "no identity matched" encryption errors
+- Git authentication failure messages with credential setup suggestions (gh auth, ssh-keygen, git credential-manager)
+- Key format validation in `loadKey` (validates `AGE-SECRET-KEY-` prefix)
+
 ## [1.1.4] — 2026-02-15
 
 ### Fixed

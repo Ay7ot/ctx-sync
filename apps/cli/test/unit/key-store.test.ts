@@ -113,6 +113,29 @@ describe('Key Store Module', () => {
       expect(() => loadKey(configDir)).toThrow('chmod 600');
     });
 
+    it('should throw if key file has invalid format (not AGE-SECRET-KEY- prefix)', () => {
+      fs.mkdirSync(configDir, { recursive: true, mode: CONFIG_DIR_PERMS });
+      const keyPath = path.join(configDir, KEY_FILE_NAME);
+      fs.writeFileSync(keyPath, 'not-a-valid-key', { mode: KEY_FILE_PERMS });
+
+      expect(() => loadKey(configDir)).toThrow('Invalid key format');
+    });
+
+    it('should throw with init --restore suggestion for invalid key format', () => {
+      fs.mkdirSync(configDir, { recursive: true, mode: CONFIG_DIR_PERMS });
+      const keyPath = path.join(configDir, KEY_FILE_NAME);
+      fs.writeFileSync(keyPath, 'some-garbage-data', { mode: KEY_FILE_PERMS });
+
+      expect(() => loadKey(configDir)).toThrow('ctx-sync init --restore');
+    });
+
+    it('should accept a valid AGE-SECRET-KEY format', () => {
+      const validKey = 'AGE-SECRET-KEY-1QQQQQQQQQQQQQQQQQQQTEST';
+      saveKey(configDir, validKey);
+
+      expect(loadKey(configDir)).toBe(validKey);
+    });
+
     it('should reject permissions 0o666', () => {
       saveKey(configDir, 'AGE-SECRET-KEY-TEST');
       const keyPath = path.join(configDir, KEY_FILE_NAME);

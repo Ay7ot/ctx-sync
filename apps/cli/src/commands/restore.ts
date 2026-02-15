@@ -46,6 +46,8 @@ import { withErrorHandler } from '../utils/errors.js';
 export interface RestoreOptions {
   /** Non-interactive mode: display commands but skip execution */
   noInteractive?: boolean;
+  /** Skip pulling from remote before restoring */
+  noPull?: boolean;
   /** Override for the prompt function (for testing) */
   promptFn?: (commands: PendingCommand[]) => Promise<'all' | 'none' | 'select'>;
   /** Override for the select function (for testing) */
@@ -56,6 +58,8 @@ export interface RestoreOptions {
 export interface RestoreResult {
   /** The project that was restored */
   project: Project;
+  /** Whether we pulled from remote before restoring */
+  pulled: boolean;
   /** Number of env vars available for the project */
   envVarCount: number;
   /** Whether env vars were written to a .env file */
@@ -191,8 +195,8 @@ export async function checkoutBranch(
   }
 
   try {
-    const { simpleGit } = await import('simple-git');
-    const git = simpleGit(projectPath);
+    const { createGit } = await import('../core/git-sync.js');
+    const git = createGit(projectPath);
 
     // Check current branch — skip if already on the right branch
     const branchResult = await git.branch();
@@ -229,6 +233,20 @@ export async function executeRestore(
   // Verify sync dir exists
   if (!fs.existsSync(syncDir) || !fs.existsSync(path.join(syncDir, '.git'))) {
     throw new Error('No sync repository found. Run `ctx-sync init` first.');
+  }
+
+  // Auto-pull latest from remote before restoring (unless --no-pull)
+  let pulled = false;
+  if (!options.noPull) {
+    const { validateSyncRemote, pullWithConflictDetection, resolveConflicts } = await import('./sync.js');
+    const remoteUrl = await validateSyncRemote(syncDir);
+    if (remoteUrl) {
+      const pullResult = await pullWithConflictDetection(syncDir);
+      pulled = pullResult.pulled;
+      if (pullResult.conflictFiles.length > 0) {
+        await resolveConflicts(syncDir, pullResult.conflictFiles, true);
+      }
+    }
   }
 
   // Load key
@@ -316,6 +334,7 @@ export async function executeRestore(
 
   return {
     project,
+    pulled,
     envVarCount,
     envFileWritten,
     branchCheckedOut,
@@ -392,19 +411,26 @@ export function registerRestoreCommand(program: Command): void {
     .command('restore <project>')
     .description('Restore a tracked project on this machine')
     .option('--no-interactive', 'Show commands but skip execution (safe default)')
+    .option('--no-pull', 'Skip pulling from remote before restoring')
     .action(withErrorHandler(async (projectName: string, opts: Record<string, unknown>) => {
       const options: RestoreOptions = {
         noInteractive: opts['interactive'] === false,
+        noPull: opts['pull'] === false,
       };
 
       const chalk = (await import('chalk')).default;
       const { default: ora } = await import('ora');
 
-      const spinner = ora('Decrypting state files...').start();
+      const spinner = ora(options.noPull ? 'Decrypting state files...' : 'Pulling latest and decrypting...').start();
 
       const result = await executeRestore(projectName, options);
 
       spinner.stop();
+
+      // Display pull result
+      if (result.pulled) {
+        console.log(chalk.green('✅ Pulled latest from remote'));
+      }
 
       // Display project info
       console.log(chalk.green(`\n✅ Restored: ${result.project.name}`));

@@ -9,11 +9,21 @@ declare global {
 // --- Mock simple-git ---
 const mockBranch = jest.fn<() => Promise<{ current: string }>>().mockResolvedValue({ current: 'main' });
 const mockCheckout = jest.fn<(branch: string) => Promise<void>>().mockResolvedValue(undefined);
+const mockGetRemotes = jest.fn<() => Promise<Array<{ name: string; refs: { fetch: string; push: string } }>>>().mockResolvedValue([]);
+const mockPull = jest.fn<(remote: string, branch: string) => Promise<void>>().mockResolvedValue(undefined);
+const mockEnv = jest.fn<(key: string, value: string) => unknown>();
 
-const mockSimpleGit = jest.fn().mockReturnValue({
+const mockGitInstance = {
   branch: mockBranch,
   checkout: mockCheckout,
-});
+  getRemotes: mockGetRemotes,
+  pull: mockPull,
+  env: mockEnv,
+};
+
+mockEnv.mockReturnValue(mockGitInstance);
+
+const mockSimpleGit = jest.fn().mockReturnValue(mockGitInstance);
 
 jest.unstable_mockModule('simple-git', () => ({
   simpleGit: mockSimpleGit,
@@ -152,6 +162,67 @@ describe('Restore Command', () => {
       );
 
       await expect(executeRestore('wrong')).rejects.toThrow('my-app');
+    });
+
+    it('should auto-pull from remote before restoring (when remote exists)', async () => {
+      const { syncDir, publicKey } = await setupTestEnv();
+
+      // Simulate a remote being configured
+      mockGetRemotes.mockResolvedValueOnce([
+        { name: 'origin', refs: { fetch: 'git@github.com:user/repo.git', push: 'git@github.com:user/repo.git' } },
+      ]).mockResolvedValueOnce([
+        { name: 'origin', refs: { fetch: 'git@github.com:user/repo.git', push: 'git@github.com:user/repo.git' } },
+      ]);
+
+      await writeState(
+        syncDir,
+        {
+          machine: { id: 'test', hostname: 'test-host' },
+          projects: [
+            {
+              id: 'app-id',
+              name: 'my-app',
+              path: '/path/to/app',
+              git: { branch: 'main', remote: '', hasUncommitted: false, stashCount: 0 },
+              lastAccessed: new Date().toISOString(),
+            },
+          ],
+        },
+        publicKey,
+        'state',
+      );
+
+      const result = await executeRestore('my-app', { noInteractive: true });
+
+      expect(result.pulled).toBe(true);
+      expect(mockPull).toHaveBeenCalledWith('origin', 'main');
+    });
+
+    it('should skip pull when --no-pull is passed', async () => {
+      const { syncDir, publicKey } = await setupTestEnv();
+
+      await writeState(
+        syncDir,
+        {
+          machine: { id: 'test', hostname: 'test-host' },
+          projects: [
+            {
+              id: 'app-id',
+              name: 'my-app',
+              path: '/path/to/app',
+              git: { branch: 'main', remote: '', hasUncommitted: false, stashCount: 0 },
+              lastAccessed: new Date().toISOString(),
+            },
+          ],
+        },
+        publicKey,
+        'state',
+      );
+
+      const result = await executeRestore('my-app', { noInteractive: true, noPull: true });
+
+      expect(result.pulled).toBe(false);
+      expect(mockPull).not.toHaveBeenCalled();
     });
 
     it('should restore a project with correct info', async () => {

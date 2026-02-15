@@ -81,7 +81,18 @@ export function loadKey(configDir: string): string {
     }
   }
 
-  return fs.readFileSync(keyPath, 'utf-8').trim();
+  const key = fs.readFileSync(keyPath, 'utf-8').trim();
+
+  // Validate key format
+  if (!key.startsWith('AGE-SECRET-KEY-')) {
+    throw new Error(
+      `Invalid key format in ${keyPath}.\n` +
+        'Expected key starting with AGE-SECRET-KEY-.\n' +
+        'Re-initialize with: ctx-sync init --restore',
+    );
+  }
+
+  return key;
 }
 
 /**

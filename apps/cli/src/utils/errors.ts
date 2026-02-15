@@ -140,6 +140,17 @@ export function classifyError(err: unknown): CtxSyncError {
   const message = err instanceof Error ? err.message : String(err);
   const lowerMsg = message.toLowerCase();
 
+  // Specific age error: key does not match any recipient
+  if (lowerMsg.includes('no identity matched')) {
+    return new EncryptionError(
+      'Encryption key does not match.',
+      'The private key on this machine cannot decrypt the synced state.\n' +
+        '  This usually means you initialized with a different key.\n' +
+        '  If using multiple machines, all must share the same private key.\n' +
+        '  Fix: ctx-sync init --restore  (paste the key from your other machine)',
+    );
+  }
+
   // Encryption / decryption problems
   // Note: avoid matching "age" alone — it also appears in "Invalid Age public key format".
   // Only match "age:" (library prefix) or "age ciphertext" patterns.
@@ -152,8 +163,10 @@ export function classifyError(err: unknown): CtxSyncError {
   ) {
     return new EncryptionError(
       'Failed to decrypt state file.',
-      'Your encryption key may be wrong or the file may be corrupted.\n' +
-        '  Try: ctx-sync key verify',
+      'Your encryption key may not match the one used to encrypt this data.\n' +
+        '  If using multiple machines, all must share the same private key.\n' +
+        '  Restore the correct key with: ctx-sync init --restore\n' +
+        '  Verify your key with: ctx-sync key verify',
     );
   }
 
@@ -166,6 +179,23 @@ export function classifyError(err: unknown): CtxSyncError {
     return new ConfigError(
       'Encryption key not found.',
       'Run `ctx-sync init` to generate a new key, or `ctx-sync init --restore` to restore an existing one.',
+    );
+  }
+
+  // Git authentication failure (terminal prompt suppressed or auth denied)
+  if (
+    lowerMsg.includes('terminal prompts disabled') ||
+    lowerMsg.includes('could not read username') ||
+    lowerMsg.includes('authentication failed')
+  ) {
+    return new SecurityError(
+      'Git authentication failed.',
+      'Git could not authenticate with the remote repository.\n' +
+        '  Set up credentials with one of:\n' +
+        '    gh auth login            (GitHub CLI)\n' +
+        '    ssh-keygen + ssh-add     (SSH key)\n' +
+        '    git credential-manager   (HTTPS credential manager)\n' +
+        '  Then retry: ctx-sync sync',
     );
   }
 

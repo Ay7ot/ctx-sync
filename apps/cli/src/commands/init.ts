@@ -27,6 +27,7 @@ export interface InitOptions {
   skipBackup?: boolean;
   remote?: string;
   stdin?: boolean;
+  force?: boolean;
 }
 
 /** Result of a fresh init */
@@ -36,6 +37,8 @@ export interface InitResult {
   syncDir: string;
   remoteUrl?: string;
   manifestCreated: boolean;
+  /** Whether key generation was skipped (existing key kept) */
+  keySkipped?: boolean;
 }
 
 /** Result of a restore init */
@@ -45,6 +48,8 @@ export interface RestoreResult {
   remoteUrl?: string;
   projectCount: number;
   projectNames: string[];
+  /** Whether state.age existed but decryption failed (wrong key) */
+  decryptionFailed: boolean;
 }
 
 /**
@@ -101,16 +106,26 @@ export function createManifest(syncDir: string): Manifest {
 export async function executeInit(options: InitOptions): Promise<InitResult> {
   const configDir = getConfigDir();
   const syncDir = getSyncDir();
+  const keyPath = path.join(configDir, 'key.txt');
+  const keyExists = fs.existsSync(keyPath);
 
-  // 1. Generate key pair
-  const { publicKey, privateKey } = await generateKey();
+  let publicKey: string;
+  let keySkipped = false;
 
-  // 2. Save private key
-  saveKey(configDir, privateKey);
+  if (keyExists && !options.force) {
+    // Key already exists — skip key generation, just update remote config
+    keySkipped = true;
+    const { identityToRecipient } = await import('age-encryption');
+    const existingKey = loadKey(configDir);
+    publicKey = await identityToRecipient(existingKey);
+  } else {
+    // Generate new key (fresh init or --force)
+    const keyPair = await generateKey();
+    publicKey = keyPair.publicKey;
+    saveKey(configDir, keyPair.privateKey);
+  }
 
-  // 3-4. Display key info (handled by CLI output in registerInitCommand)
-
-  // 5-6. Remote URL
+  // Remote URL — prompt or use --remote
   let remoteUrl: string | undefined;
   if (options.remote) {
     validateRemoteUrl(options.remote);
@@ -129,19 +144,19 @@ export async function executeInit(options: InitOptions): Promise<InitResult> {
     }
   }
 
-  // 7. Init sync repo
+  // Init sync repo (no-op if .git already exists)
   await initRepo(syncDir);
 
-  // 8. Add remote if provided
+  // Add remote if provided
   if (remoteUrl) {
     await addRemote(syncDir, remoteUrl);
   }
 
-  // 9. Create manifest
-  createManifest(syncDir);
-
-  // 10. Commit and push
-  await commitState(syncDir, [STATE_FILES.MANIFEST], 'chore: initialize context sync');
+  // Create manifest (only on fresh init or --force)
+  if (!keySkipped) {
+    createManifest(syncDir);
+    await commitState(syncDir, [STATE_FILES.MANIFEST], 'chore: initialize context sync');
+  }
 
   if (remoteUrl) {
     try {
@@ -157,7 +172,8 @@ export async function executeInit(options: InitOptions): Promise<InitResult> {
     configDir,
     syncDir,
     remoteUrl,
-    manifestCreated: true,
+    manifestCreated: !keySkipped,
+    keySkipped,
   };
 }
 
@@ -218,9 +234,9 @@ export async function executeRestore(
 
   // 5. Clone or init repo
   if (remoteUrl) {
-    // Clone via simple-git
-    const { simpleGit } = await import('simple-git');
-    const git = simpleGit();
+    // Clone via simple-git (with GIT_TERMINAL_PROMPT=0 to prevent credential hangs)
+    const { createGit: createGitInstance } = await import('../core/git-sync.js');
+    const git = createGitInstance('.');
     await git.clone(remoteUrl, syncDir);
   } else {
     // Just init locally (no remote to clone from)
@@ -230,6 +246,7 @@ export async function executeRestore(
   // 6. Try to decrypt state and list projects
   let projectCount = 0;
   const projectNames: string[] = [];
+  let decryptionFailed = false;
 
   const stateFile = path.join(syncDir, STATE_FILES.STATE);
   if (fs.existsSync(stateFile)) {
@@ -250,8 +267,9 @@ export async function executeRestore(
         }
       }
     } catch {
-      // Decryption failed — wrong key or no state yet
-      // This is not fatal for restore setup
+      // Decryption failed — wrong key or corrupted state
+      // Not fatal for setup, but we track it to show a warning
+      decryptionFailed = true;
     }
   }
 
@@ -261,6 +279,7 @@ export async function executeRestore(
     remoteUrl,
     projectCount,
     projectNames,
+    decryptionFailed,
   };
 }
 
@@ -299,6 +318,7 @@ export function registerInitCommand(program: Command): void {
     .option('--skip-backup', 'Skip key backup prompt (not recommended)')
     .option('--remote <url>', 'Git remote URL for syncing')
     .option('--stdin', 'Read private key from stdin (for --restore)')
+    .option('--force', 'Force re-initialization (regenerates encryption key)')
     .action(withErrorHandler(async (opts: Record<string, unknown>) => {
       const options: InitOptions & { key?: string } = {
         restore: opts['restore'] as boolean | undefined,
@@ -306,6 +326,7 @@ export function registerInitCommand(program: Command): void {
         skipBackup: opts['skipBackup'] as boolean | undefined,
         remote: opts['remote'] as string | undefined,
         stdin: opts['stdin'] as boolean | undefined,
+        force: opts['force'] as boolean | undefined,
       };
 
       if (options.restore) {
@@ -344,34 +365,50 @@ export function registerInitCommand(program: Command): void {
             console.log(chalk.dim('   No remote configured — local only.'));
           }
 
-          if (result.projectCount > 0) {
+          if (result.decryptionFailed) {
+            console.log(chalk.yellow('\n⚠️  Could not decrypt state. The private key may not match the one used to encrypt this data.'));
+            console.log(chalk.yellow('   If you have the correct key, re-run: ctx-sync init --restore'));
+          } else if (result.projectCount > 0) {
             console.log(chalk.green(`✅ Found ${result.projectCount} projects:`));
             for (const name of result.projectNames) {
               console.log(`   - ${name}`);
             }
+            console.log('\nAll state decrypted! 🎉');
           } else {
             console.log('No existing projects found (sync repo may be empty).');
+            console.log('\nRestore complete! 🎉');
+          }
+        } else {
+          // Fresh init flow (or remote-update flow if key already exists)
+          if (options.force) {
+            const chalk = (await import('chalk')).default;
+            console.log(chalk.yellow('\n⚠️  --force: Regenerating encryption key. Existing encrypted data will become unrecoverable.'));
           }
 
-          console.log('\nAll state decrypted! 🎉');
-        } else {
-          // Fresh init flow
           const result = await executeInit(options);
 
           const chalk = (await import('chalk')).default;
-          console.log('\n🔐 Generating encryption key...');
-          console.log(chalk.green('✅ Public key: ') + result.publicKey);
-          console.log(
-            chalk.green('✅ Private key saved to: ') +
-              path.join(result.configDir, 'key.txt'),
-          );
-          console.log('   Permissions: 600 (owner read/write only)');
 
-          if (!options.skipBackup && !options.noInteractive) {
+          if (result.keySkipped) {
+            // Key already existed — we just updated remote config
+            console.log(chalk.green('\n✅ Key already exists') + ' — skipping key generation.');
+            console.log(chalk.green('✅ Public key: ') + result.publicKey);
+          } else {
+            // New key was generated
+            console.log('\n🔐 Generating encryption key...');
+            console.log(chalk.green('✅ Public key: ') + result.publicKey);
             console.log(
-              chalk.yellow('\n⚠️  IMPORTANT: Back up your private key NOW!'),
+              chalk.green('✅ Private key saved to: ') +
+                path.join(result.configDir, 'key.txt'),
             );
-            console.log('Save it to 1Password, Bitwarden, or another password manager.');
+            console.log('   Permissions: 600 (owner read/write only)');
+
+            if (!options.skipBackup && !options.noInteractive) {
+              console.log(
+                chalk.yellow('\n⚠️  IMPORTANT: Back up your private key NOW!'),
+              );
+              console.log('Save it to 1Password, Bitwarden, or another password manager.');
+            }
           }
 
           if (result.remoteUrl) {
@@ -384,10 +421,14 @@ export function registerInitCommand(program: Command): void {
             console.log(chalk.dim('   To add a remote later: ctx-sync init --remote <url>'));
           }
 
-          console.log(chalk.green('\n✅ All set!'));
-          console.log('\nNow track your first project:');
-          console.log('  $ cd ~/projects/my-app');
-          console.log('  $ ctx-sync track');
+          if (result.keySkipped) {
+            console.log(chalk.green('\n✅ Configuration updated!'));
+          } else {
+            console.log(chalk.green('\n✅ All set!'));
+            console.log('\nNow track your first project:');
+            console.log('  $ cd ~/projects/my-app');
+            console.log('  $ ctx-sync track');
+          }
         }
     }));
 }

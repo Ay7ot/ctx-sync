@@ -45,7 +45,9 @@ const mockStatus = jest
     isClean: () => false,
   });
 
-const mockSimpleGit = jest.fn().mockReturnValue({
+const mockEnv = jest.fn<(key: string, value: string) => unknown>();
+
+const mockGitInstance = {
   init: mockInit,
   add: mockAdd,
   commit: mockCommit,
@@ -54,7 +56,12 @@ const mockSimpleGit = jest.fn().mockReturnValue({
   addRemote: mockAddRemote,
   remote: mockRemote,
   status: mockStatus,
-});
+  env: mockEnv,
+};
+
+mockEnv.mockReturnValue(mockGitInstance);
+
+const mockSimpleGit = jest.fn().mockReturnValue(mockGitInstance);
 
 jest.unstable_mockModule('simple-git', () => ({
   simpleGit: mockSimpleGit,
@@ -251,6 +258,78 @@ describe('Init Command', () => {
       // The result object should NOT contain privateKey
       expect(result).not.toHaveProperty('privateKey');
     });
+
+    it('should skip key generation when key already exists (no --force)', async () => {
+      // First init creates a key
+      const firstResult = await executeInit({ noInteractive: true });
+      const firstKey = loadKey(path.join(testHome, '.config', 'ctx-sync'));
+
+      jest.clearAllMocks();
+      mockStatus.mockResolvedValue({
+        files: [],
+        staged: ['manifest.json'],
+        created: ['manifest.json'],
+        deleted: [],
+        ahead: 0,
+        behind: 0,
+        isClean: () => false,
+      });
+      mockEnv.mockReturnValue(mockGitInstance);
+
+      // Second init should skip key gen
+      const secondResult = await executeInit({ noInteractive: true });
+      const secondKey = loadKey(path.join(testHome, '.config', 'ctx-sync'));
+
+      expect(secondResult.keySkipped).toBe(true);
+      expect(secondResult.manifestCreated).toBe(false);
+      expect(secondKey).toBe(firstKey); // Key unchanged
+      expect(secondResult.publicKey).toBe(firstResult.publicKey);
+    });
+
+    it('should regenerate key when --force is used even if key exists', async () => {
+      // First init creates a key
+      await executeInit({ noInteractive: true });
+      const firstKey = loadKey(path.join(testHome, '.config', 'ctx-sync'));
+
+      jest.clearAllMocks();
+      mockStatus.mockResolvedValue({
+        files: [],
+        staged: ['manifest.json'],
+        created: ['manifest.json'],
+        deleted: [],
+        ahead: 0,
+        behind: 0,
+        isClean: () => false,
+      });
+      mockEnv.mockReturnValue(mockGitInstance);
+
+      // Second init with --force should regenerate
+      const secondResult = await executeInit({ noInteractive: true, force: true });
+      const secondKey = loadKey(path.join(testHome, '.config', 'ctx-sync'));
+
+      expect(secondResult.keySkipped).toBeFalsy();
+      expect(secondResult.manifestCreated).toBe(true);
+      expect(secondKey).not.toBe(firstKey); // Key changed
+    });
+
+    it('should allow updating remote on re-init without regenerating key', async () => {
+      // First init without remote
+      await executeInit({ noInteractive: true });
+
+      jest.clearAllMocks();
+      mockGetRemotes.mockResolvedValue([]);
+      mockEnv.mockReturnValue(mockGitInstance);
+
+      // Second init with remote (key exists, should skip keygen)
+      const result = await executeInit({
+        noInteractive: true,
+        remote: 'git@github.com:user/repo.git',
+      });
+
+      expect(result.keySkipped).toBe(true);
+      expect(result.remoteUrl).toBe('git@github.com:user/repo.git');
+      expect(mockAddRemote).toHaveBeenCalledWith('origin', 'git@github.com:user/repo.git');
+    });
   });
 
   describe('executeRestore()', () => {
@@ -319,6 +398,42 @@ describe('Init Command', () => {
 
       expect(result.projectCount).toBe(0);
       expect(result.projectNames).toEqual([]);
+      expect(result.decryptionFailed).toBe(false);
+    });
+
+    it('should set decryptionFailed when state.age cannot be decrypted', async () => {
+      const { generateKey } = await import('../../src/core/encryption.js');
+      const { privateKey } = await generateKey();
+
+      // First init to create a sync dir
+      const result = await executeRestore({
+        noInteractive: true,
+        key: privateKey,
+      });
+
+      // Now write a fake state.age that this key cannot decrypt
+      const stateFile = path.join(result.syncDir, 'state.age');
+      fs.writeFileSync(stateFile, 'not-valid-age-ciphertext');
+
+      // Generate a DIFFERENT key for the second restore
+      const { privateKey: differentKey } = await generateKey();
+      const testHome2 = path.join(globalThis.TEST_DIR, `init-test-restore-${Date.now()}`);
+      fs.mkdirSync(testHome2, { recursive: true });
+      process.env['CTX_SYNC_HOME'] = testHome2;
+
+      // Copy the sync dir to the new home
+      const newSyncDir = path.join(testHome2, '.context-sync');
+      fs.mkdirSync(newSyncDir, { recursive: true });
+      fs.mkdirSync(path.join(newSyncDir, '.git'), { recursive: true });
+      fs.writeFileSync(path.join(newSyncDir, 'state.age'), 'not-valid-age-ciphertext');
+
+      const result2 = await executeRestore({
+        noInteractive: true,
+        key: differentKey,
+      });
+
+      expect(result2.decryptionFailed).toBe(true);
+      expect(result2.projectCount).toBe(0);
     });
 
     it('should trim whitespace from provided key', async () => {

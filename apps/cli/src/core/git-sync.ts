@@ -11,8 +11,23 @@
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { simpleGit, type StatusResult } from 'simple-git';
+import { simpleGit, type SimpleGit, type StatusResult } from 'simple-git';
 import { validateRemoteUrl } from './transport.js';
+
+/**
+ * Create a simple-git instance with credential prompt suppression.
+ *
+ * Sets `GIT_TERMINAL_PROMPT=0` so that git fails immediately when
+ * interactive credentials are needed, instead of hanging forever.
+ * Credential helpers (SSH keys, `gh auth`, git-credential-manager)
+ * still work — only the interactive TTY prompt is suppressed.
+ *
+ * @param dir - The working directory for the git instance.
+ * @returns A configured SimpleGit instance.
+ */
+export function createGit(dir: string): SimpleGit {
+  return simpleGit(dir).env('GIT_TERMINAL_PROMPT', '0');
+}
 
 /** Result of a getStatus() call */
 export interface SyncStatus {
@@ -44,7 +59,7 @@ export async function initRepo(dir: string): Promise<boolean> {
   // Ensure the directory exists
   fs.mkdirSync(dir, { recursive: true });
 
-  const git = simpleGit(dir);
+  const git = createGit(dir);
   await git.init();
   return true;
 }
@@ -67,7 +82,7 @@ export async function addRemote(
 ): Promise<void> {
   validateRemoteUrl(url);
 
-  const git = simpleGit(dir);
+  const git = createGit(dir);
   const remotes = await git.getRemotes(true);
   const existing = remotes.find((r) => r.name === remoteName);
 
@@ -95,7 +110,7 @@ export async function commitState(
   files: string[],
   message: string,
 ): Promise<string | null> {
-  const git = simpleGit(dir);
+  const git = createGit(dir);
 
   // Stage specified files
   await git.add(files);
@@ -129,7 +144,7 @@ export async function pushState(
   remoteName: string = 'origin',
   branch: string = 'main',
 ): Promise<void> {
-  const git = simpleGit(dir);
+  const git = createGit(dir);
 
   // Verify remote exists and URL is secure
   const remotes = await git.getRemotes(true);
@@ -160,7 +175,7 @@ export async function pullState(
   remoteName: string = 'origin',
   branch: string = 'main',
 ): Promise<void> {
-  const git = simpleGit(dir);
+  const git = createGit(dir);
 
   // Verify remote exists and URL is secure
   const remotes = await git.getRemotes(true);
@@ -182,7 +197,7 @@ export async function pullState(
  * @returns An object describing changed files, ahead/behind counts, and cleanliness.
  */
 export async function getStatus(dir: string): Promise<SyncStatus> {
-  const git = simpleGit(dir);
+  const git = createGit(dir);
   const status: StatusResult = await git.status();
 
   return {

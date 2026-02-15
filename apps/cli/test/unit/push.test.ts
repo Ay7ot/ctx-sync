@@ -44,8 +44,9 @@ const mockGetRemotes = jest.fn<() => Promise<MockRemoteEntry[]>>().mockResolvedV
 
 const mockAddRemote = jest.fn<(name: string, url: string) => Promise<void>>().mockResolvedValue(undefined);
 const mockRemote = jest.fn<(args: string[]) => Promise<void>>().mockResolvedValue(undefined);
+const mockEnv = jest.fn<(key: string, value: string) => unknown>();
 
-const mockSimpleGit = jest.fn().mockReturnValue({
+const mockGitInstance = {
   init: mockInit,
   add: mockAdd,
   commit: mockCommit,
@@ -55,7 +56,12 @@ const mockSimpleGit = jest.fn().mockReturnValue({
   getRemotes: mockGetRemotes,
   addRemote: mockAddRemote,
   remote: mockRemote,
-});
+  env: mockEnv,
+};
+
+mockEnv.mockReturnValue(mockGitInstance);
+
+const mockSimpleGit = jest.fn().mockReturnValue(mockGitInstance);
 
 jest.unstable_mockModule('simple-git', () => ({
   simpleGit: mockSimpleGit,

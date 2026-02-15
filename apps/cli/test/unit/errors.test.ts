@@ -129,6 +129,39 @@ describe('classifyError', () => {
     expect(result).toBeInstanceOf(EncryptionError);
   });
 
+  it('should classify "no identity matched" as EncryptionError with multi-machine guidance', () => {
+    const err = new Error("no identity matched any of the file's recipients");
+    const result = classifyError(err);
+    expect(result).toBeInstanceOf(EncryptionError);
+    expect(result.message).toBe('Encryption key does not match.');
+    expect(result.suggestion).toContain('multiple machines');
+    expect(result.suggestion).toContain('ctx-sync init --restore');
+  });
+
+  it('should include multi-machine guidance in generic decrypt errors', () => {
+    const err = new Error('Failed to decrypt data');
+    const result = classifyError(err);
+    expect(result).toBeInstanceOf(EncryptionError);
+    expect(result.suggestion).toContain('multiple machines');
+    expect(result.suggestion).toContain('ctx-sync init --restore');
+  });
+
+  it('should classify "terminal prompts disabled" as SecurityError with credential setup guidance', () => {
+    const err = new Error('fatal: could not read Username: terminal prompts disabled');
+    const result = classifyError(err);
+    expect(result).toBeInstanceOf(SecurityError);
+    expect(result.message).toBe('Git authentication failed.');
+    expect(result.suggestion).toContain('gh auth login');
+    expect(result.suggestion).toContain('ssh-keygen');
+  });
+
+  it('should classify "authentication failed" as SecurityError', () => {
+    const err = new Error('fatal: Authentication failed for https://github.com/user/repo.git');
+    const result = classifyError(err);
+    expect(result).toBeInstanceOf(SecurityError);
+    expect(result.message).toBe('Git authentication failed.');
+  });
+
   it('should classify missing key errors as ConfigError', () => {
     const err = new Error('ENOENT: no such file or directory, key.txt');
     const result = classifyError(err);
