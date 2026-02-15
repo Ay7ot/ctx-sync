@@ -11,7 +11,7 @@ const config: Config = {
         useESM: true,
         tsconfig: 'test/tsconfig.json',
         diagnostics: {
-          ignoreDiagnostics: [151002, 7017],
+          ignoreCodes: [151002, 7017],
         },
       },
     ],
