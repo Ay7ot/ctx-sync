@@ -132,6 +132,36 @@
     "accent": "purple"
   },
   {
+    "slug": "contributing",
+    "title": "Contributing",
+    "headings": [
+      "Contributing",
+      "Getting Started",
+      "Fork and clone",
+      "Install dependencies (includes Husky git hooks)",
+      "Build shared packages",
+      "Verify everything works",
+      "Branching Strategy",
+      "Branch Naming",
+      "Commit Convention",
+      "Allowed Types",
+      "Examples",
+      "Pre-commit Hooks",
+      "Running Tests",
+      "Individual suites",
+      "Everything at once",
+      "Watch mode (great during development)",
+      "Security Considerations",
+      "CI Pipeline",
+      "Submitting a Pull Request",
+      "Reporting Issues",
+      "Links"
+    ],
+    "snippet": "ctx-sync is open source and we welcome contributions from the community. This page covers the essentials — for the full guide, see CONTRIBUTING.md on GitHub. Node.js >= 20.0.0 and Git >= 2.25 are requ...",
+    "category": "Community",
+    "accent": "green"
+  },
+  {
     "slug": "faq",
     "title": "Frequently Asked Questions",
     "headings": [
