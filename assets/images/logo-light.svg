@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none">
+  <defs>
+    <linearGradient id="sync-grad-light" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="50%" stop-color="#9333ea"/>
+      <stop offset="100%" stop-color="#db2777"/>
+    </linearGradient>
+  </defs>
+  <!-- Outer ring -->
+  <circle cx="20" cy="20" r="18" stroke="url(#sync-grad-light)" stroke-width="2.5" fill="none" opacity="0.2"/>
+  <!-- Top arrow arc (clockwise) -->
+  <path d="M20 4 A16 16 0 0 1 34.5 14" stroke="url(#sync-grad-light)" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <polygon points="33,10.5 36.5,15 31,15.5" fill="url(#sync-grad-light)"/>
+  <!-- Bottom arrow arc (counter-clockwise) -->
+  <path d="M20 36 A16 16 0 0 1 5.5 26" stroke="url(#sync-grad-light)" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <polygon points="7,29.5 3.5,25 9,24.5" fill="url(#sync-grad-light)"/>
+  <!-- Center bracket pair: < > representing "context" -->
+  <path d="M16 16 L12.5 20 L16 24" stroke="url(#sync-grad-light)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M24 16 L27.5 20 L24 24" stroke="url(#sync-grad-light)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

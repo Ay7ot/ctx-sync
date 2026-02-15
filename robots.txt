@@ -1,0 +1,11 @@
+# ctx-sync — https://ctx-sync.live
+# Allow all search engine crawlers
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://ctx-sync.live/sitemap.xml
+
+# Disallow any temporary or build artifacts
+Disallow: /docs/search-index.json

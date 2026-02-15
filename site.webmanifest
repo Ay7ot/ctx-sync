@@ -1,0 +1,21 @@
+{
+  "name": "ctx-sync",
+  "short_name": "ctx-sync",
+  "description": "Sync your complete development context across machines. Encrypted by default. No backend required.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0d0d",
+  "theme_color": "#0ea5e9",
+  "icons": [
+    {
+      "src": "/assets/images/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/assets/images/apple-touch-icon.svg",
+      "sizes": "180x180",
+      "type": "image/svg+xml"
+    }
+  ]
+}

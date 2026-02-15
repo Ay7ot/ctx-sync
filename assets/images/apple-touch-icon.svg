@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none">
+  <defs>
+    <linearGradient id="atg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0ea5e9"/>
+      <stop offset="50%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" rx="40" fill="#0d0d0d"/>
+  <!-- Sync arrows -->
+  <path d="M90 30 A55 55 0 0 1 140 65" stroke="url(#atg)" stroke-width="10" stroke-linecap="round" fill="none"/>
+  <polygon points="134,52 145,68 128,70" fill="url(#atg)"/>
+  <path d="M90 150 A55 55 0 0 1 40 115" stroke="url(#atg)" stroke-width="10" stroke-linecap="round" fill="none"/>
+  <polygon points="46,128 35,112 52,110" fill="url(#atg)"/>
+  <!-- Code brackets -->
+  <path d="M75 75 L58 90 L75 105" stroke="url(#atg)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M105 75 L122 90 L105 105" stroke="url(#atg)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

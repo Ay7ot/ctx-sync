@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Primary Meta Tags -->
+  <title>Security Model — ctx-sync docs</title>
+  <meta name="title" content="Security Model — ctx-sync docs" />
+  <meta name="description" content="ctx-sync is designed with a zero-trust, encrypt-everything approach. This document explains the security architecture, threat model, and key management. 1. Encr..." />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="canonical" href="https://ctx-sync.live/docs/security.html" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://ctx-sync.live/docs/security.html" />
+  <meta property="og:title" content="Security Model — ctx-sync docs" />
+  <meta property="og:description" content="ctx-sync is designed with a zero-trust, encrypt-everything approach. This document explains the security architecture, threat model, and key management. 1. Encr..." />
+  <meta property="og:image" content="https://ctx-sync.live/assets/images/og-image.jpg" />
+  <meta property="og:site_name" content="ctx-sync" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://ctx-sync.live/docs/security.html" />
+  <meta name="twitter:title" content="Security Model — ctx-sync docs" />
+  <meta name="twitter:description" content="ctx-sync is designed with a zero-trust, encrypt-everything approach. This document explains the security architecture, threat model, and key management. 1. Encr..." />
+  <meta name="twitter:image" content="https://ctx-sync.live/assets/images/og-image.jpg" />
+
+  <!-- Favicon & Icons -->
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
+  <link rel="apple-touch-icon" href="../assets/images/apple-touch-icon.svg" />
+  <link rel="manifest" href="../site.webmanifest" />
+
+  <!-- Preconnect to Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/docs.css" />
+
+  <!-- Structured Data: BreadcrumbList (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://ctx-sync.live/" },
+      { "@type": "ListItem", "position": 2, "name": "Docs", "item": "https://ctx-sync.live/docs/" },
+      { "@type": "ListItem", "position": 3, "name": "Security Model", "item": "https://ctx-sync.live/docs/security.html" }
+    ]
+  }
+  </script>
+
+  <!-- Structured Data: TechArticle (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Security Model",
+    "description": "ctx-sync is designed with a zero-trust, encrypt-everything approach. This document explains the security architecture, threat model, and key management. 1. Encr...",
+    "url": "https://ctx-sync.live/docs/security.html",
+    "author": { "@type": "Organization", "name": "ctx-sync", "url": "https://ctx-sync.live" },
+    "publisher": { "@type": "Organization", "name": "ctx-sync", "url": "https://ctx-sync.live", "logo": { "@type": "ImageObject", "url": "https://ctx-sync.live/assets/images/logo.svg" } },
+    "mainEntityOfPage": "https://ctx-sync.live/docs/security.html",
+    "image": "https://ctx-sync.live/assets/images/og-image.jpg"
+  }
+  </script>
+</head>
+<body class="docs-page">
+  <!-- Scroll Progress Bar -->
+  <div class="docs-progress-bar" id="docs-progress-bar">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+
+  <header class="docs-header" id="docs-header">
+    <div class="docs-header-inner">
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+        <span></span><span></span><span></span>
+      </button>
+      <a href="../" class="logo" aria-label="ctx-sync home">
+        <svg class="logo-mark" width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <linearGradient id="doc-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0ea5e9"/>
+      <stop offset="50%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+  </defs>
+  <circle cx="20" cy="20" r="18" stroke="url(#doc-grad)" stroke-width="2.5" fill="none" opacity="0.25"/>
+  <path d="M20 4 A16 16 0 0 1 34.5 14" stroke="url(#doc-grad)" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <polygon points="33,10.5 36.5,15 31,15.5" fill="url(#doc-grad)"/>
+  <path d="M20 36 A16 16 0 0 1 5.5 26" stroke="url(#doc-grad)" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <polygon points="7,29.5 3.5,25 9,24.5" fill="url(#doc-grad)"/>
+  <path d="M16 16 L12.5 20 L16 24" stroke="url(#doc-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M24 16 L27.5 20 L24 24" stroke="url(#doc-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>
+        <span class="logo-text">ctx-sync</span>
+      </a>
+      <nav class="header-nav" aria-label="Documentation navigation">
+        <a href="./">Docs</a>
+        <a href="https://github.com/Ay7ot/ctx-sync" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light mode">
+        <span class="theme-icon">&#127769;</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <nav class="docs-sidebar" id="docs-sidebar">
+  <div class="sidebar-header">
+    <a href="./" class="sidebar-title">Documentation</a>
+    <button class="sidebar-close" id="sidebar-close" aria-label="Close sidebar">&times;</button>
+  </div>
+  <div class="sidebar-search">
+    <input type="text" id="docs-search-input" placeholder="Search docs..." aria-label="Search documentation" />
+    <span class="search-shortcut">⌘K</span>
+    <div id="docs-search-results" class="search-results"></div>
+  </div>
+  <ul class="sidebar-nav-list">
+    <li class="sidebar-section-label"><span class="sidebar-section-dot" data-accent="blue"></span>Getting Started</li>
+    <li><a href="./getting-started.html"><span class="nav-icon">&#9889;</span>Getting Started</a></li>
+    <li class="sidebar-section-label"><span class="sidebar-section-dot" data-accent="green"></span>Core Reference</li>
+    <li><a href="./commands.html"><span class="nav-icon">&#9000;</span>CLI Commands Reference</a></li>
+    <li class="sidebar-section-label"><span class="sidebar-section-dot" data-accent="orange"></span>Security</li>
+    <li class="active" data-accent="orange"><a href="./security.html"><span class="nav-icon">&#128274;</span>Security Model</a></li>
+    <li class="sidebar-section-label"><span class="sidebar-section-dot" data-accent="purple"></span>Advanced</li>
+    <li><a href="./teams.html"><span class="nav-icon">&#128101;</span>Team Setup</a></li>
+    <li class="sidebar-section-label"><span class="sidebar-section-dot" data-accent="pink"></span>Help</li>
+    <li><a href="./faq.html"><span class="nav-icon">&#10067;</span>Frequently Asked Questions</a></li>
+  </ul>
+</nav>
+
+    <main class="docs-content">
+      <article class="docs-article">
+        <nav class="docs-breadcrumbs" aria-label="Breadcrumb">
+  <a href="../">Home</a>
+  <span class="breadcrumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span>
+  <a href="./">Docs</a>
+  <span class="breadcrumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span>
+  <span class="breadcrumb-current">Security Model</span>
+</nav>
+<h1>Security Model</h1>
+<div class="docs-page-meta">
+  <span class="docs-meta-item">
+    <svg class="docs-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    4 min read
+  </span>
+</div>
+<h2 id="core-principles">Core Principles</h2><ol>
+<li><strong>Encrypt everything by default</strong> — All state files are encrypted with Age. Not just secrets — project names, paths, Docker config, and mental context are all encrypted.</li>
+<li><strong>No backend required</strong> — Git is the only transport. You control your data.</li>
+<li><strong>Zero trust</strong> — A compromised Git remote reveals only ciphertext.</li>
+<li><strong>No side-channel leaks</strong> — Secrets never appear in CLI arguments, shell history, process lists, or log output.</li>
+<li><strong>Command confirmation</strong> — Restored commands always require explicit user approval before execution.</li>
+</ol>
+<h2 id="threat-model">Threat Model</h2><table>
+<thead>
+<tr>
+<th>Threat</th>
+<th>Severity</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Git remote compromise</td>
+<td>Critical</td>
+<td>Full state encryption — attacker sees only ciphertext</td>
+</tr>
+<tr>
+<td>Private key compromise</td>
+<td>Critical</td>
+<td>Key rotation with history rewrite; team key revocation</td>
+</tr>
+<tr>
+<td>Local machine compromise</td>
+<td>High</td>
+<td>File permissions enforced (600/700); encrypted at rest</td>
+</tr>
+<tr>
+<td>Man-in-the-Middle</td>
+<td>High</td>
+<td>Transport security — only SSH and HTTPS remotes allowed</td>
+</tr>
+<tr>
+<td>Shoulder surfing</td>
+<td>Medium</td>
+<td>Hidden input for secrets; no QR code display</td>
+</tr>
+<tr>
+<td>Side-channel leakage</td>
+<td>Medium</td>
+<td>No secrets in CLI args, logs, or temp files</td>
+</tr>
+<tr>
+<td>Insider threat (teams)</td>
+<td>Medium</td>
+<td>Key revocation with automatic re-encryption</td>
+</tr>
+</tbody></table>
+<h2 id="encryption-architecture">Encryption Architecture</h2><h3 id="why-age">Why Age?</h3><p>ctx-sync uses <a href="https://age-encryption.org/">Age encryption</a> because it is:</p>
+<ul>
+<li><strong>Modern and audited</strong> — Designed by Filippo Valsorda</li>
+<li><strong>Simple</strong> — No configuration complexity (unlike GPG)</li>
+<li><strong>Multi-recipient</strong> — Built-in support for team encryption</li>
+<li><strong>Post-quantum ready</strong> — Supports post-quantum algorithms</li>
+</ul>
+<h3 id="what-gets-encrypted">What Gets Encrypted</h3><p>Every state file is encrypted as a single Age blob:</p>
+<pre><code>~/.context-sync/
+├── manifest.json       # ONLY plaintext file (version + timestamps)
+├── state.age           # Encrypted: projects, branches, paths
+├── env-vars.age        # Encrypted: ALL environment variables
+├── docker-state.age    # Encrypted: container configurations
+├── mental-context.age  # Encrypted: tasks, blockers, breadcrumbs
+├── services.age        # Encrypted: running services, commands
+└── directories.age     # Encrypted: recent and pinned directories
+</code></pre>
+<div class="docs-callout callout-security">
+  <div class="docs-callout-icon">&#128274;</div>
+  <div class="docs-callout-content">
+    <div class="docs-callout-title">Manifest Is the Only Plaintext</div>
+    <p>The `manifest.json` file contains only version and timestamps — no project names, paths, or hostnames. Everything else is a binary Age ciphertext blob.</p>
+  </div>
+</div>
+
+<h3 id="encrypt-by-default-for-environment-variables">Encrypt-by-Default for Environment Variables</h3><p>Instead of trying to detect which values are secrets (error-prone), ctx-sync encrypts <strong>all</strong> environment variables by default. This eliminates false-negative risk.</p>
+<p>A safe-list of known non-sensitive keys (like <code>NODE_ENV</code>, <code>PORT</code>, <code>DEBUG</code>) can optionally be stored as plaintext, but only when the user explicitly opts in with <code>--allow-plain</code>.</p>
+<h2 id="key-management">Key Management</h2><h3 id="key-storage">Key Storage</h3><ul>
+<li>Private key: <code>~/.config/ctx-sync/key.txt</code> (permissions: 600)</li>
+<li>Config directory: <code>~/.config/ctx-sync/</code> (permissions: 700)</li>
+<li>The config directory is <strong>never</strong> committed to Git</li>
+</ul>
+<div class="docs-callout callout-warning">
+  <div class="docs-callout-icon">&#9888;&#65039;</div>
+  <div class="docs-callout-content">
+    <div class="docs-callout-title">Permission Enforcement</div>
+    <p>ctx-sync refuses to load a key file with permissions other than 600. If your permissions drift, run `chmod 600 ~/.config/ctx-sync/key.txt` to fix.</p>
+  </div>
+</div>
+
+<h3 id="key-rotation">Key Rotation</h3><p>If a key is suspected compromised:</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync key rotate
+</code></pre>
+<p>This will:</p>
+<ol>
+<li>Generate a new key pair</li>
+<li>Re-encrypt all state files</li>
+<li>Rewrite Git history to remove old encrypted blobs</li>
+<li>Force-push to remote</li>
+</ol>
+<p>All other machines must then run <code>ctx-sync key update</code> and paste the new private key.</p>
+<h3 id="key-verification">Key Verification</h3><pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync key verify
+</code></pre>
+<p>Checks that key file permissions are correct and the key is valid.</p>
+<h2 id="transport-security">Transport Security</h2><p>ctx-sync enforces secure transport for all Git operations. Only SSH and HTTPS remotes are allowed. HTTP, Git protocol, and FTP are blocked.</p>
+<p>Transport is validated at:</p>
+<ul>
+<li><code>ctx-sync init</code> (when setting up remote)</li>
+<li><code>ctx-sync sync</code> / <code>push</code> / <code>pull</code> (on every operation)</li>
+</ul>
+<div class="docs-callout callout-danger">
+  <div class="docs-callout-icon">&#9888;&#65039;</div>
+  <div class="docs-callout-content">
+    <div class="docs-callout-title">Insecure Transports Blocked</div>
+    <p>HTTP, git://, and ftp:// protocols are permanently blocked. ctx-sync will reject any attempt to use these transports, even if the remote is on a local network.</p>
+  </div>
+</div>
+
+<h2 id="command-execution-safety">Command Execution Safety</h2><p>When restoring a project, any commands (Docker services, auto-start services) are shown for explicit user approval before execution. This prevents remote code execution if the Git repo is compromised.</p>
+<pre><code>⚠️  The following commands will be executed:
+┌────────────────────────────────────────────┐
+│ 🐳 Docker services:                       │
+│   1. docker compose up -d postgres         │
+│   2. docker compose up -d redis            │
+│                                            │
+│ ⚡ Auto-start services:                    │
+│   3. npm run dev (port 3000)               │
+│                                            │
+│ Review each command carefully!             │
+└────────────────────────────────────────────┘
+Execute all? [y/N/select]
+</code></pre>
+<p>There is <strong>no flag</strong> to skip command confirmation. Even <code>--yes</code> does not bypass this safety check.</p>
+<h2 id="side-channel-prevention">Side-Channel Prevention</h2><h3 id="no-secrets-in-cli-arguments">No Secrets in CLI Arguments</h3><p>Secrets are never accepted as command-line arguments. CLI arguments are visible in <code>ps aux</code> and shell history. Values must be entered via:</p>
+<ul>
+<li>Interactive prompt (hidden input)</li>
+<li>stdin pipe</li>
+<li>File descriptor</li>
+</ul>
+<h3 id="log-sanitization">Log Sanitization</h3><p>All log output is sanitized to remove patterns that look like secrets (API keys, tokens, credentials in URLs).</p>
+<div class="docs-callout callout-tip">
+  <div class="docs-callout-icon">&#128640;</div>
+  <div class="docs-callout-content">
+    <div class="docs-callout-title">Debug Safely</div>
+    <p>Even with `DEBUG=*` enabled, ctx-sync sanitizes all output. Secret patterns (Stripe keys, GitHub tokens, AWS credentials, JWTs, PEM keys) are automatically redacted.</p>
+  </div>
+</div>
+
+<h3 id="no-temporary-files">No Temporary Files</h3><p>Encryption and decryption happen entirely in memory. Secrets are never written to temporary files.</p>
+<h3 id="secure-memory">Secure Memory</h3><p>Secret buffers are zeroed after use to prevent memory inspection attacks.</p>
+<h2 id="security-audit">Security Audit</h2><p>Run <code>ctx-sync audit</code> to check your setup:</p>
+<ul>
+<li>Key file permissions</li>
+<li>Config directory permissions</li>
+<li>Remote transport security</li>
+<li>Git history for plaintext leaks</li>
+<li>Repository size</li>
+<li>State file encryption verification</li>
+</ul>
+
+      </article>
+    </main>
+    <aside class="docs-toc-sidebar" id="docs-toc-sidebar"><div class="docs-toc">
+  <div class="docs-toc-title">On this page</div>
+  <ul>
+    <li><a href="#core-principles">Core Principles</a></li>
+    <li><a href="#threat-model">Threat Model</a></li>
+    <li><a href="#encryption-architecture">Encryption Architecture</a></li>
+    <li class="toc-h3"><a href="#why-age">Why Age?</a></li>
+    <li class="toc-h3"><a href="#what-gets-encrypted">What Gets Encrypted</a></li>
+    <li class="toc-h3"><a href="#encrypt-by-default-for-environment-variables">Encrypt-by-Default for Environment Variables</a></li>
+    <li><a href="#key-management">Key Management</a></li>
+    <li class="toc-h3"><a href="#key-storage">Key Storage</a></li>
+    <li class="toc-h3"><a href="#key-rotation">Key Rotation</a></li>
+    <li class="toc-h3"><a href="#key-verification">Key Verification</a></li>
+    <li><a href="#transport-security">Transport Security</a></li>
+    <li><a href="#command-execution-safety">Command Execution Safety</a></li>
+    <li><a href="#side-channel-prevention">Side-Channel Prevention</a></li>
+    <li class="toc-h3"><a href="#no-secrets-in-cli-arguments">No Secrets in CLI Arguments</a></li>
+    <li class="toc-h3"><a href="#log-sanitization">Log Sanitization</a></li>
+    <li class="toc-h3"><a href="#no-temporary-files">No Temporary Files</a></li>
+    <li class="toc-h3"><a href="#secure-memory">Secure Memory</a></li>
+    <li><a href="#security-audit">Security Audit</a></li>
+  </ul>
+</div>
+</aside>
+  </div>
+
+  <!-- CMD+K Command Palette -->
+  <div class="cmd-palette-overlay" id="cmd-palette-overlay">
+    <div class="cmd-palette" id="cmd-palette">
+      <div class="cmd-palette-input-wrap">
+        <span class="cmd-palette-search-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </span>
+        <input type="text" class="cmd-palette-input" id="cmd-palette-input" placeholder="Search documentation..." autocomplete="off" />
+      </div>
+      <div class="cmd-palette-results" id="cmd-palette-results"></div>
+      <div class="cmd-palette-footer">
+        <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> navigate</span>
+        <span><kbd>&#9166;</kbd> open</span>
+        <span><kbd>esc</kbd> close</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Back to Top -->
+  <button class="back-to-top" id="back-to-top" aria-label="Back to top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 15l-6-6-6 6"/></svg>
+  </button>
+
+  <script src="../js/main.js"></script>
+  <script src="../js/docs-nav.js"></script>
+  <script src="../js/docs-search.js"></script>
+</body>
+</html>

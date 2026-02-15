@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Primary Meta Tags -->
+  <title>CLI Commands Reference — ctx-sync docs</title>
+  <meta name="title" content="CLI Commands Reference — ctx-sync docs" />
+  <meta name="description" content="Complete reference for all ctx-sync commands. Initialize ctx-sync on a new machine. Generates encryption keys and sets up the sync repository. The remote URL sh..." />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="canonical" href="https://ctx-sync.live/docs/commands.html" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://ctx-sync.live/docs/commands.html" />
+  <meta property="og:title" content="CLI Commands Reference — ctx-sync docs" />
+  <meta property="og:description" content="Complete reference for all ctx-sync commands. Initialize ctx-sync on a new machine. Generates encryption keys and sets up the sync repository. The remote URL sh..." />
+  <meta property="og:image" content="https://ctx-sync.live/assets/images/og-image.jpg" />
+  <meta property="og:site_name" content="ctx-sync" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://ctx-sync.live/docs/commands.html" />
+  <meta name="twitter:title" content="CLI Commands Reference — ctx-sync docs" />
+  <meta name="twitter:description" content="Complete reference for all ctx-sync commands. Initialize ctx-sync on a new machine. Generates encryption keys and sets up the sync repository. The remote URL sh..." />
+  <meta name="twitter:image" content="https://ctx-sync.live/assets/images/og-image.jpg" />
+
+  <!-- Favicon & Icons -->
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
+  <link rel="apple-touch-icon" href="../assets/images/apple-touch-icon.svg" />
+  <link rel="manifest" href="../site.webmanifest" />
+
+  <!-- Preconnect to Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/docs.css" />
+
+  <!-- Structured Data: BreadcrumbList (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://ctx-sync.live/" },
+      { "@type": "ListItem", "position": 2, "name": "Docs", "item": "https://ctx-sync.live/docs/" },
+      { "@type": "ListItem", "position": 3, "name": "CLI Commands Reference", "item": "https://ctx-sync.live/docs/commands.html" }
+    ]
+  }
+  </script>
+
+  <!-- Structured Data: TechArticle (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "CLI Commands Reference",
+    "description": "Complete reference for all ctx-sync commands. Initialize ctx-sync on a new machine. Generates encryption keys and sets up the sync repository. The remote URL sh...",
+    "url": "https://ctx-sync.live/docs/commands.html",
+    "author": { "@type": "Organization", "name": "ctx-sync", "url": "https://ctx-sync.live" },
+    "publisher": { "@type": "Organization", "name": "ctx-sync", "url": "https://ctx-sync.live", "logo": { "@type": "ImageObject", "url": "https://ctx-sync.live/assets/images/logo.svg" } },
+    "mainEntityOfPage": "https://ctx-sync.live/docs/commands.html",
+    "image": "https://ctx-sync.live/assets/images/og-image.jpg"
+  }
+  </script>
+</head>
+<body class="docs-page">
+  <!-- Scroll Progress Bar -->
+  <div class="docs-progress-bar" id="docs-progress-bar">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+
+  <header class="docs-header" id="docs-header">
+    <div class="docs-header-inner">
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+        <span></span><span></span><span></span>
+      </button>
+      <a href="../" class="logo" aria-label="ctx-sync home">
+        <svg class="logo-mark" width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <linearGradient id="doc-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0ea5e9"/>
+      <stop offset="50%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+  </defs>
+  <circle cx="20" cy="20" r="18" stroke="url(#doc-grad)" stroke-width="2.5" fill="none" opacity="0.25"/>
+  <path d="M20 4 A16 16 0 0 1 34.5 14" stroke="url(#doc-grad)" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <polygon points="33,10.5 36.5,15 31,15.5" fill="url(#doc-grad)"/>
+  <path d="M20 36 A16 16 0 0 1 5.5 26" stroke="url(#doc-grad)" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <polygon points="7,29.5 3.5,25 9,24.5" fill="url(#doc-grad)"/>
+  <path d="M16 16 L12.5 20 L16 24" stroke="url(#doc-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M24 16 L27.5 20 L24 24" stroke="url(#doc-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>
+        <span class="logo-text">ctx-sync</span>
+      </a>
+      <nav class="header-nav" aria-label="Documentation navigation">
+        <a href="./">Docs</a>
+        <a href="https://github.com/Ay7ot/ctx-sync" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light mode">
+        <span class="theme-icon">&#127769;</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <nav class="docs-sidebar" id="docs-sidebar">
+  <div class="sidebar-header">
+    <a href="./" class="sidebar-title">Documentation</a>
+    <button class="sidebar-close" id="sidebar-close" aria-label="Close sidebar">&times;</button>
+  </div>
+  <div class="sidebar-search">
+    <input type="text" id="docs-search-input" placeholder="Search docs..." aria-label="Search documentation" />
+    <span class="search-shortcut">⌘K</span>
+    <div id="docs-search-results" class="search-results"></div>
+  </div>
+  <ul class="sidebar-nav-list">
+    <li class="sidebar-section-label"><span class="sidebar-section-dot" data-accent="blue"></span>Getting Started</li>
+    <li><a href="./getting-started.html"><span class="nav-icon">&#9889;</span>Getting Started</a></li>
+    <li class="sidebar-section-label"><span class="sidebar-section-dot" data-accent="green"></span>Core Reference</li>
+    <li class="active" data-accent="green"><a href="./commands.html"><span class="nav-icon">&#9000;</span>CLI Commands Reference</a></li>
+    <li class="sidebar-section-label"><span class="sidebar-section-dot" data-accent="orange"></span>Security</li>
+    <li><a href="./security.html"><span class="nav-icon">&#128274;</span>Security Model</a></li>
+    <li class="sidebar-section-label"><span class="sidebar-section-dot" data-accent="purple"></span>Advanced</li>
+    <li><a href="./teams.html"><span class="nav-icon">&#128101;</span>Team Setup</a></li>
+    <li class="sidebar-section-label"><span class="sidebar-section-dot" data-accent="pink"></span>Help</li>
+    <li><a href="./faq.html"><span class="nav-icon">&#10067;</span>Frequently Asked Questions</a></li>
+  </ul>
+</nav>
+
+    <main class="docs-content">
+      <article class="docs-article">
+        <nav class="docs-breadcrumbs" aria-label="Breadcrumb">
+  <a href="../">Home</a>
+  <span class="breadcrumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span>
+  <a href="./">Docs</a>
+  <span class="breadcrumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span>
+  <span class="breadcrumb-current">CLI Commands Reference</span>
+</nav>
+<h1>CLI Commands Reference</h1>
+<div class="docs-page-meta">
+  <span class="docs-meta-item">
+    <svg class="docs-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    6 min read
+  </span>
+</div>
+<h2 id="setup-commands">Setup Commands</h2><h3 id="ctx-sync-init">`ctx-sync init`</h3><p>Initialize ctx-sync on a new machine. Generates encryption keys and sets up the sync repository.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync init
+</code></pre>
+<p>The remote URL should point to a <strong>dedicated private repository</strong> you created for ctx-sync (e.g. <code>git@github.com:you/dev-context.git</code>), not one of your project repos. See <a href="./getting-started.html">Getting Started</a> for setup steps.</p>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--restore</code></td>
+<td>Restore mode — paste an existing private key instead of generating a new one</td>
+</tr>
+<tr>
+<td><code>--force</code></td>
+<td>Force key regeneration even if a key already exists (see below)</td>
+</tr>
+<tr>
+<td><code>--skip-backup</code></td>
+<td>Skip the key backup prompt (not recommended)</td>
+</tr>
+<tr>
+<td><code>--remote &lt;url&gt;</code></td>
+<td>Git remote URL for syncing (SSH or HTTPS)</td>
+</tr>
+<tr>
+<td><code>--no-interactive</code></td>
+<td>Skip interactive prompts (use defaults)</td>
+</tr>
+<tr>
+<td><code>--stdin</code></td>
+<td>Read private key from stdin (for <code>--restore</code>)</td>
+</tr>
+</tbody></table>
+<div class="docs-callout callout-tip">
+  <div class="docs-callout-icon">&#128640;</div>
+  <div class="docs-callout-content">
+    <div class="docs-callout-title">Smart Init</div>
+    <p>If you already have a key on this machine (e.g. you ran `init` before), running `ctx-sync init` again will **reuse your existing key** and only update the remote configuration. This is useful when you need to add or change a remote URL without accidentally regenerating your encryption key. To force a new key pair, pass `--force`.</p>
+  </div>
+</div>
+
+<h3 id="ctx-sync-init---restore">`ctx-sync init --restore`</h3><p>Set up ctx-sync on a new machine using an existing private key.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync init --restore
+</code></pre>
+<p>You will be prompted to paste your private key and provide the Git remote URL.</p>
+<h2 id="project-management">Project Management</h2><h3 id="ctx-sync-track">`ctx-sync track`</h3><p>Track the current project. Auto-detects Git state, .env files, Docker services, and prompts for mental context.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync track
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--yes</code></td>
+<td>Skip confirmation prompts (auto-accept defaults)</td>
+</tr>
+<tr>
+<td><code>--no-interactive</code></td>
+<td>Non-interactive mode for CI/scripts</td>
+</tr>
+</tbody></table>
+<h3 id="ctx-sync-list">`ctx-sync list`</h3><p>List all tracked projects.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync list
+</code></pre>
+<h3 id="ctx-sync-status">`ctx-sync status`</h3><p>Show the sync status — pending changes, last sync time, and remote state.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync status
+</code></pre>
+<h3 id="ctx-sync-restore-">`ctx-sync restore <project>`</h3><p>Restore a project&#39;s full context on the current machine.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync restore my-app
+</code></pre>
+<p>By default, <code>restore</code> automatically <strong>pulls the latest state from the remote</strong> before decrypting, so you always get the most current context — even if you synced from another machine moments ago.</p>
+<p>This displays your mental context, decrypts environment variables, and shows all commands (Docker, services) for explicit approval before execution.</p>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--no-pull</code></td>
+<td>Skip the automatic pull and restore from local state only</td>
+</tr>
+</tbody></table>
+<div class="docs-callout callout-security">
+  <div class="docs-callout-icon">&#128274;</div>
+  <div class="docs-callout-content">
+    <div class="docs-callout-title">Command Approval Required</div>
+    <p>Commands are always shown for review before execution. There is no flag to skip command confirmation. This prevents remote code execution from compromised repos.</p>
+  </div>
+</div>
+
+<h2 id="environment-variables">Environment Variables</h2><h3 id="ctx-sync-env-import-">`ctx-sync env import <file>`</h3><p>Import environment variables from a .env file. All values are encrypted by default.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync env import .env
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--stdin</code></td>
+<td>Read from stdin instead of a file</td>
+</tr>
+<tr>
+<td><code>--allow-plain</code></td>
+<td>Allow safe-listed keys to be stored unencrypted</td>
+</tr>
+</tbody></table>
+<h3 id="ctx-sync-env-add-">`ctx-sync env add <key>`</h3><p>Add a single environment variable. Value is entered via hidden interactive prompt — never passed as a CLI argument.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync env add STRIPE_KEY
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--stdin</code></td>
+<td>Read value from stdin pipe</td>
+</tr>
+<tr>
+<td><code>--from-fd N</code></td>
+<td>Read value from file descriptor N</td>
+</tr>
+</tbody></table>
+<div class="docs-callout callout-warning">
+  <div class="docs-callout-icon">&#9888;&#65039;</div>
+  <div class="docs-callout-content">
+    <div class="docs-callout-title">Never Pass Secrets as Arguments</div>
+    <p>Values are never accepted as CLI arguments to prevent exposure in shell history and process lists. Use interactive prompt, stdin, or file descriptor instead.</p>
+  </div>
+</div>
+
+<h3 id="ctx-sync-env-scan">`ctx-sync env scan`</h3><p>Scan the current shell environment and select variables to track.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync env scan my-app
+</code></pre>
+<h3 id="ctx-sync-env-list-">`ctx-sync env list <project>`</h3><p>List all tracked environment variables for a project. Values are hidden by default.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync env list my-app
+</code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--show-values</code></td>
+<td>Show decrypted values (use with caution)</td>
+</tr>
+</tbody></table>
+<h2 id="syncing">Syncing</h2><h3 id="ctx-sync-sync">`ctx-sync sync`</h3><p>Sync context with the remote — pushes local changes and pulls remote updates.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync sync
+</code></pre>
+<h3 id="ctx-sync-push">`ctx-sync push`</h3><p>Push local context to the remote.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync push
+</code></pre>
+<h3 id="ctx-sync-pull">`ctx-sync pull`</h3><p>Pull remote context to the local machine.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync pull
+</code></pre>
+<h2 id="mental-context">Mental Context</h2><h3 id="ctx-sync-note-">`ctx-sync note <project>`</h3><p>Update mental context — current task, blockers, next steps, breadcrumbs, and links.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync note my-app
+</code></pre>
+<div class="docs-callout callout-tip">
+  <div class="docs-callout-icon">&#128640;</div>
+  <div class="docs-callout-content">
+    <div class="docs-callout-title">Beat the 23-Minute Problem</div>
+    <p>Use `ctx-sync note` at the end of each session to capture what you were doing, where you left off, and what you planned to do next. Your future self will thank you.</p>
+  </div>
+</div>
+
+<h3 id="ctx-sync-show-">`ctx-sync show <project>`</h3><p>Display the full context for a project — Git state, environment variables, Docker services, and mental context.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync show my-app
+</code></pre>
+<h2 id="docker">Docker</h2><h3 id="ctx-sync-docker-start-">`ctx-sync docker start <project>`</h3><p>Start tracked Docker services for a project. Commands are shown for confirmation before execution.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync docker start my-app
+</code></pre>
+<h3 id="ctx-sync-docker-stop-">`ctx-sync docker stop <project>`</h3><p>Stop tracked Docker services.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync docker stop my-app
+</code></pre>
+<h3 id="ctx-sync-docker-status">`ctx-sync docker status`</h3><p>Show the status of tracked Docker services.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync docker status
+</code></pre>
+<h2 id="key-management">Key Management</h2><h3 id="ctx-sync-key-show">`ctx-sync key show`</h3><p>Display your public key. The private key is never shown.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync key show
+</code></pre>
+<h3 id="ctx-sync-key-rotate">`ctx-sync key rotate`</h3><p>Rotate your encryption key. Generates a new key pair and re-encrypts all state files.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync key rotate
+</code></pre>
+<p><strong>What it does:</strong></p>
+<ol>
+<li>Generates a new key pair</li>
+<li>Re-encrypts all state files with the new key</li>
+<li>Rewrites Git history to remove old encrypted blobs</li>
+<li>Force-pushes to remote</li>
+</ol>
+<div class="docs-callout callout-danger">
+  <div class="docs-callout-icon">&#9888;&#65039;</div>
+  <div class="docs-callout-content">
+    <div class="docs-callout-title">Coordinate Key Rotation</div>
+    <p>After rotation, all other machines must run `ctx-sync key update`. Failure to do so will prevent decryption on those machines.</p>
+  </div>
+</div>
+
+<h3 id="ctx-sync-key-verify">`ctx-sync key verify`</h3><p>Verify key file permissions and integrity.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync key verify
+</code></pre>
+<h3 id="ctx-sync-key-update">`ctx-sync key update`</h3><p>Update the private key on this machine after a key rotation on another machine.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync key update
+</code></pre>
+<h2 id="team-management">Team Management</h2><h3 id="ctx-sync-team-add">`ctx-sync team add`</h3><p>Add a team member as a recipient for encrypted state.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync team add --name &quot;Alice&quot; --key age1alice...
+</code></pre>
+<h3 id="ctx-sync-team-remove-">`ctx-sync team remove <name>`</h3><p>Remove a team member and re-encrypt all shared state.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync team remove alice
+</code></pre>
+<h3 id="ctx-sync-team-list">`ctx-sync team list`</h3><p>List all team members and their public keys.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync team list
+</code></pre>
+<h3 id="ctx-sync-team-revoke-">`ctx-sync team revoke <pubkey>`</h3><p>Immediately revoke a key and re-encrypt all shared secrets.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync team revoke age1bob...
+</code></pre>
+<h2 id="configuration">Configuration</h2><h3 id="ctx-sync-config-safe-list">`ctx-sync config safe-list`</h3><p>View the current safe-list of environment variable keys that may be stored unencrypted.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync config safe-list
+</code></pre>
+<h3 id="ctx-sync-config-safe-list-add-">`ctx-sync config safe-list add <key>`</h3><p>Add a key to the safe-list.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync config safe-list add MY_SAFE_VAR
+</code></pre>
+<h3 id="ctx-sync-config-safe-list-remove-">`ctx-sync config safe-list remove <key>`</h3><p>Remove a key from the safe-list.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync config safe-list remove MY_SAFE_VAR
+</code></pre>
+<h2 id="security">Security</h2><h3 id="ctx-sync-audit">`ctx-sync audit`</h3><p>Run a comprehensive security audit of your ctx-sync setup.</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync audit
+</code></pre>
+<p><strong>Checks:</strong></p>
+<ul>
+<li>Key file permissions (must be 600)</li>
+<li>Config directory permissions (must be 700)</li>
+<li>Git remote transport security (SSH or HTTPS only)</li>
+<li>Git history for plaintext leaks</li>
+<li>Repository size</li>
+<li>All state files are encrypted</li>
+</ul>
+<div class="docs-callout callout-success">
+  <div class="docs-callout-icon">&#9989;</div>
+  <div class="docs-callout-content">
+    <div class="docs-callout-title">Run Audits Regularly</div>
+    <p>Make `ctx-sync audit` part of your routine. It catches permission drift, insecure remotes, and accidentally committed plaintext files.</p>
+  </div>
+</div>
+
+      </article>
+    </main>
+    <aside class="docs-toc-sidebar" id="docs-toc-sidebar"><div class="docs-toc">
+  <div class="docs-toc-title">On this page</div>
+  <ul>
+    <li><a href="#setup-commands">Setup Commands</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-init">`ctx-sync init`</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-init---restore">`ctx-sync init --restore`</a></li>
+    <li><a href="#project-management">Project Management</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-track">`ctx-sync track`</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-list">`ctx-sync list`</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-status">`ctx-sync status`</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-restore-project">`ctx-sync restore <project>`</a></li>
+    <li><a href="#environment-variables">Environment Variables</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-env-import-file">`ctx-sync env import <file>`</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-env-add-key">`ctx-sync env add <key>`</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-env-scan">`ctx-sync env scan`</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-env-list-project">`ctx-sync env list <project>`</a></li>
+    <li><a href="#syncing">Syncing</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-sync">`ctx-sync sync`</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-push">`ctx-sync push`</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-pull">`ctx-sync pull`</a></li>
+    <li><a href="#mental-context">Mental Context</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-note-project">`ctx-sync note <project>`</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-show-project">`ctx-sync show <project>`</a></li>
+    <li><a href="#docker">Docker</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-docker-start-project">`ctx-sync docker start <project>`</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-docker-stop-project">`ctx-sync docker stop <project>`</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-docker-status">`ctx-sync docker status`</a></li>
+    <li><a href="#key-management">Key Management</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-key-show">`ctx-sync key show`</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-key-rotate">`ctx-sync key rotate`</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-key-verify">`ctx-sync key verify`</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-key-update">`ctx-sync key update`</a></li>
+    <li><a href="#team-management">Team Management</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-team-add">`ctx-sync team add`</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-team-remove-name">`ctx-sync team remove <name>`</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-team-list">`ctx-sync team list`</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-team-revoke-pubkey">`ctx-sync team revoke <pubkey>`</a></li>
+    <li><a href="#configuration">Configuration</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-config-safe-list">`ctx-sync config safe-list`</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-config-safe-list-add-key">`ctx-sync config safe-list add <key>`</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-config-safe-list-remove-key">`ctx-sync config safe-list remove <key>`</a></li>
+    <li><a href="#security">Security</a></li>
+    <li class="toc-h3"><a href="#ctx-sync-audit">`ctx-sync audit`</a></li>
+  </ul>
+</div>
+</aside>
+  </div>
+
+  <!-- CMD+K Command Palette -->
+  <div class="cmd-palette-overlay" id="cmd-palette-overlay">
+    <div class="cmd-palette" id="cmd-palette">
+      <div class="cmd-palette-input-wrap">
+        <span class="cmd-palette-search-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </span>
+        <input type="text" class="cmd-palette-input" id="cmd-palette-input" placeholder="Search documentation..." autocomplete="off" />
+      </div>
+      <div class="cmd-palette-results" id="cmd-palette-results"></div>
+      <div class="cmd-palette-footer">
+        <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> navigate</span>
+        <span><kbd>&#9166;</kbd> open</span>
+        <span><kbd>esc</kbd> close</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Back to Top -->
+  <button class="back-to-top" id="back-to-top" aria-label="Back to top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 15l-6-6-6 6"/></svg>
+  </button>
+
+  <script src="../js/main.js"></script>
+  <script src="../js/docs-nav.js"></script>
+  <script src="../js/docs-search.js"></script>
+</body>
+</html>

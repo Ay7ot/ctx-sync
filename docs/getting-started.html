@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Primary Meta Tags -->
+  <title>Getting Started — ctx-sync docs</title>
+  <meta name="title" content="Getting Started — ctx-sync docs" />
+  <meta name="description" content="Get up and running with ctx-sync in under a minute. Install ctx-sync globally via npm: Requires Node.js 18+ and Git installed on your system. Before running , c..." />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="canonical" href="https://ctx-sync.live/docs/getting-started.html" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://ctx-sync.live/docs/getting-started.html" />
+  <meta property="og:title" content="Getting Started — ctx-sync docs" />
+  <meta property="og:description" content="Get up and running with ctx-sync in under a minute. Install ctx-sync globally via npm: Requires Node.js 18+ and Git installed on your system. Before running , c..." />
+  <meta property="og:image" content="https://ctx-sync.live/assets/images/og-image.jpg" />
+  <meta property="og:site_name" content="ctx-sync" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://ctx-sync.live/docs/getting-started.html" />
+  <meta name="twitter:title" content="Getting Started — ctx-sync docs" />
+  <meta name="twitter:description" content="Get up and running with ctx-sync in under a minute. Install ctx-sync globally via npm: Requires Node.js 18+ and Git installed on your system. Before running , c..." />
+  <meta name="twitter:image" content="https://ctx-sync.live/assets/images/og-image.jpg" />
+
+  <!-- Favicon & Icons -->
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
+  <link rel="apple-touch-icon" href="../assets/images/apple-touch-icon.svg" />
+  <link rel="manifest" href="../site.webmanifest" />
+
+  <!-- Preconnect to Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/docs.css" />
+
+  <!-- Structured Data: BreadcrumbList (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://ctx-sync.live/" },
+      { "@type": "ListItem", "position": 2, "name": "Docs", "item": "https://ctx-sync.live/docs/" },
+      { "@type": "ListItem", "position": 3, "name": "Getting Started", "item": "https://ctx-sync.live/docs/getting-started.html" }
+    ]
+  }
+  </script>
+
+  <!-- Structured Data: TechArticle (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Getting Started",
+    "description": "Get up and running with ctx-sync in under a minute. Install ctx-sync globally via npm: Requires Node.js 18+ and Git installed on your system. Before running , c...",
+    "url": "https://ctx-sync.live/docs/getting-started.html",
+    "author": { "@type": "Organization", "name": "ctx-sync", "url": "https://ctx-sync.live" },
+    "publisher": { "@type": "Organization", "name": "ctx-sync", "url": "https://ctx-sync.live", "logo": { "@type": "ImageObject", "url": "https://ctx-sync.live/assets/images/logo.svg" } },
+    "mainEntityOfPage": "https://ctx-sync.live/docs/getting-started.html",
+    "image": "https://ctx-sync.live/assets/images/og-image.jpg"
+  }
+  </script>
+</head>
+<body class="docs-page">
+  <!-- Scroll Progress Bar -->
+  <div class="docs-progress-bar" id="docs-progress-bar">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+
+  <header class="docs-header" id="docs-header">
+    <div class="docs-header-inner">
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+        <span></span><span></span><span></span>
+      </button>
+      <a href="../" class="logo" aria-label="ctx-sync home">
+        <svg class="logo-mark" width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <linearGradient id="doc-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0ea5e9"/>
+      <stop offset="50%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+  </defs>
+  <circle cx="20" cy="20" r="18" stroke="url(#doc-grad)" stroke-width="2.5" fill="none" opacity="0.25"/>
+  <path d="M20 4 A16 16 0 0 1 34.5 14" stroke="url(#doc-grad)" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <polygon points="33,10.5 36.5,15 31,15.5" fill="url(#doc-grad)"/>
+  <path d="M20 36 A16 16 0 0 1 5.5 26" stroke="url(#doc-grad)" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <polygon points="7,29.5 3.5,25 9,24.5" fill="url(#doc-grad)"/>
+  <path d="M16 16 L12.5 20 L16 24" stroke="url(#doc-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M24 16 L27.5 20 L24 24" stroke="url(#doc-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>
+        <span class="logo-text">ctx-sync</span>
+      </a>
+      <nav class="header-nav" aria-label="Documentation navigation">
+        <a href="./">Docs</a>
+        <a href="https://github.com/Ay7ot/ctx-sync" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light mode">
+        <span class="theme-icon">&#127769;</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <nav class="docs-sidebar" id="docs-sidebar">
+  <div class="sidebar-header">
+    <a href="./" class="sidebar-title">Documentation</a>
+    <button class="sidebar-close" id="sidebar-close" aria-label="Close sidebar">&times;</button>
+  </div>
+  <div class="sidebar-search">
+    <input type="text" id="docs-search-input" placeholder="Search docs..." aria-label="Search documentation" />
+    <span class="search-shortcut">⌘K</span>
+    <div id="docs-search-results" class="search-results"></div>
+  </div>
+  <ul class="sidebar-nav-list">
+    <li class="sidebar-section-label"><span class="sidebar-section-dot" data-accent="blue"></span>Getting Started</li>
+    <li class="active" data-accent="blue"><a href="./getting-started.html"><span class="nav-icon">&#9889;</span>Getting Started</a></li>
+    <li class="sidebar-section-label"><span class="sidebar-section-dot" data-accent="green"></span>Core Reference</li>
+    <li><a href="./commands.html"><span class="nav-icon">&#9000;</span>CLI Commands Reference</a></li>
+    <li class="sidebar-section-label"><span class="sidebar-section-dot" data-accent="orange"></span>Security</li>
+    <li><a href="./security.html"><span class="nav-icon">&#128274;</span>Security Model</a></li>
+    <li class="sidebar-section-label"><span class="sidebar-section-dot" data-accent="purple"></span>Advanced</li>
+    <li><a href="./teams.html"><span class="nav-icon">&#128101;</span>Team Setup</a></li>
+    <li class="sidebar-section-label"><span class="sidebar-section-dot" data-accent="pink"></span>Help</li>
+    <li><a href="./faq.html"><span class="nav-icon">&#10067;</span>Frequently Asked Questions</a></li>
+  </ul>
+</nav>
+
+    <main class="docs-content">
+      <article class="docs-article">
+        <nav class="docs-breadcrumbs" aria-label="Breadcrumb">
+  <a href="../">Home</a>
+  <span class="breadcrumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span>
+  <a href="./">Docs</a>
+  <span class="breadcrumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span>
+  <span class="breadcrumb-current">Getting Started</span>
+</nav>
+<h1>Getting Started</h1>
+<div class="docs-page-meta">
+  <span class="docs-meta-item">
+    <svg class="docs-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    4 min read
+  </span>
+</div>
+<h2 id="installation">Installation</h2><p>Install ctx-sync globally via npm:</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">npm install -g ctx-sync
+</code></pre>
+<div class="docs-callout callout-info">
+  <div class="docs-callout-icon">&#128161;</div>
+  <div class="docs-callout-content">
+    <div class="docs-callout-title">Requirements</div>
+    <p>Requires **Node.js 18+** and **Git** installed on your system.</p>
+  </div>
+</div>
+
+<h2 id="create-a-sync-repository">Create a Sync Repository</h2><p>Before running <code>ctx-sync init</code>, create a dedicated <strong>private</strong> Git repository to store your encrypted context. This is separate from your project repos — it is a single repo that holds encrypted snapshots of all your projects in one place.</p>
+<ol>
+<li>Go to <a href="https://github.com/new">GitHub</a>, <a href="https://gitlab.com/projects/new">GitLab</a>, or your preferred Git host.</li>
+<li>Create a new <strong>private</strong> repository (e.g. <code>dev-context</code> or <code>my-context-sync</code>).</li>
+<li>Copy the SSH or HTTPS URL (e.g. <code>git@github.com:you/dev-context.git</code>).</li>
+</ol>
+<div class="docs-callout callout-info">
+  <div class="docs-callout-icon">&#128161;</div>
+  <div class="docs-callout-content">
+    <div class="docs-callout-title">This Is Not Your Project Repo</div>
+    <p>The sync repository is dedicated to ctx-sync and is separate from your project repos. ctx-sync never modifies your project repositories — it only reads their Git state (branch, remote, uncommitted changes). All your encrypted context is stored in `~/.context-sync/` locally and pushed to this dedicated remote.</p>
+  </div>
+</div>
+
+<h2 id="first-time-setup">First-Time Setup</h2><p>Run the init command to generate your encryption key and configure your sync repository:</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync init
+</code></pre>
+<p>This will:</p>
+<ol>
+<li><strong>Generate an encryption key pair</strong> — Your private key is saved to <code>~/.config/ctx-sync/key.txt</code> with secure permissions (600).</li>
+<li><strong>Prompt you to back up your private key</strong> — Save it to a password manager like 1Password or Bitwarden. You will need this key to restore on another machine.</li>
+<li><strong>Ask for your Git remote URL</strong> — Paste the URL of the dedicated private repository you created above. ctx-sync will validate that it uses a secure transport (SSH or HTTPS).</li>
+</ol>
+<div class="docs-callout callout-tip">
+  <div class="docs-callout-icon">&#128640;</div>
+  <div class="docs-callout-content">
+    <div class="docs-callout-title">Skipping the Remote</div>
+    <p>You can press Enter to skip the remote URL during init. ctx-sync will work locally without syncing. To add a remote later, run: `ctx-sync init --remote <url>`</p>
+  </div>
+</div>
+
+<div class="docs-callout callout-info">
+  <div class="docs-callout-icon">&#128161;</div>
+  <div class="docs-callout-content">
+    <div class="docs-callout-title">Re-running Init</div>
+    <p>If you already have a key and just need to update the remote URL, simply run `ctx-sync init` again — it will **reuse your existing key** and only update the remote configuration. To force a new key pair, use `ctx-sync init --force`.</p>
+  </div>
+</div>
+
+<h2 id="back-up-your-key">Back Up Your Key</h2><div class="docs-callout callout-security">
+  <div class="docs-callout-icon">&#128274;</div>
+  <div class="docs-callout-content">
+    <div class="docs-callout-title">Key Backup Is Critical</div>
+    <p>Your private key is the **only way** to decrypt your synced context. If you lose it, your data is gone. There is no backdoor by design. ctx-sync will prompt you to back up during init.</p>
+  </div>
+</div>
+
+<ul>
+<li><strong>Recommended:</strong> Save to 1Password / Bitwarden</li>
+<li><strong>Alternative:</strong> Copy to clipboard (auto-clears after 30 seconds)</li>
+</ul>
+<h2 id="track-your-first-project">Track Your First Project</h2><p>Navigate to any project directory and start tracking:</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">cd ~/projects/my-app
+ctx-sync track
+</code></pre>
+<p>ctx-sync will automatically detect:</p>
+<ul>
+<li><strong>Git repository</strong> — current branch, remote, uncommitted changes</li>
+<li><strong>.env file</strong> — prompts to import environment variables (all encrypted by default)</li>
+<li><strong>docker-compose.yml</strong> — prompts to track Docker services</li>
+<li><strong>Mental context</strong> — asks what you are currently working on</li>
+</ul>
+<div class="docs-callout callout-tip">
+  <div class="docs-callout-icon">&#128640;</div>
+  <div class="docs-callout-content">
+    <div class="docs-callout-title">Quick Track</div>
+    <p>Use `ctx-sync track --yes` to skip confirmation prompts and accept all defaults.</p>
+  </div>
+</div>
+
+<h2 id="sync-your-context">Sync Your Context</h2><p>Push your tracked context to your Git remote:</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync sync
+</code></pre>
+<p>All data is encrypted with Age encryption before being committed to Git. Even project names and paths are encrypted — an attacker with access to your Git repo sees only ciphertext.</p>
+<h2 id="restore-on-a-new-machine">Restore on a New Machine</h2><p>On your new machine, install ctx-sync and restore:</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">npm install -g ctx-sync
+ctx-sync init --restore
+</code></pre>
+<p>Paste your private key when prompted. ctx-sync will clone your context repo and decrypt all your state.</p>
+<p>Then restore a specific project:</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync restore my-app
+</code></pre>
+<p><code>restore</code> automatically pulls the latest state from the remote before decrypting, so you always get the most up-to-date context. If you want to skip the pull (e.g. you are offline), use <code>--no-pull</code>:</p>
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync restore my-app --no-pull
+</code></pre>
+<p>This will:</p>
+<ul>
+<li>Pull the latest state from the remote (unless <code>--no-pull</code> is used)</li>
+<li>Show your mental context (what you were working on, blockers, next steps)</li>
+<li>Decrypt and restore environment variables</li>
+<li>Show Docker services and commands for your approval before executing</li>
+</ul>
+<div class="docs-callout callout-success">
+  <div class="docs-callout-icon">&#9989;</div>
+  <div class="docs-callout-content">
+    <div class="docs-callout-title">Full Context in Seconds</div>
+    <p>The entire restore process takes under 10 seconds. You go from a blank machine to knowing exactly where you left off.</p>
+  </div>
+</div>
+
+<h2 id="daily-usage">Daily Usage</h2><pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash"># Track changes to your context
+ctx-sync track
+
+# Add a note about what you are working on
+ctx-sync note my-app
+
+# Sync to remote
+ctx-sync sync
+
+# Check status
+ctx-sync status
+</code></pre>
+<h2 id="next-steps">Next Steps</h2><ul>
+<li><a href="./commands.html">Full CLI Reference</a> — All available commands</li>
+<li><a href="./security.html">Security Model</a> — How encryption and key management work</li>
+<li><a href="./teams.html">Team Setup</a> — Share context with your team</li>
+<li><a href="./faq.html">FAQ</a> — Common questions and troubleshooting</li>
+</ul>
+
+      </article>
+    </main>
+    <aside class="docs-toc-sidebar" id="docs-toc-sidebar"><div class="docs-toc">
+  <div class="docs-toc-title">On this page</div>
+  <ul>
+    <li><a href="#installation">Installation</a></li>
+    <li><a href="#create-a-sync-repository">Create a Sync Repository</a></li>
+    <li><a href="#first-time-setup">First-Time Setup</a></li>
+    <li><a href="#back-up-your-key">Back Up Your Key</a></li>
+    <li><a href="#track-your-first-project">Track Your First Project</a></li>
+    <li><a href="#sync-your-context">Sync Your Context</a></li>
+    <li><a href="#restore-on-a-new-machine">Restore on a New Machine</a></li>
+    <li><a href="#daily-usage">Daily Usage</a></li>
+    <li><a href="#next-steps">Next Steps</a></li>
+  </ul>
+</div>
+</aside>
+  </div>
+
+  <!-- CMD+K Command Palette -->
+  <div class="cmd-palette-overlay" id="cmd-palette-overlay">
+    <div class="cmd-palette" id="cmd-palette">
+      <div class="cmd-palette-input-wrap">
+        <span class="cmd-palette-search-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </span>
+        <input type="text" class="cmd-palette-input" id="cmd-palette-input" placeholder="Search documentation..." autocomplete="off" />
+      </div>
+      <div class="cmd-palette-results" id="cmd-palette-results"></div>
+      <div class="cmd-palette-footer">
+        <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> navigate</span>
+        <span><kbd>&#9166;</kbd> open</span>
+        <span><kbd>esc</kbd> close</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Back to Top -->
+  <button class="back-to-top" id="back-to-top" aria-label="Back to top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 15l-6-6-6 6"/></svg>
+  </button>
+
+  <script src="../js/main.js"></script>
+  <script src="../js/docs-nav.js"></script>
+  <script src="../js/docs-search.js"></script>
+</body>
+</html>
