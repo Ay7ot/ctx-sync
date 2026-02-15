@@ -148,7 +148,7 @@
 <div class="docs-page-meta">
   <span class="docs-meta-item">
     <svg class="docs-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-    6 min read
+    7 min read
   </span>
 </div>
 <h2 id="setup-commands">Setup Commands</h2><h3 id="ctx-sync-init">`ctx-sync init`</h3><p>Initialize ctx-sync on a new machine. Generates encryption keys and sets up the sync repository.</p>
@@ -361,9 +361,52 @@
 <h2 id="docker">Docker</h2><h3 id="ctx-sync-docker-start-">`ctx-sync docker start <project>`</h3><p>Start tracked Docker services for a project. Commands are shown for confirmation before execution.</p>
 <pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync docker start my-app
 </code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--path &lt;dir&gt;</code></td>
+<td>Use a different local directory (for cross-machine restores where the project lives at a different path)</td>
+</tr>
+<tr>
+<td><code>--no-interactive</code></td>
+<td>Show commands but skip execution</td>
+</tr>
+</tbody></table>
 <h3 id="ctx-sync-docker-stop-">`ctx-sync docker stop <project>`</h3><p>Stop tracked Docker services.</p>
 <pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync docker stop my-app
 </code></pre>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--path &lt;dir&gt;</code></td>
+<td>Use a different local directory (for cross-machine restores where the project lives at a different path)</td>
+</tr>
+</tbody></table>
+<div class="docs-callout callout-tip">
+  <div class="docs-callout-icon">&#128640;</div>
+  <div class="docs-callout-content">
+    <div class="docs-callout-title">Cross-Machine Docker Support</div>
+    <p>When you run Docker commands on a different machine, the stored Docker Compose path may not exist. Use `--path` to tell ctx-sync where the project (and its `docker-compose.yml`) lives on this machine:
+
+<pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync docker start my-app --path ~/code/my-app
+ctx-sync docker stop my-app --path ~/code/my-app
+</code></pre>
+<p>If the stored path doesn&#39;t exist and <code>--path</code> is not provided, ctx-sync falls back to the current working directory with a warning.</p>
+  </div></p>
+</div>
+
 <h3 id="ctx-sync-docker-status">`ctx-sync docker status`</h3><p>Show the status of tracked Docker services.</p>
 <pre data-lang="bash"><div class="code-block-header"><span class="code-lang-badge">BASH</span><button class="code-copy-btn" aria-label="Copy code"><svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</button></div><code class="language-bash">ctx-sync docker status
 </code></pre>
