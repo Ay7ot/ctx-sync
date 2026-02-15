@@ -18,11 +18,12 @@ globalThis.TEST_DIR = TEST_DIR;
 
 // Ensure Git commits in tests never depend on runner-level git config.
 // Some tests create commits via simple-git and can fail in CI when user.name/user.email
-// are not configured globally.
-process.env['GIT_AUTHOR_NAME'] ??= 'ctx-sync test';
-process.env['GIT_AUTHOR_EMAIL'] ??= 'test@ctx-sync.local';
-process.env['GIT_COMMITTER_NAME'] ??= process.env['GIT_AUTHOR_NAME'];
-process.env['GIT_COMMITTER_EMAIL'] ??= process.env['GIT_AUTHOR_EMAIL'];
+// are not configured globally. Use ||= (not ??=) because CI runners may set these to
+// empty strings, which are falsy but not nullish.
+process.env['GIT_AUTHOR_NAME'] ||= 'ctx-sync test';
+process.env['GIT_AUTHOR_EMAIL'] ||= 'test@ctx-sync.local';
+process.env['GIT_COMMITTER_NAME'] ||= process.env['GIT_AUTHOR_NAME']!;
+process.env['GIT_COMMITTER_EMAIL'] ||= process.env['GIT_AUTHOR_EMAIL']!;
 
 // Setup before all tests
 beforeAll(() => {

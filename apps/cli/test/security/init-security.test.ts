@@ -38,6 +38,11 @@ function runCli(
         CTX_SYNC_HOME: homeDir,
         CTX_SYNC_TEST_MODE: 'true',
         GIT_TERMINAL_PROMPT: '0',
+        // Explicit git identity so commits work in CI without global git config
+        GIT_AUTHOR_NAME: process.env['GIT_AUTHOR_NAME'] || 'ctx-sync test',
+        GIT_AUTHOR_EMAIL: process.env['GIT_AUTHOR_EMAIL'] || 'test@ctx-sync.local',
+        GIT_COMMITTER_NAME: process.env['GIT_COMMITTER_NAME'] || 'ctx-sync test',
+        GIT_COMMITTER_EMAIL: process.env['GIT_COMMITTER_EMAIL'] || 'test@ctx-sync.local',
       },
       encoding: 'utf-8',
       input: stdin,
