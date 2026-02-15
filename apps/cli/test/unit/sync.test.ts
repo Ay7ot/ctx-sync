@@ -45,7 +45,7 @@ const mockStatus = jest.fn<() => Promise<MockStatusResult>>().mockResolvedValue(
 const mockGetRemotes = jest.fn<() => Promise<MockRemoteEntry[]>>().mockResolvedValue([]);
 const mockAddRemote = jest.fn<(name: string, url: string) => Promise<void>>().mockResolvedValue(undefined);
 const mockRemote = jest.fn<(args: string[]) => Promise<void>>().mockResolvedValue(undefined);
-const mockEnv = jest.fn<(key: string, value: string) => unknown>();
+const mockEnv = jest.fn<(...args: unknown[]) => unknown>();
 
 const mockGitInstance = {
   init: mockInit,

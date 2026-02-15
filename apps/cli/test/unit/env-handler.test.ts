@@ -47,7 +47,7 @@ const mockStatus = jest
     behind: 0,
     isClean: () => false,
   });
-const mockEnv = jest.fn<(key: string, value: string) => unknown>();
+const mockEnv = jest.fn<(...args: unknown[]) => unknown>();
 
 const mockGitInstance = {
   init: mockInit,

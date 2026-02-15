@@ -17,8 +17,11 @@ import { validateRemoteUrl } from './transport.js';
 /**
  * Create a simple-git instance with credential prompt suppression.
  *
- * Sets `GIT_TERMINAL_PROMPT=0` so that git fails immediately when
- * interactive credentials are needed, instead of hanging forever.
+ * Passes the full parent environment plus `GIT_TERMINAL_PROMPT=0` so
+ * that git fails immediately when interactive credentials are needed,
+ * instead of hanging forever. The full env is spread explicitly because
+ * simple-git's `.env()` replaces (not merges) the spawn environment.
+ *
  * Credential helpers (SSH keys, `gh auth`, git-credential-manager)
  * still work — only the interactive TTY prompt is suppressed.
  *
@@ -26,7 +29,7 @@ import { validateRemoteUrl } from './transport.js';
  * @returns A configured SimpleGit instance.
  */
 export function createGit(dir: string): SimpleGit {
-  return simpleGit(dir).env('GIT_TERMINAL_PROMPT', '0');
+  return simpleGit(dir).env({ ...process.env, GIT_TERMINAL_PROMPT: '0' });
 }
 
 /** Result of a getStatus() call */

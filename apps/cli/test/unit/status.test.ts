@@ -49,7 +49,7 @@ const mockStashList = jest
 const mockPush = jest
   .fn<(remote: string, branch: string, options: string[]) => Promise<void>>()
   .mockResolvedValue(undefined);
-const mockEnv = jest.fn<(key: string, value: string) => unknown>();
+const mockEnv = jest.fn<(...args: unknown[]) => unknown>();
 
 const mockGitInstance = {
   init: mockInit,

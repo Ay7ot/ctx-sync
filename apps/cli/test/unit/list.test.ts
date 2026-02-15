@@ -46,7 +46,7 @@ const mockBranch = jest
 const mockStashList = jest
   .fn<() => Promise<{ total: number; all: unknown[] }>>()
   .mockResolvedValue({ total: 0, all: [] });
-const mockEnv = jest.fn<(key: string, value: string) => unknown>();
+const mockEnv = jest.fn<(...args: unknown[]) => unknown>();
 
 const mockGitInstance = {
   init: mockInit,

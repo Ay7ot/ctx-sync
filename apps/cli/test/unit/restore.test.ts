@@ -11,7 +11,7 @@ const mockBranch = jest.fn<() => Promise<{ current: string }>>().mockResolvedVal
 const mockCheckout = jest.fn<(branch: string) => Promise<void>>().mockResolvedValue(undefined);
 const mockGetRemotes = jest.fn<() => Promise<Array<{ name: string; refs: { fetch: string; push: string } }>>>().mockResolvedValue([]);
 const mockPull = jest.fn<(remote: string, branch: string) => Promise<void>>().mockResolvedValue(undefined);
-const mockEnv = jest.fn<(key: string, value: string) => unknown>();
+const mockEnv = jest.fn<(...args: unknown[]) => unknown>();
 
 const mockGitInstance = {
   branch: mockBranch,

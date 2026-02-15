@@ -43,7 +43,7 @@ const mockGetRemotes = jest.fn<() => Promise<MockRemoteEntry[]>>().mockResolvedV
 const mockAddRemote = jest.fn<(name: string, url: string) => Promise<void>>().mockResolvedValue(undefined);
 const mockRemote = jest.fn<(args: string[]) => Promise<void>>().mockResolvedValue(undefined);
 
-const mockEnv = jest.fn<(key: string, value: string) => unknown>();
+const mockEnv = jest.fn<(...args: unknown[]) => unknown>();
 
 const mockGitInstance = {
   init: mockInit,
@@ -101,7 +101,9 @@ describe('Git Sync Module', () => {
       createGit('/some/dir');
 
       expect(mockSimpleGit).toHaveBeenCalledWith('/some/dir');
-      expect(mockEnv).toHaveBeenCalledWith('GIT_TERMINAL_PROMPT', '0');
+      expect(mockEnv).toHaveBeenCalledWith(
+        expect.objectContaining({ GIT_TERMINAL_PROMPT: '0' }),
+      );
     });
 
     it('should return a chainable git instance', () => {
