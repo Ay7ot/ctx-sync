@@ -77,6 +77,12 @@ ctx-sync restore my-app
 
 ctx-sync decrypts your state, displays your context, and asks before running any commands.
 
+If your project is at a different path on the new machine, use `--path`:
+
+```bash
+ctx-sync restore my-app --path ~/code/my-app
+```
+
 ## What Gets Tracked
 
 | State | Description |
@@ -105,6 +111,7 @@ ctx-sync decrypts your state, displays your context, and asks before running any
 | `ctx-sync list` | List all tracked projects |
 | `ctx-sync status` | Show sync status |
 | `ctx-sync restore <project>` | Restore project state (with command confirmation) |
+| `ctx-sync restore <project> --path <dir>` | Restore with custom local project directory |
 
 ### Environment Variables
 

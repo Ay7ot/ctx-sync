@@ -3,7 +3,7 @@
  */
 
 /** Current CLI version */
-export const VERSION = '1.2.1';
+export const VERSION = '1.3.0';
 
 /** Default safe-list: env var keys that MAY be stored as plaintext (with --allow-plain) */
 export const DEFAULT_SAFE_LIST: readonly string[] = [

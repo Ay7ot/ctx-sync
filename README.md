@@ -32,7 +32,7 @@ Research shows developers lose **23 minutes** regaining flow state after interru
 npm install -g ctx-sync
 ```
 
-**Requirements:** Node.js >= 18.0.0, Git
+**Requirements:** Node.js >= 20.0.0, Git
 
 ## Quick Start
 
@@ -75,6 +75,9 @@ ctx-sync init --restore
 # Restore a specific project
 ctx-sync restore my-app
 # Decrypts state → shows context → asks before running any commands
+
+# If your project is at a different path on this machine:
+ctx-sync restore my-app --path ~/code/my-app
 ```
 
 ## Commands
@@ -92,6 +95,7 @@ ctx-sync restore my-app
 | `ctx-sync list` | List all tracked projects |
 | `ctx-sync status` | Show sync status |
 | `ctx-sync restore <project>` | Restore project state (with command confirmation) |
+| `ctx-sync restore <project> --path <dir>` | Restore with custom local project directory |
 
 ### Environment Variables
 | Command | Description |
@@ -244,7 +248,7 @@ ctx-sync/
 
 ## Test Coverage
 
-- **80 test suites** / **1325+ tests**
+- **80 test suites** / **1357+ tests**
 - Unit, integration, E2E, security, and performance suites
 - Coverage gates: ≥ 80% lines, branches, functions
 - Security tests cover all threat model vectors

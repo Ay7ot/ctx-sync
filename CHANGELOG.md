@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] — 2026-02-15
+
+### Added
+- `restore --path <dir>` flag for cross-machine path resolution — use when the project lives at a different directory on the current machine
+- `resolveLocalPath()` helper with fallback chain: `--path` override → stored path → `cwd`
+- Display both tracked and resolved paths when they differ during restore
+- Warning message when stored path is not found and restore falls back to `cwd`
+- FAQ: "What if my project is at a different path on another machine?"
+- Docs: cross-machine restore guide in Getting Started and Commands reference
+
 ## [1.2.1] — 2026-02-15
 
 ### Fixed
@@ -210,12 +220,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- `restore --path <dir>` flag for cross-machine path resolution — use when the project lives at a different directory on the current machine
-- `resolveLocalPath()` helper with fallback chain: `--path` override → stored path → `cwd`
-- Display both tracked and resolved paths when they differ during restore
-- Warning message when stored path is not found and restore falls back to `cwd`
-- FAQ: "What if my project is at a different path on another machine?"
-- Docs: cross-machine restore guide in Getting Started and Commands reference
+_No unreleased changes._
 
+[1.3.0]: https://github.com/ctx-sync/ctx-sync/releases/tag/v1.3.0
 [1.0.0]: https://github.com/ctx-sync/ctx-sync/releases/tag/v1.0.0
