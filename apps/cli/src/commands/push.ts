@@ -12,6 +12,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { Command } from 'commander';
+import { VERSION } from '@ctx-sync/shared';
 import { withErrorHandler } from '../utils/errors.js';
 import { commitState, pushState } from '../core/git-sync.js';
 import { readManifest, writeManifest } from '../core/state-manager.js';
@@ -66,7 +67,7 @@ export async function executePush(): Promise<PushResult> {
 
   // 2. Update manifest timestamp
   const manifest = readManifest(syncDir) ?? {
-    version: '1.0.0',
+    version: VERSION,
     lastSync: new Date().toISOString(),
     files: {},
   };

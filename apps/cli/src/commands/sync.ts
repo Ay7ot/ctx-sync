@@ -18,7 +18,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { Command } from 'commander';
-import { STATE_FILES } from '@ctx-sync/shared';
+import { STATE_FILES, VERSION } from '@ctx-sync/shared';
 import { simpleGit } from 'simple-git';
 import { commitState, pushState } from '../core/git-sync.js';
 import { validateRemoteUrl } from '../core/transport.js';
@@ -230,7 +230,7 @@ export async function executeSync(options: SyncOptions = {}): Promise<SyncResult
 
   // 4. Update manifest timestamp
   const manifest = readManifest(syncDir) ?? {
-    version: '1.0.0',
+    version: VERSION,
     lastSync: new Date().toISOString(),
     files: {},
   };
