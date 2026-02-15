@@ -31,11 +31,16 @@ export const KEY_FILE_NAME = 'key.txt';
  * @param privateKey - The Age private key string (AGE-SECRET-KEY-...).
  */
 export function saveKey(configDir: string, privateKey: string): void {
+  const isWindows = process.platform === 'win32';
+
   // Create directory with 0o700 if it doesn't exist
   fs.mkdirSync(configDir, { recursive: true, mode: CONFIG_DIR_PERMS });
 
   // Ensure directory has correct permissions even if it already existed
-  fs.chmodSync(configDir, CONFIG_DIR_PERMS);
+  // (chmod is a no-op on Windows — NTFS uses ACLs, not Unix modes)
+  if (!isWindows) {
+    fs.chmodSync(configDir, CONFIG_DIR_PERMS);
+  }
 
   const keyPath = path.join(configDir, KEY_FILE_NAME);
   fs.writeFileSync(keyPath, privateKey, { mode: KEY_FILE_PERMS });
@@ -63,15 +68,17 @@ export function loadKey(configDir: string): string {
     );
   }
 
-  // Verify permissions before reading
-  const stats = fs.statSync(keyPath);
-  const mode = stats.mode & 0o777;
+  // Verify permissions before reading (skip on Windows — NTFS uses ACLs, not Unix modes)
+  if (process.platform !== 'win32') {
+    const stats = fs.statSync(keyPath);
+    const mode = stats.mode & 0o777;
 
-  if (mode !== KEY_FILE_PERMS) {
-    throw new Error(
-      `Key file has insecure permissions (${mode.toString(8)}). Expected 600.\n` +
-        `Fix with: chmod 600 ${keyPath}`,
-    );
+    if (mode !== KEY_FILE_PERMS) {
+      throw new Error(
+        `Key file has insecure permissions (${mode.toString(8)}). Expected 600.\n` +
+          `Fix with: chmod 600 ${keyPath}`,
+      );
+    }
   }
 
   return fs.readFileSync(keyPath, 'utf-8').trim();
@@ -97,11 +104,14 @@ export function verifyPermissions(configDir: string): {
   let keyFilePerms: number | null = null;
   let configDirPerms: number | null = null;
 
+  const isWindows = process.platform === 'win32';
+
   // Check config directory
   if (fs.existsSync(configDir)) {
     const dirStats = fs.statSync(configDir);
     configDirPerms = dirStats.mode & 0o777;
-    if (configDirPerms !== CONFIG_DIR_PERMS) {
+    // Skip permission checks on Windows (NTFS uses ACLs, not Unix modes)
+    if (!isWindows && configDirPerms !== CONFIG_DIR_PERMS) {
       issues.push(
         `Config directory has permissions ${configDirPerms.toString(8)}, expected 700. ` +
           `Fix with: chmod 700 ${configDir}`,
@@ -116,7 +126,8 @@ export function verifyPermissions(configDir: string): {
     keyFileExists = true;
     const fileStats = fs.statSync(keyPath);
     keyFilePerms = fileStats.mode & 0o777;
-    if (keyFilePerms !== KEY_FILE_PERMS) {
+    // Skip permission checks on Windows (NTFS uses ACLs, not Unix modes)
+    if (!isWindows && keyFilePerms !== KEY_FILE_PERMS) {
       issues.push(
         `Key file has permissions ${keyFilePerms.toString(8)}, expected 600. ` +
           `Fix with: chmod 600 ${keyPath}`,
