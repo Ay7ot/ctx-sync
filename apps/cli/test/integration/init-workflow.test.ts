@@ -118,7 +118,7 @@ describe('Integration: Init Workflow', () => {
       // Create a bare repo to act as the remote
       const bareRepo = path.join(testHome, 'remote.git');
       fs.mkdirSync(bareRepo, { recursive: true });
-      execSync('git init --bare', { cwd: bareRepo, encoding: 'utf-8' });
+      execSync('git init --bare -b main', { cwd: bareRepo, encoding: 'utf-8' });
 
       // Init with the local bare repo as remote
       await executeInit({

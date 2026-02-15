@@ -123,7 +123,7 @@ describe('Git Operations Integration', () => {
 
       // Create bare remote repo
       fs.mkdirSync(bareRemoteDir, { recursive: true });
-      execSync('git init --bare', { cwd: bareRemoteDir });
+      execSync('git init --bare -b main', { cwd: bareRemoteDir });
 
       // Setup Machine A
       await initRepo(machineADir);
