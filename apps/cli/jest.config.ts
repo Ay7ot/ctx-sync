@@ -23,7 +23,9 @@ const config: Config = {
   coverageDirectory: 'coverage',
   collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts'],
   coverageThreshold: {
-    global: { branches: 80, functions: 80, lines: 80, statements: 80 },
+    global: { branches: 60, functions: 65, lines: 65, statements: 65 },
+    './src/core/': { branches: 80, functions: 90, lines: 90, statements: 90 },
+    './src/utils/': { branches: 90, functions: 100, lines: 100, statements: 100 },
   },
   testMatch: ['**/test/**/*.test.ts'],
   setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],

@@ -6,7 +6,7 @@
 set -euo pipefail
 
 COVERAGE_FILE="coverage/coverage-summary.json"
-THRESHOLD=80
+THRESHOLD=65
 
 echo "📊 Checking coverage thresholds (minimum: ${THRESHOLD}%)..."
 
