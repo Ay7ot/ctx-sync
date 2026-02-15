@@ -2,11 +2,15 @@
  * E2E tests for CLI basics: --version, --help, unknown commands.
  */
 
-import { createRequire } from 'node:module';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { TestEnvironment } from './helpers/test-env.js';
 
-const require = createRequire(import.meta.url);
-const pkg = require('../../../package.json') as { version: string };
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const pkg = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, '../../package.json'), 'utf-8'),
+) as { version: string };
 
 declare global {
   var TEST_DIR: string;
