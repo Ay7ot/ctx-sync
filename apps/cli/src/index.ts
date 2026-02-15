@@ -78,11 +78,12 @@ export async function main(argv?: string[]): Promise<void> {
 }
 
 // Run when executed directly (not imported as a module in tests)
+const arg1 = process.argv[1]?.replace(/\\/g, '/') ?? '';
 const isDirectExecution =
-  process.argv[1] &&
-  (process.argv[1].endsWith('/index.ts') ||
-    process.argv[1].endsWith('/index.js') ||
-    process.argv[1].endsWith('ctx-sync'));
+  arg1.endsWith('/index.ts') ||
+  arg1.endsWith('/index.js') ||
+  arg1.endsWith('/ctx-sync') ||
+  arg1.endsWith('/ctx-sync.js');
 
 if (isDirectExecution) {
   main().catch((err: unknown) => {
