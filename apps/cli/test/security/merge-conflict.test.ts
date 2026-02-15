@@ -7,6 +7,7 @@
  *   - Transport security is validated on every sync operation
  *   - Only .age + manifest.json files end up in Git
  */
+import { VERSION } from '@ctx-sync/shared';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { execSync } from 'node:child_process';
@@ -40,7 +41,7 @@ describe('Security: Merge Conflict Handling', () => {
 
     // Initial commit on Machine A
     writeManifest(machineADir, {
-      version: '1.0.0',
+      version: VERSION,
       lastSync: new Date().toISOString(),
       files: {},
     });
@@ -139,7 +140,7 @@ describe('Security: Merge Conflict Handling', () => {
     fs.writeFileSync(path.join(machineADir, 'docker-state.age'), 'encrypted');
 
     writeManifest(machineADir, {
-      version: '1.0.0',
+      version: VERSION,
       lastSync: new Date().toISOString(),
       files: {
         'state.age': { lastModified: new Date().toISOString() },
@@ -216,7 +217,7 @@ describe('Security: Merge Conflict Handling', () => {
 
   it('manifest.json should contain only version, lastSync, and files metadata', async () => {
     writeManifest(machineADir, {
-      version: '1.0.0',
+      version: VERSION,
       lastSync: new Date().toISOString(),
       files: {
         'state.age': { lastModified: new Date().toISOString() },

@@ -1,3 +1,4 @@
+import { VERSION } from '@ctx-sync/shared';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
@@ -245,7 +246,7 @@ describe('State Manager Module', () => {
   describe('readManifest()', () => {
     it('should read a valid manifest', () => {
       const manifest = {
-        version: '1.0.0',
+        version: VERSION,
         lastSync: '2025-02-10T14:30:00Z',
         files: {
           'state.age': { lastModified: '2025-02-10T14:30:00Z' },
@@ -256,7 +257,7 @@ describe('State Manager Module', () => {
 
       const result = readManifest(stateDir);
       expect(result).not.toBeNull();
-      expect(result!.version).toBe('1.0.0');
+      expect(result!.version).toBe(VERSION);
       expect(result!.files['state.age']!.lastModified).toBe('2025-02-10T14:30:00Z');
     });
 
@@ -275,7 +276,7 @@ describe('State Manager Module', () => {
   describe('writeManifest()', () => {
     it('should write plaintext JSON manifest', () => {
       const manifest = {
-        version: '1.0.0',
+        version: VERSION,
         lastSync: '2025-02-10T14:30:00Z',
         files: {},
       };
@@ -284,14 +285,14 @@ describe('State Manager Module', () => {
 
       const content = fs.readFileSync(path.join(stateDir, STATE_FILES.MANIFEST), 'utf-8');
       const parsed = JSON.parse(content);
-      expect(parsed.version).toBe('1.0.0');
+      expect(parsed.version).toBe(VERSION);
       expect(parsed.lastSync).toBe('2025-02-10T14:30:00Z');
     });
 
     it('should create the directory if it does not exist', () => {
       const newDir = path.join(stateDir, 'nested', 'manifest-dir');
       const manifest = {
-        version: '1.0.0',
+        version: VERSION,
         lastSync: new Date().toISOString(),
         files: {},
       };

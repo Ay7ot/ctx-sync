@@ -1,3 +1,4 @@
+import { VERSION } from '@ctx-sync/shared';
 import { jest } from '@jest/globals';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -301,7 +302,7 @@ describe('Sync Command', () => {
       // Create a minimal sync dir with manifest
       fs.writeFileSync(
         path.join(syncDir, 'manifest.json'),
-        JSON.stringify({ version: '1.0.0', lastSync: '2025-01-01T00:00:00Z', files: {} }),
+        JSON.stringify({ version: VERSION, lastSync: '2025-01-01T00:00:00Z', files: {} }),
       );
       fs.writeFileSync(path.join(syncDir, 'state.age'), 'encrypted-state');
     });

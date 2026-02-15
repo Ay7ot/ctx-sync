@@ -40,7 +40,7 @@ describe('Sync Workflow Integration', () => {
 
     // Create initial commit on Machine A so 'main' branch exists
     writeManifest(machineADir, {
-      version: '1.0.0',
+      version: VERSION,
       lastSync: new Date().toISOString(),
       files: {},
     });
@@ -113,7 +113,7 @@ describe('Sync Workflow Integration', () => {
         '-----BEGIN AGE ENCRYPTED FILE-----\nciphertext\n-----END AGE ENCRYPTED FILE-----',
       );
       writeManifest(machineADir, {
-        version: '1.0.0',
+        version: VERSION,
         lastSync: new Date().toISOString(),
         files: { 'state.age': { lastModified: new Date().toISOString() } },
       });
@@ -165,7 +165,7 @@ describe('Sync Workflow Integration', () => {
       // Create state on Machine A
       fs.writeFileSync(path.join(machineADir, 'state.age'), 'roundtrip-test-data');
       writeManifest(machineADir, {
-        version: '1.0.0',
+        version: VERSION,
         lastSync: new Date().toISOString(),
         files: { 'state.age': { lastModified: new Date().toISOString() } },
       });
@@ -201,7 +201,7 @@ describe('Sync Workflow Integration', () => {
 
       fs.writeFileSync(path.join(localOnlyDir, 'state.age'), 'local-data');
       writeManifest(localOnlyDir, {
-        version: '1.0.0',
+        version: VERSION,
         lastSync: new Date().toISOString(),
         files: {},
       });
