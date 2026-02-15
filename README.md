@@ -252,24 +252,22 @@ ctx-sync/
 
 ## Contributing
 
+We welcome contributions! Please read our **[Contributing Guide](./CONTRIBUTING.md)** for details on:
+
+- Branching strategy (`feat/*` → `develop` → `main`)
+- [Conventional Commits](https://www.conventionalcommits.org/) convention
+- Pre-commit hooks (typecheck, lint, unit tests, commitlint)
+- How to run the test suites
+- Security considerations
+- PR submission process
+
+**Quick version:**
+
 1. Fork the repository
 2. Create a feature branch from `develop`: `git checkout -b feat/my-feature`
 3. Write tests for your changes
-4. Ensure all checks pass: `npm run test:all`
+4. Ensure all checks pass: `npm run typecheck && npm run lint && npm run test:unit -w apps/cli`
 5. Submit a PR to `develop`
-
-### Commit Convention
-
-This project uses [Conventional Commits](https://www.conventionalcommits.org/):
-
-```
-feat: add new feature
-fix: resolve bug
-docs: update documentation
-test: add tests
-refactor: code restructuring
-chore: maintenance tasks
-```
 
 ## License
 

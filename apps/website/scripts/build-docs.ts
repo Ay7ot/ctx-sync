@@ -54,6 +54,7 @@ const SECTION_CONFIG: Record<string, { category: string; accent: string; icon: s
   'commands': { category: 'Core Reference', accent: 'green', icon: '&#9000;' },
   'security': { category: 'Security', accent: 'orange', icon: '&#128274;' },
   'teams': { category: 'Advanced', accent: 'purple', icon: '&#128101;' },
+  'contributing': { category: 'Community', accent: 'green', icon: '&#129309;' },
   'faq': { category: 'Help', accent: 'pink', icon: '&#10067;' },
 };
 
@@ -359,6 +360,7 @@ function wrapInLayout(
       </a>
       <nav class="header-nav" aria-label="Documentation navigation">
         <a href="./">Docs</a>
+        <a href="./contributing.html">Contributing</a>
         <a href="https://github.com/Ay7ot/ctx-sync" target="_blank" rel="noopener">GitHub</a>
       </nav>
       <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light mode">
@@ -413,6 +415,7 @@ const INDEX_CARD_ICONS: Record<string, string> = {
   'commands': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>',
   'security': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
   'teams': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  'contributing': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
   'faq': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
 };
 
@@ -453,6 +456,7 @@ function generateDocsIndexBody(pages: DocPage[]): string {
     'Core Reference': 'Essentials',
     'Security': 'Security &amp; Architecture',
     'Advanced': 'Advanced',
+    'Community': 'Community',
     'Help': 'Help',
   };
 
@@ -465,7 +469,7 @@ function generateDocsIndexBody(pages: DocPage[]): string {
   }
 
   let cardsHtml = '';
-  for (const sectionTitle of ['Essentials', 'Security &amp; Architecture', 'Advanced', 'Help']) {
+  for (const sectionTitle of ['Essentials', 'Security &amp; Architecture', 'Advanced', 'Community', 'Help']) {
     const sectionPages = sections[sectionTitle];
     if (!sectionPages || sectionPages.length === 0) continue;
 
@@ -640,6 +644,7 @@ async function build(): Promise<void> {
     'commands',
     'security',
     'teams',
+    'contributing',
     'faq',
   ];
   pages.sort((a, b) => {
