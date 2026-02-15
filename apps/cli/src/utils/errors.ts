@@ -169,9 +169,21 @@ export function classifyError(err: unknown): CtxSyncError {
     );
   }
 
-  // Permissions
+  // Git remote permission denied (push/pull auth failure)
   if (
-    lowerMsg.includes('permission') ||
+    (lowerMsg.includes('permission') || lowerMsg.includes('denied')) &&
+    (lowerMsg.includes('remote') || lowerMsg.includes('git') || lowerMsg.includes('push') || lowerMsg.includes('fatal'))
+  ) {
+    return new SecurityError(
+      'Git remote access denied.',
+      'The current machine may not have push/pull access to the sync repo.\n' +
+        '  Check: cd ~/.context-sync && git remote -v\n' +
+        '  Ensure this machine is authenticated with a GitHub account that has access.',
+    );
+  }
+
+  // File system permissions (EACCES/EPERM — not git related)
+  if (
     lowerMsg.includes('eacces') ||
     lowerMsg.includes('eperm')
   ) {
