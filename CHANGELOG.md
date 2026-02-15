@@ -210,6 +210,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-_No unreleased changes._
+### Added
+- `restore --path <dir>` flag for cross-machine path resolution — use when the project lives at a different directory on the current machine
+- `resolveLocalPath()` helper with fallback chain: `--path` override → stored path → `cwd`
+- Display both tracked and resolved paths when they differ during restore
+- Warning message when stored path is not found and restore falls back to `cwd`
+- FAQ: "What if my project is at a different path on another machine?"
+- Docs: cross-machine restore guide in Getting Started and Commands reference
 
 [1.0.0]: https://github.com/ctx-sync/ctx-sync/releases/tag/v1.0.0

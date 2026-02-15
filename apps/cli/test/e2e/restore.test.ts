@@ -182,6 +182,85 @@ describe('E2E: ctx-sync restore', () => {
     // but should complete successfully without attempting execution
   });
 
+  it('restore --path should write .env to the override directory', () => {
+    env.execCommand('init --no-interactive');
+
+    // Create and track a project
+    const projectDir = path.join(env.homeDir, 'projects', 'test-app');
+    fs.mkdirSync(projectDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(projectDir, '.env'),
+      'NODE_ENV=development\nPORT=3000\n',
+    );
+    execSync('git init', { cwd: projectDir });
+    execSync('git config user.email "test@test.com"', { cwd: projectDir });
+    execSync('git config user.name "Test"', { cwd: projectDir });
+
+    env.execCommand(`track --path ${projectDir} --no-interactive`);
+    env.execCommand(`env import test-app ${path.join(projectDir, '.env')}`);
+
+    // Create a different directory to use as --path override
+    const overrideDir = path.join(env.homeDir, 'other-machine', 'test-app');
+    fs.mkdirSync(overrideDir, { recursive: true });
+
+    // Restore with --path pointing to the override dir
+    const result = env.execCommand(`restore test-app --no-interactive --path ${overrideDir}`);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain('Restored: test-app');
+
+    // Verify .env was written to the override directory
+    const envContent = fs.readFileSync(path.join(overrideDir, '.env'), 'utf-8');
+    expect(envContent).toContain('NODE_ENV=development');
+    expect(envContent).toContain('PORT=3000');
+  });
+
+  it('restore with nonexistent stored path should fall back to cwd', () => {
+    env.execCommand('init --no-interactive');
+
+    // Create and track a project
+    const projectDir = path.join(env.homeDir, 'projects', 'test-app');
+    fs.mkdirSync(projectDir, { recursive: true });
+    execSync('git init', { cwd: projectDir });
+    execSync('git config user.email "test@test.com"', { cwd: projectDir });
+    execSync('git config user.name "Test"', { cwd: projectDir });
+
+    env.execCommand(`track --path ${projectDir} --no-interactive`);
+
+    // Delete the project directory to simulate cross-machine scenario
+    fs.rmSync(projectDir, { recursive: true, force: true });
+
+    // Restore without --path — should fall back to cwd and still succeed
+    const result = env.execCommand('restore test-app --no-interactive');
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain('Restored: test-app');
+    // Should show the tracked path since it differs from local path
+    expect(result.stdout).toContain('tracked path:');
+  });
+
+  it('restore --path should show tracked path hint when different', () => {
+    env.execCommand('init --no-interactive');
+
+    const projectDir = path.join(env.homeDir, 'projects', 'test-app');
+    fs.mkdirSync(projectDir, { recursive: true });
+    execSync('git init', { cwd: projectDir });
+    execSync('git config user.email "test@test.com"', { cwd: projectDir });
+    execSync('git config user.name "Test"', { cwd: projectDir });
+
+    env.execCommand(`track --path ${projectDir} --no-interactive`);
+
+    // Use a different dir as --path
+    const overrideDir = path.join(env.homeDir, 'different-location');
+    fs.mkdirSync(overrideDir, { recursive: true });
+
+    const result = env.execCommand(`restore test-app --no-interactive --path ${overrideDir}`);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain('tracked path:');
+    expect(result.stdout).toContain(projectDir);
+  });
+
   it('restore should fail with wrong encryption key', () => {
     env.execCommand('init --no-interactive');
 

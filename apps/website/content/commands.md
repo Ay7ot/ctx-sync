@@ -89,6 +89,17 @@ This displays your mental context, decrypts environment variables, and shows all
 | Flag | Description |
 |------|-------------|
 | `--no-pull` | Skip the automatic pull and restore from local state only |
+| `--path <dir>` | Use a different local directory for the project (for cross-machine restores where the project lives at a different path) |
+
+:::tip Cross-Machine Path Resolution
+When you restore on a different machine, the stored project path may not exist. Use `--path` to tell ctx-sync where the project lives on this machine:
+
+```bash
+ctx-sync restore my-app --path ~/code/my-app
+```
+
+If the stored path doesn't exist and `--path` is not provided, ctx-sync falls back to the current working directory with a warning.
+:::
 
 :::security Command Approval Required
 Commands are always shown for review before execution. There is no flag to skip command confirmation. This prevents remote code execution from compromised repos.

@@ -209,6 +209,65 @@ describe('Integration: Restore Workflow', () => {
     ).rejects.toThrow();
   });
 
+  it('should restore with --path override to a different temp dir', async () => {
+    // Simulate "Machine A" tracked the project at machineAPath
+    const machineAPath = path.join(homeDir, 'machine-a', 'projects', 'my-app');
+
+    // On "Machine B", the project lives at machineBPath
+    const machineBPath = path.join(homeDir, 'machine-b', 'projects', 'my-app');
+    fs.mkdirSync(machineBPath, { recursive: true });
+
+    // Write state with Machine A's path (which doesn't exist on Machine B)
+    const state: StateFile = {
+      machine: { id: 'machine-a', hostname: 'machine-a-host' },
+      projects: [
+        {
+          id: 'proj-1',
+          name: 'my-app',
+          path: machineAPath,
+          git: { branch: 'main', remote: 'origin', hasUncommitted: false, stashCount: 0 },
+          lastAccessed: new Date().toISOString(),
+        },
+      ],
+    };
+    await writeState(syncDir, state, publicKey, 'state');
+
+    // Write env vars
+    const envVars: EnvVars = {
+      'my-app': {
+        'DATABASE_URL': { value: 'postgres://localhost/mydb', addedAt: new Date().toISOString() },
+        'SECRET_KEY': { value: 'sk_test_xyzabc', addedAt: new Date().toISOString() },
+      },
+    };
+    await writeState(syncDir, envVars, publicKey, 'env-vars');
+
+    // Import and use writeEnvFile + resolveLocalPath
+    const { writeEnvFile, resolveLocalPath } = await import('../../src/commands/restore.js');
+
+    // Resolve path with --path override (simulating Machine B)
+    const { resolvedPath, pathResolved } = resolveLocalPath(machineAPath, { localPath: machineBPath });
+    expect(resolvedPath).toBe(machineBPath);
+    expect(pathResolved).toBe(true);
+
+    // Machine A's path should NOT exist
+    expect(fs.existsSync(machineAPath)).toBe(false);
+
+    // Decrypt env vars and write to Machine B's path
+    const decrypted = await readState<EnvVars>(syncDir, privateKey, 'env-vars');
+    expect(decrypted).not.toBeNull();
+
+    const written = writeEnvFile(resolvedPath, decrypted!['my-app']!);
+    expect(written).toBe(true);
+
+    // Verify .env file was written to Machine B's path
+    const envContent = fs.readFileSync(path.join(machineBPath, '.env'), 'utf-8');
+    expect(envContent).toContain('DATABASE_URL=');
+    expect(envContent).toContain('SECRET_KEY=sk_test_xyzabc');
+
+    // Verify Machine A's path does NOT have a .env file
+    expect(fs.existsSync(path.join(machineAPath, '.env'))).toBe(false);
+  });
+
   it('should handle missing env vars gracefully', async () => {
     await writeState(
       syncDir,

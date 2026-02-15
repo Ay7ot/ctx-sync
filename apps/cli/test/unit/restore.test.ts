@@ -53,7 +53,7 @@ jest.unstable_mockModule('ora', () => ({
 }));
 
 // Import modules under test (after mocks)
-const { executeRestore, writeEnvFile, checkoutBranch, formatMentalContext } =
+const { executeRestore, writeEnvFile, checkoutBranch, formatMentalContext, resolveLocalPath } =
   await import('../../src/commands/restore.js');
 const { generateKey } = await import('../../src/core/encryption.js');
 const { saveKey } = await import('../../src/core/key-store.js');
@@ -539,6 +539,169 @@ describe('Restore Command', () => {
 
       const result = await checkoutBranch(dir, 'feature/test');
       expect(result).toBe(true);
+    });
+  });
+
+  describe('resolveLocalPath()', () => {
+    it('should return --path override when provided', () => {
+      const dir = path.join(globalThis.TEST_DIR, `reslp-override-${Date.now()}`);
+      fs.mkdirSync(dir, { recursive: true });
+
+      const result = resolveLocalPath('/nonexistent/stored/path', { localPath: dir });
+
+      expect(result.resolvedPath).toBe(dir);
+      expect(result.pathResolved).toBe(true);
+    });
+
+    it('should return stored path when it exists on disk', () => {
+      const dir = path.join(globalThis.TEST_DIR, `reslp-exists-${Date.now()}`);
+      fs.mkdirSync(dir, { recursive: true });
+
+      const result = resolveLocalPath(dir);
+
+      expect(result.resolvedPath).toBe(dir);
+      expect(result.pathResolved).toBe(false);
+    });
+
+    it('should fall back to cwd when stored path is missing and no --path override', () => {
+      const result = resolveLocalPath('/nonexistent/some/project');
+
+      expect(result.resolvedPath).toBe(process.cwd());
+      expect(result.pathResolved).toBe(true);
+    });
+
+    it('should resolve relative --path to absolute', () => {
+      const result = resolveLocalPath('/nonexistent/stored/path', { localPath: '.' });
+
+      expect(path.isAbsolute(result.resolvedPath)).toBe(true);
+      expect(result.resolvedPath).toBe(path.resolve('.'));
+    });
+
+    it('should set pathResolved to false when --path matches stored path', () => {
+      const dir = path.join(globalThis.TEST_DIR, `reslp-same-${Date.now()}`);
+      fs.mkdirSync(dir, { recursive: true });
+
+      const result = resolveLocalPath(dir, { localPath: dir });
+
+      expect(result.resolvedPath).toBe(dir);
+      expect(result.pathResolved).toBe(false);
+    });
+  });
+
+  describe('executeRestore() with path resolution', () => {
+    it('should include localPath and pathResolved in result', async () => {
+      const { syncDir, publicKey, homeDir } = await setupTestEnv();
+
+      const projectPath = path.join(homeDir, 'projects', 'my-app');
+      fs.mkdirSync(projectPath, { recursive: true });
+
+      await writeState(
+        syncDir,
+        {
+          machine: { id: 'test', hostname: 'test-host' },
+          projects: [
+            {
+              id: 'app-id',
+              name: 'my-app',
+              path: projectPath,
+              git: { branch: 'main', remote: '', hasUncommitted: false, stashCount: 0 },
+              lastAccessed: new Date().toISOString(),
+            },
+          ],
+        },
+        publicKey,
+        'state',
+      );
+
+      const result = await executeRestore('my-app', { noInteractive: true });
+
+      expect(result.localPath).toBe(projectPath);
+      expect(result.pathResolved).toBe(false);
+    });
+
+    it('should use --path override and write .env to the override dir', async () => {
+      const { syncDir, publicKey, homeDir } = await setupTestEnv();
+
+      // Stored path that does NOT exist
+      const storedPath = path.join(homeDir, 'nonexistent', 'original-machine', 'my-app');
+
+      // Override path that DOES exist
+      const overridePath = path.join(homeDir, 'override', 'my-app');
+      fs.mkdirSync(overridePath, { recursive: true });
+
+      await writeState(
+        syncDir,
+        {
+          machine: { id: 'test', hostname: 'test-host' },
+          projects: [
+            {
+              id: 'app-id',
+              name: 'my-app',
+              path: storedPath,
+              git: { branch: 'main', remote: '', hasUncommitted: false, stashCount: 0 },
+              lastAccessed: new Date().toISOString(),
+            },
+          ],
+        },
+        publicKey,
+        'state',
+      );
+
+      await writeState(
+        syncDir,
+        {
+          'my-app': {
+            'NODE_ENV': { value: 'production', addedAt: new Date().toISOString() },
+            'API_KEY': { value: 'secret123', addedAt: new Date().toISOString() },
+          },
+        },
+        publicKey,
+        'env-vars',
+      );
+
+      const result = await executeRestore('my-app', {
+        noInteractive: true,
+        localPath: overridePath,
+      });
+
+      expect(result.localPath).toBe(overridePath);
+      expect(result.pathResolved).toBe(true);
+      expect(result.envFileWritten).toBe(true);
+
+      // Verify .env was written to the OVERRIDE path, not the stored path
+      const envContent = fs.readFileSync(path.join(overridePath, '.env'), 'utf-8');
+      expect(envContent).toContain('NODE_ENV=production');
+      expect(envContent).toContain('API_KEY=secret123');
+
+      // Verify .env was NOT written to the stored path
+      expect(fs.existsSync(path.join(storedPath, '.env'))).toBe(false);
+    });
+
+    it('should fall back to cwd when stored path does not exist', async () => {
+      const { syncDir, publicKey } = await setupTestEnv();
+
+      await writeState(
+        syncDir,
+        {
+          machine: { id: 'test', hostname: 'test-host' },
+          projects: [
+            {
+              id: 'app-id',
+              name: 'my-app',
+              path: '/Users/ayo/projects/my-app',
+              git: { branch: 'main', remote: '', hasUncommitted: false, stashCount: 0 },
+              lastAccessed: new Date().toISOString(),
+            },
+          ],
+        },
+        publicKey,
+        'state',
+      );
+
+      const result = await executeRestore('my-app', { noInteractive: true });
+
+      expect(result.pathResolved).toBe(true);
+      expect(result.localPath).toBe(process.cwd());
     });
   });
 

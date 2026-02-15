@@ -103,6 +103,16 @@ Yes. Starting in v1.2.0, `ctx-sync restore` automatically pulls the latest state
 ctx-sync restore my-app --no-pull
 ```
 
+### What if my project is at a different path on another machine?
+
+When restoring on a new machine, the stored project path (e.g. `/Users/ayo/projects/my-app` from macOS) may not exist (e.g. on a Windows machine at `C:\Users\ayo\code\my-app`). Use the `--path` flag to tell ctx-sync where the project lives on this machine:
+
+```bash
+ctx-sync restore my-app --path ~/code/my-app
+```
+
+If you don't provide `--path` and the stored path doesn't exist, ctx-sync will fall back to your current working directory and show a warning. The stored path in the encrypted state is never modified — `--path` only affects the current restore operation.
+
 ### How do I add environment variables?
 
 Import from a .env file:

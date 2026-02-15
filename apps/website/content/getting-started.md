@@ -110,9 +110,16 @@ ctx-sync restore my-app
 ctx-sync restore my-app --no-pull
 ```
 
+If your project is at a different path on this machine (common when switching between macOS, Linux, and Windows), use `--path` to tell ctx-sync where it lives:
+
+```bash
+ctx-sync restore my-app --path ~/code/my-app
+```
+
 This will:
 
 - Pull the latest state from the remote (unless `--no-pull` is used)
+- Resolve the local project directory (using `--path` if provided, or the stored path)
 - Show your mental context (what you were working on, blockers, next steps)
 - Decrypt and restore environment variables
 - Show Docker services and commands for your approval before executing

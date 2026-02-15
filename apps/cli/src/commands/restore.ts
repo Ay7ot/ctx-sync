@@ -4,13 +4,19 @@
  * Decrypts all state files and restores a project's context on a new
  * (or existing) machine:
  *   1. Decrypt state.age → find the project entry.
- *   2. Display project info (directory, branch, env var count).
- *   3. Display mental context (if available).
- *   4. Collect commands to execute (Docker services, auto-start services).
- *   5. Present commands for user approval (MANDATORY — no bypass).
- *   6. Execute approved commands.
- *   7. Set up env vars (.env file) in the project directory.
- *   8. Checkout correct git branch (if repo exists locally).
+ *   2. Resolve local project path (cross-machine path resolution via `--path`).
+ *   3. Display project info (directory, branch, env var count).
+ *   4. Display mental context (if available).
+ *   5. Collect commands to execute (Docker services, auto-start services).
+ *   6. Present commands for user approval (MANDATORY — no bypass).
+ *   7. Execute approved commands.
+ *   8. Set up env vars (.env file) in the project directory.
+ *   9. Checkout correct git branch (if repo exists locally).
+ *
+ * **Cross-machine support:** When the stored `project.path` does not exist
+ * on the current machine (common when restoring on a different OS or file
+ * layout), the `--path <dir>` flag allows overriding the project directory.
+ * Without the flag, restore falls back to `process.cwd()` with a warning.
  *
  * **Security:** Commands are NEVER auto-executed. There is no `--yes` or
  * `--no-confirm` flag. In `--no-interactive` mode, commands are displayed
@@ -48,6 +54,8 @@ export interface RestoreOptions {
   noInteractive?: boolean;
   /** Skip pulling from remote before restoring */
   noPull?: boolean;
+  /** Explicit local path override for the project directory (cross-machine support) */
+  localPath?: string;
   /** Override for the prompt function (for testing) */
   promptFn?: (commands: PendingCommand[]) => Promise<'all' | 'none' | 'select'>;
   /** Override for the select function (for testing) */
@@ -76,6 +84,10 @@ export interface RestoreResult {
   executedCommands: string[];
   /** Commands that failed */
   failedCommands: Array<{ command: string; error: string }>;
+  /** The resolved local path used for this restore (may differ from project.path) */
+  localPath: string;
+  /** Whether the path was resolved differently from the stored project.path */
+  pathResolved: boolean;
 }
 
 /**
@@ -214,10 +226,43 @@ export async function checkoutBranch(
 }
 
 /**
+ * Resolve the effective local path for a project during restore.
+ *
+ * Uses the following resolution order (first match wins):
+ * 1. Explicit `--path` override from the user.
+ * 2. Stored path exists on disk — same machine or identical layout.
+ * 3. Non-interactive fallback — use `process.cwd()` and log a warning.
+ *
+ * @param storedPath - The absolute path stored in the encrypted state (from the tracking machine).
+ * @param options - Restore command options (may contain `localPath` override).
+ * @returns An object with the resolved path and whether it differs from the stored path.
+ */
+export function resolveLocalPath(
+  storedPath: string,
+  options: Pick<RestoreOptions, 'localPath' | 'noInteractive'> = {},
+): { resolvedPath: string; pathResolved: boolean } {
+  // 1. Explicit --path override
+  if (options.localPath) {
+    const resolved = path.resolve(options.localPath);
+    return { resolvedPath: resolved, pathResolved: resolved !== storedPath };
+  }
+
+  // 2. Stored path exists on this machine
+  if (fs.existsSync(storedPath)) {
+    return { resolvedPath: storedPath, pathResolved: false };
+  }
+
+  // 3. Fallback to cwd with a warning
+  const cwd = process.cwd();
+  return { resolvedPath: cwd, pathResolved: true };
+}
+
+/**
  * Execute the restore command logic.
  *
  * Decrypts state, displays project context, presents commands for
- * approval, and restores env vars and git branch.
+ * approval, and restores env vars and git branch. Supports cross-machine
+ * restore via `--path` flag or automatic path fallback.
  *
  * @param projectName - The name of the project to restore.
  * @param options - Restore command options.
@@ -274,6 +319,19 @@ export async function executeRestore(
     );
   }
 
+  // Resolve the effective local path (cross-machine support)
+  const { resolvedPath: localPath, pathResolved } = resolveLocalPath(
+    project.path,
+    options,
+  );
+
+  if (pathResolved && !options.localPath) {
+    // Warn when falling back to cwd (not an explicit override)
+    console.warn(
+      `⚠️  Stored path "${project.path}" not found on this machine. Using "${localPath}" instead.`,
+    );
+  }
+
   // 2. Count env vars
   const envVars = await readState<EnvVars>(syncDir, privateKey, 'env-vars');
   const projectEnvVars = envVars?.[project.name] ?? {};
@@ -301,7 +359,7 @@ export async function executeRestore(
     selectFn: options.selectFn,
   });
 
-  // 6. Execute approved commands
+  // 6. Execute approved commands (using resolved local path)
   const executedCommands: string[] = [];
   const failedCommands: Array<{ command: string; error: string }> = [];
 
@@ -309,7 +367,7 @@ export async function executeRestore(
     try {
       const { execSync } = await import('node:child_process');
       execSync(cmd.command, {
-        cwd: cmd.cwd ?? project.path,
+        cwd: cmd.cwd ?? localPath,
         stdio: 'pipe',
         timeout: 60000,
       });
@@ -320,15 +378,15 @@ export async function executeRestore(
     }
   }
 
-  // 7. Write env vars to .env file
+  // 7. Write env vars to .env file (using resolved local path)
   let envFileWritten = false;
-  if (envVarCount > 0 && fs.existsSync(project.path)) {
-    envFileWritten = writeEnvFile(project.path, projectEnvVars);
+  if (envVarCount > 0 && fs.existsSync(localPath)) {
+    envFileWritten = writeEnvFile(localPath, projectEnvVars);
   }
 
-  // 8. Checkout git branch
+  // 8. Checkout git branch (using resolved local path)
   const branchCheckedOut = await checkoutBranch(
-    project.path,
+    localPath,
     project.git.branch,
   );
 
@@ -343,6 +401,8 @@ export async function executeRestore(
     approval,
     executedCommands,
     failedCommands,
+    localPath,
+    pathResolved,
   };
 }
 
@@ -412,10 +472,12 @@ export function registerRestoreCommand(program: Command): void {
     .description('Restore a tracked project on this machine')
     .option('--no-interactive', 'Show commands but skip execution (safe default)')
     .option('--no-pull', 'Skip pulling from remote before restoring')
+    .option('--path <dir>', 'Local project directory (use when the project is at a different path on this machine)')
     .action(withErrorHandler(async (projectName: string, opts: Record<string, unknown>) => {
       const options: RestoreOptions = {
         noInteractive: opts['interactive'] === false,
         noPull: opts['pull'] === false,
+        localPath: opts['path'] as string | undefined,
       };
 
       const chalk = (await import('chalk')).default;
@@ -435,7 +497,12 @@ export function registerRestoreCommand(program: Command): void {
       // Display project info
       console.log(chalk.green(`\n✅ Restored: ${result.project.name}`));
       console.log('');
-      console.log(`📂 Directory: ${result.project.path}`);
+      if (result.pathResolved) {
+        console.log(`📂 Directory: ${result.localPath}`);
+        console.log(chalk.dim(`   (tracked path: ${result.project.path})`));
+      } else {
+        console.log(`📂 Directory: ${result.localPath}`);
+      }
       console.log(`🌿 Branch: ${result.project.git.branch}`);
       console.log(`🔐 Env vars: ${result.envVarCount} decrypted`);
 
