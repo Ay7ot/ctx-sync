@@ -170,7 +170,7 @@ All state files are encrypted with [Age](https://age-encryption.org/) before bei
 - **Key rotation** — Built-in key rotation with Git history rewriting
 - **Team revocation** — Remove team member access with automatic re-encryption
 
-For the full security model, see the [Security Documentation](https://ctx-sync.dev/docs/security.html).
+For the full security model, see the [Security Documentation](https://ctx-sync.live/docs/security.html).
 
 ## Architecture
 
@@ -277,6 +277,6 @@ MIT
 
 ## Links
 
-- [Documentation](https://ctx-sync.dev/docs/)
-- [Security Model](https://ctx-sync.dev/docs/security.html)
+- [Documentation](https://ctx-sync.live/docs/)
+- [Security Model](https://ctx-sync.live/docs/security.html)
 - [Changelog](./CHANGELOG.md)
