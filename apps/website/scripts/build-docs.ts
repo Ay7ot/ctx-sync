@@ -512,7 +512,7 @@ function generateDocsIndexBody(pages: DocPage[]): string {
   return `
     <div class="docs-index-page">
       <div class="docs-index-hero">
-        <div class="docs-index-hero-badge"><span class="hero-badge-dot"></span>v1.3.2</div>
+        <div class="docs-index-hero-badge"><span class="hero-badge-dot"></span>v1.3.3</div>
         <h1 class="docs-index-title">ctx-sync Documentation</h1>
         <p class="docs-index-description">Learn how to sync your complete development context across machines. From installation to team workflows, find everything you need to get started.</p>
         <div class="docs-index-actions">

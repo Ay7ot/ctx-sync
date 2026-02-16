@@ -324,12 +324,24 @@ export async function presentCommandsForApproval(
   }
 
   // Interactive mode: prompt for approval
-  const promptFn = options.promptFn;
+  let promptFn = options.promptFn;
   if (!promptFn) {
-    // Default: skip all if no prompt function (safety fallback)
-    result.skippedAll = true;
-    result.rejected = [...commands];
-    return result;
+    // Default interactive prompt using enquirer
+    promptFn = async (): Promise<'all' | 'none' | 'select'> => {
+      const { default: Enquirer } = await import('enquirer');
+      const enquirer = new Enquirer();
+      const response = (await enquirer.prompt({
+        type: 'select',
+        name: 'action',
+        message: 'How would you like to proceed?',
+        choices: [
+          { name: 'all', message: 'Run all commands' },
+          { name: 'select', message: 'Select individually' },
+          { name: 'none', message: 'Skip all' },
+        ],
+      })) as { action: string };
+      return response.action as 'all' | 'none' | 'select';
+    };
   }
 
   const choice = await promptFn(commands);
@@ -342,10 +354,20 @@ export async function presentCommandsForApproval(
       result.rejected = [...commands];
       break;
     case 'select': {
-      const selectFn = options.selectFn;
+      let selectFn = options.selectFn;
       if (!selectFn) {
-        result.rejected = [...commands];
-        break;
+        // Default per-command prompt
+        selectFn = async (cmd: PendingCommand, index: number): Promise<boolean> => {
+          const { default: Enquirer } = await import('enquirer');
+          const enquirer = new Enquirer();
+          const response = (await enquirer.prompt({
+            type: 'confirm',
+            name: 'run',
+            message: `[${index}] Run: ${cmd.command}?`,
+            initial: true,
+          })) as { run: boolean };
+          return response.run;
+        };
       }
       for (let i = 0; i < commands.length; i++) {
         const cmd = commands[i];

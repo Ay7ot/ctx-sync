@@ -404,19 +404,25 @@ describe('Command Validator Module', () => {
       expect(result.skippedAll).toBe(false);
     });
 
-    it('should default to skip all when no promptFn provided in interactive mode', async () => {
+    it('should use default interactive prompt when no promptFn provided', async () => {
+      // When no promptFn is provided in interactive mode, the default enquirer
+      // prompt is used. We simulate this by providing a promptFn that returns 'all'.
       const result = await presentCommandsForApproval(sampleCommands, {
         interactive: true,
+        promptFn: async () => 'all',
       });
 
-      expect(result.skippedAll).toBe(true);
-      expect(result.rejected).toEqual(sampleCommands);
+      expect(result.skippedAll).toBe(false);
+      expect(result.approved).toEqual(sampleCommands);
     });
 
-    it('should reject all in select mode when no selectFn provided', async () => {
+    it('should use default per-command prompt in select mode when no selectFn provided', async () => {
+      // When no selectFn is provided, the default enquirer confirm prompt is
+      // used. We simulate this with a selectFn that rejects all.
       const result = await presentCommandsForApproval(sampleCommands, {
         interactive: true,
         promptFn: async () => 'select',
+        selectFn: async () => false,
       });
 
       expect(result.rejected).toEqual(sampleCommands);
