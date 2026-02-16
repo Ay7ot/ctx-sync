@@ -548,17 +548,17 @@ export function registerRestoreCommand(program: Command): void {
         console.log(formatMentalContext(result.mentalContext));
       }
 
-      // Display commands
+      // Display commands (only in non-interactive mode — interactive already showed them before the prompt)
       if (result.commandsPresented.length > 0) {
-        console.log('');
-        console.log(chalk.yellow('⚠️  The following commands will be executed:'));
-        console.log(formatCommandsForDisplay(result.commandsPresented));
-        console.log('');
-
         if (result.approval.skippedAll) {
+          console.log('');
+          console.log(chalk.yellow('⚠️  Commands that would be executed:'));
+          console.log(formatCommandsForDisplay(result.commandsPresented));
+          console.log('');
           console.log(chalk.dim('Skipped (non-interactive mode)'));
         } else {
           // Show execution results
+          console.log('');
           for (const cmd of result.executedCommands) {
             console.log(chalk.green(`   ✓ ${cmd}`));
           }

@@ -613,13 +613,15 @@ export function registerDockerCommand(program: Command): void {
         console.log(chalk.dim(`   Using project directory: ${result.localPath}`));
       }
 
-      console.log(chalk.yellow('\n⚠️  The following Docker commands will be executed:'));
-      console.log(formatCommandsForDisplay(result.commandsPresented));
-      console.log('');
-
       if (result.approval.skippedAll) {
+        // Only show command list in non-interactive mode (interactive already showed before prompt)
+        console.log(chalk.yellow('\n⚠️  Commands that would be executed:'));
+        console.log(formatCommandsForDisplay(result.commandsPresented));
+        console.log('');
         console.log(chalk.dim('Skipped (non-interactive mode)'));
       } else {
+        // Show execution results
+        console.log('');
         for (const cmd of result.executedCommands) {
           console.log(chalk.green(`   ✓ ${cmd}`));
         }

@@ -1,6 +1,6 @@
 {
   "name": "ctx-sync",
-  "version": "1.3.4",
+  "version": "1.3.5",
   "description": "Sync your complete development context across machines using Git",
   "type": "module",
   "main": "dist/index.js",

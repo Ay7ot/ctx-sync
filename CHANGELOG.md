@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.5] — 2026-02-16
+
+### Fixed
+- Duplicate command display in `restore` and `docker start` — commands were shown twice in interactive mode (once before the approval prompt and again after execution). Now shown only once before the prompt, with execution results displayed after.
+
 ## [1.3.4] — 2026-02-16
 
 ### Fixed
@@ -247,6 +252,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _No unreleased changes._
 
+[1.3.5]: https://github.com/ctx-sync/ctx-sync/releases/tag/v1.3.5
 [1.3.4]: https://github.com/ctx-sync/ctx-sync/releases/tag/v1.3.4
 [1.3.3]: https://github.com/ctx-sync/ctx-sync/releases/tag/v1.3.3
 [1.3.2]: https://github.com/ctx-sync/ctx-sync/releases/tag/v1.3.2
