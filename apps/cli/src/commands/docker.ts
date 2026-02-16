@@ -358,6 +358,12 @@ export async function executeDockerStart(
     };
   }
 
+  // Show command list before the approval prompt
+  if (commandsPresented.length > 0 && !options.noInteractive) {
+    console.log(formatCommandsForDisplay(commandsPresented));
+    console.log('');
+  }
+
   // Present for approval
   const approval = await presentCommandsForApproval(commandsPresented, {
     interactive: !options.noInteractive,

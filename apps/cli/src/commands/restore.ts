@@ -60,6 +60,8 @@ export interface RestoreOptions {
   promptFn?: (commands: PendingCommand[]) => Promise<'all' | 'none' | 'select'>;
   /** Override for the select function (for testing) */
   selectFn?: (cmd: PendingCommand, index: number) => Promise<boolean>;
+  /** Callback invoked before command approval prompt (used to stop spinners) */
+  onBeforeApproval?: () => void;
 }
 
 /** Result of a restore operation */
@@ -363,7 +365,17 @@ export async function executeRestore(
     localPath,
   );
 
-  // 5. Present commands for approval
+  // 5. Stop spinner and display context before approval prompt
+  if (options.onBeforeApproval) {
+    options.onBeforeApproval();
+  }
+
+  // Show command list before the approval prompt so the user knows what they're approving
+  if (commandsPresented.length > 0 && !options.noInteractive) {
+    console.log(formatCommandsForDisplay(commandsPresented));
+    console.log('');
+  }
+
   const approval = await presentCommandsForApproval(commandsPresented, {
     interactive: !options.noInteractive,
     promptFn: options.promptFn,
@@ -496,9 +508,14 @@ export function registerRestoreCommand(program: Command): void {
 
       const spinner = ora(options.noPull ? 'Decrypting state files...' : 'Pulling latest and decrypting...').start();
 
-      const result = await executeRestore(projectName, options);
+      options.onBeforeApproval = () => {
+        spinner.stop();
 
-      spinner.stop();
+        // Display project info before approval prompt
+        console.log('');
+      };
+
+      const result = await executeRestore(projectName, options);
 
       // Display pull result
       if (result.pulled) {
